@@ -1,0 +1,17 @@
+{
+  "name": "stacksync",
+  "version": "0.1.0",
+  "description": "Build and fix Stacksync syncs, workflows and genies from your AI app, with the Stacksync MCP server and skills.",
+  "author": {
+    "name": "Stacksync"
+  },
+  "homepage": "https://docs.stacksync.com/mcp",
+  "repository": "https://github.com/stacksyncdata/skills",
+  "license": "Apache-2.0",
+  "skills": ["./skills/", "./recipes/"],
+  "mcpServers": {
+    "stacksync": {
+      "url": "https://mcp.stacksync.com/mcp"
+    }
+  }
+}

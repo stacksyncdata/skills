@@ -1,0 +1,17 @@
+{
+  "name": "stacksync",
+  "owner": {
+    "name": "Stacksync"
+  },
+  "metadata": {
+    "description": "Stacksync skills and the Stacksync MCP server for Cursor.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "stacksync",
+      "source": ".",
+      "description": "Build and fix Stacksync syncs, workflows and genies from your AI app, with the Stacksync MCP server and skills."
+    }
+  ]
+}

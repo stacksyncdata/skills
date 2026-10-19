@@ -1,0 +1,29 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Start here",
+      "description": "Connect Stacksync to your AI app and plan a whole integration.",
+      "skills": ["getting-started", "enterprise-architect"]
+    },
+    {
+      "title": "Build",
+      "description": "Create, change and fix each part of Stacksync.",
+      "skills": [
+        "building-syncs", "building-workflows", "building-genies", "using-queues", "managing-variables",
+        "managing-knowledge-bases", "configuring-connections", "configuring-api-proxies", "organizing-folders"
+      ]
+    },
+    {
+      "title": "Fix",
+      "description": "Find out why a sync or workflow failed and put it right.",
+      "skills": ["troubleshooting-syncs", "troubleshooting-workflows"]
+    },
+    {
+      "title": "Extend",
+      "description": "Build what Stacksync does not have yet.",
+      "skills": ["building-connectors"]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# Each skill is reviewed by the team that owns its resource. Replace these comments with real
+# GitHub team handles once the teams exist in the stacksyncdata organization.
+#
+# Repository, checks and plugin files: platform engineering
+# skills/building-syncs/ and skills/troubleshooting-syncs/: sync team
+# skills/building-workflows/ and skills/troubleshooting-workflows/: workflows team
+# skills/building-genies/: genies team
+# recipes/: solutions team, plus one engineer

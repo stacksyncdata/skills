@@ -1,0 +1,15 @@
+{
+  "name": "stacksync",
+  "description": "Stacksync skills and the Stacksync MCP server for Claude Code.",
+  "owner": {
+    "name": "Stacksync",
+    "url": "https://www.stacksync.com"
+  },
+  "plugins": [
+    {
+      "name": "stacksync",
+      "source": "./",
+      "description": "Build and fix Stacksync syncs, workflows and genies from your AI app, with the Stacksync MCP server and skills."
+    }
+  ]
+}
