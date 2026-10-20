@@ -98,6 +98,11 @@ function readScalar(rawValue, lineNumber) {
   if (value.startsWith('[') || value.startsWith('{') || value === '|' || value === '>') {
     throw new FrontmatterError(`line ${lineNumber} uses a list, map or block value; write one plain string`);
   }
+  // In YAML an unquoted ": " starts a nested key and " #" starts a comment, so real YAML parsers
+  // (the skills CLI, skills.sh) reject the file or cut the value short. Such a value must be quoted.
+  if (/: |:$| #/.test(value)) {
+    throw new FrontmatterError(`line ${lineNumber} holds ": " or " #" without quotes; put the value in double quotes`);
+  }
   return value;
 }
 

@@ -216,6 +216,12 @@ test('a broken frontmatter is reported, not thrown', () => {
   assert.match(problemsFor(buildSkillText({ metadataLines: ['tools: [a, b]'] })).join(), /plain string/);
 });
 
+test('a value holding ": " must be quoted, as YAML parsers read it as a nested key', () => {
+  const description = 'Fixes syncs with one process: find the sync, then fix it. Use when a sync fails.';
+  assert.match(problemsFor(buildSkillText({ description })).join(), /without quotes/);
+  assert.deepEqual(problemsFor(buildSkillText({ description: `"${description}"` })), []);
+});
+
 test('every skill a skills.sh group lists is a published skill', () => {
   const listing = JSON.stringify({ groupings: [{ title: 'Guides', skills: ['building-syncs', 'missing-skill'] }] });
   const { problemsByFile } = validateRepository(createRepository({ 'skills/building-syncs/SKILL.md': buildSkillText(), 'skills.sh.json': listing }));

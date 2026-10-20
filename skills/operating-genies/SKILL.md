@@ -1,6 +1,6 @@
 ---
 name: operating-genies
-description: Runs and watches Stacksync Genies: asks a Genie to do or answer something, passes the person's decision on an action the Genie paused on for approval, reads conversations, steps, errors and cost, and creates, pauses or deletes scheduled and one-time Genie tasks. Use when someone wants to ask or test a Genie, approve or reject a Genie action, see what a Genie did or what it cost, have a Genie do something every morning, every week or once at a set time, or find out why a Genie or its task failed.
+description: "Runs and watches Stacksync Genies: asks a Genie to do or answer something, passes the person's decision on an action the Genie paused on for approval, reads conversations, steps, errors and cost, and creates, pauses or deletes scheduled and one-time Genie tasks. Use when someone wants to ask or test a Genie, approve or reject a Genie action, see what a Genie did or what it cost, have a Genie do something every morning, every week or once at a set time, or find out why a Genie or its task failed."
 license: Apache-2.0
 metadata:
   type: guide
