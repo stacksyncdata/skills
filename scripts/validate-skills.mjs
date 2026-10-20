@@ -311,6 +311,7 @@ export function validateRepository(repositoryRoot) {
   const repositoryRules = loadRepositoryRules(repositoryRoot);
   const problemsByFile = new Map();
   const warningsByFile = new Map();
+  const publishedNames = findPublishedNames(repositoryRoot, skillFiles);
   for (const misplacedPath of findMisplacedSkillFiles(repositoryRoot, PUBLISHED_FOLDERS)) {
     problemsByFile.set(displayPath(repositoryRoot, misplacedPath), ['a SKILL.md belongs at skills/<name>/SKILL.md']);
   }
@@ -319,7 +320,7 @@ export function validateRepository(repositoryRoot) {
     let warnings = [];
     try {
       const skill = readSkill(skillFile);
-      problems = findSkillProblems(skill, repositoryRules);
+      problems = [...findSkillProblems(skill, repositoryRules), ...findUnknownSkillMentions(skill.body, publishedNames)];
       warnings = findSkillWarnings(skill);
     } catch (error) {
       if (!(error instanceof FrontmatterError)) throw error;
@@ -334,18 +335,36 @@ export function validateRepository(repositoryRoot) {
   return { checkedCount: skillFiles.length, problemsByFile, warningsByFile };
 }
 
+// The names of the skill folders under skills/: what skills_get serves
+function findPublishedNames(repositoryRoot, skillFiles) {
+  return new Set(
+    skillFiles.map(({ path }) => displayPath(repositoryRoot, path).split('/')).filter((parts) => parts[0] === 'skills').map((parts) => parts[1]),
+  );
+}
+
 // The skills.sh groups are written by hand, so a renamed or unpublished skill would leave a dead entry on the
 // public listing; every name must be a published skill folder.
 export function findListingProblems(repositoryRoot, skillFiles) {
   const listingPath = join(repositoryRoot, LISTING_FILE);
   if (!existsSync(listingPath)) return [];
-  const publishedNames = new Set(
-    skillFiles.map(({ path }) => displayPath(repositoryRoot, path).split('/')).filter((parts) => parts[0] === 'skills').map((parts) => parts[1]),
-  );
+  const publishedNames = findPublishedNames(repositoryRoot, skillFiles);
   const listing = JSON.parse(readFileSync(listingPath, 'utf8'));
   return (listing.groupings ?? []).flatMap(({ title, skills }) =>
     skills.filter((name) => !publishedNames.has(name)).map((name) => `group "${title}" lists "${name}", which is not a published skill`),
   );
+}
+
+// A guide that sends the reader to another skill by name must name one that exists: skills_get refuses an unknown
+// name, and the model is left guessing. Only phrasings that point at a skill are checked ("use `x`", "the `x` guide"),
+// so a hyphenated package or command in backticks is not taken for a skill.
+const SKILL_MENTION_PATTERNS = [
+  /\b(?:use|see|read|follow)\s+(?:the\s+)?`([a-z0-9]+(?:-[a-z0-9]+)+)`/gi,
+  /`([a-z0-9]+(?:-[a-z0-9]+)+)`\s+(?:guide|skill|playbook|use case|process)\b/gi,
+];
+
+export function findUnknownSkillMentions(body, publishedNames) {
+  const mentionedNames = new Set(SKILL_MENTION_PATTERNS.flatMap((pattern) => [...body.matchAll(pattern)].map((match) => match[1])));
+  return [...mentionedNames].filter((name) => !publishedNames.has(name)).map((name) => `mentions the skill "${name}", which is not a published skill`);
 }
 
 if (isRunDirectly(import.meta.url)) {

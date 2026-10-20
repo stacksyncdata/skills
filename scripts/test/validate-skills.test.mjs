@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  validateRepository, MAXIMUM_BODY_LINES, MAXIMUM_DESCRIPTION_LENGTH, MAXIMUM_GUIDED_BODY_LINES,
+  validateRepository, findUnknownSkillMentions, MAXIMUM_BODY_LINES, MAXIMUM_DESCRIPTION_LENGTH, MAXIMUM_GUIDED_BODY_LINES,
 } from '../validate-skills.mjs';
 import { REPOSITORY_ROOT } from '../lib/skill-files.mjs';
 import {
@@ -220,4 +220,17 @@ test('every skill a skills.sh group lists is a published skill', () => {
   const listing = JSON.stringify({ groupings: [{ title: 'Guides', skills: ['building-syncs', 'missing-skill'] }] });
   const { problemsByFile } = validateRepository(createRepository({ 'skills/building-syncs/SKILL.md': buildSkillText(), 'skills.sh.json': listing }));
   assert.deepEqual(problemsByFile.get('skills.sh.json'), ['group "Guides" lists "missing-skill", which is not a published skill']);
+});
+
+test('a guide that points at a skill that does not exist fails; a hyphenated package does not', () => {
+  const publishedNames = new Set(['building-workflows', 'fixing-sync-issues']);
+  const body = [
+    'Use the `enterprise-architect` guide when it is available.',
+    'Then follow the `fixing-sync-issues` process, or see `building-workflows`.',
+    'Packages: `dayjs`, `live-plugin-manager`.',
+  ].join('\n');
+
+  assert.deepEqual(findUnknownSkillMentions(body, publishedNames), [
+    'mentions the skill "enterprise-architect", which is not a published skill',
+  ]);
 });
