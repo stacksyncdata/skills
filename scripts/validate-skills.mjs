@@ -12,52 +12,40 @@ export const MAXIMUM_NAME_LENGTH = 64;
 export const MAXIMUM_DESCRIPTION_LENGTH = 1024;
 export const MAXIMUM_COMPATIBILITY_LENGTH = 500;
 export const MAXIMUM_BODY_LINES = 500;
-// Playbooks and use cases are read start to finish while the person waits, so they stay short.
-export const MAXIMUM_GUIDED_BODY_LINES = 200;
+// A solution is read start to finish while the person waits, so it stays short.
+export const MAXIMUM_SOLUTION_BODY_LINES = 250;
 export const MINIMUM_EVALS = 3;
-export const SKILL_TYPES = ['guide', 'playbook', 'usecase'];
+export const SKILL_TYPES = ['resource', 'blueprint', 'solution', 'runbook'];
 // The public skills.sh listing, whose groups name skills by folder
 export const LISTING_FILE = 'skills.sh.json';
 export const SKILL_STATUSES = ['active', 'deprecated'];
 export const REQUIRED_METADATA = ['type', 'version', 'owner'];
 export const OPTIONAL_METADATA = ['areas', 'tools', 'status', 'superseded_by'];
 export const REQUIRED_METADATA_BY_TYPE = {
-  guide: [],
-  playbook: ['resources', 'verified_on'],
-  'usecase': [
-    'source_app', 'destination_app', 'objects', 'direction', 'resources', 'trigger', 'frequency', 'volume_tested',
-    'verified_on',
-  ],
+  resource: ['resource'],
+  blueprint: ['resources'],
+  solution: ['blueprints', 'apps', 'verified_on'],
+  runbook: [],
 };
-export const OPTIONAL_METADATA_BY_TYPE = { guide: [], playbook: [], 'usecase': ['playbooks'] };
+export const OPTIONAL_METADATA_BY_TYPE = { resource: [], blueprint: ['verified_on'], solution: [], runbook: [] };
 const KNOWN_FRONTMATTER_KEYS = ['name', 'description', 'license', 'compatibility', 'metadata'];
-// Playbooks and use cases are guided builds: a fixed MCP block first, fixed sections in order,
-// evals and a verified date. A playbook may add the optional sections anywhere.
+// Every type has fixed "## " sections in a fixed order, so an AI app finds the same answer under the same heading
+// in every skill of that type.
 export const SECTIONS_BY_TYPE = {
-  playbook: {
-    required: [
-      'Before you start', 'When to use this playbook', 'How the resources connect', 'Build steps',
-      'Settings that matter', 'When something goes wrong', 'Check it works', 'Limits',
-    ],
-    optional: ['Questions to ask first', 'Review against the workspace', 'Rules'],
-  },
-  'usecase': {
-    required: [
-      'Before you start', 'What this builds', 'Field mapping', 'Build steps', 'When something goes wrong',
-      'Check it works', 'Limits',
-    ],
-    optional: [],
-  },
+  resource: [
+    'What it is', 'When to use it', 'Connects to', 'Operations', 'Defaults and limits', 'Rules', 'Common problems',
+  ],
+  blueprint: ['Use it when', 'Why this design', 'Shape', 'Build it', 'Variations', 'Check before going live', 'Rules'],
+  solution: ['Outcome', 'Blueprint', 'What was built', 'Build log', 'Proof', 'Adapt it'],
+  runbook: ['Use it when', 'Before you start', 'Steps', 'Rules', 'When the MCP cannot do it'],
 };
-const WHEN_TO_USE_PLAYBOOK_SECTION = 'When to use this playbook';
-export const RESOURCES_BY_TYPE = {
-  playbook: ['sync', 'workflow', 'queue', 'genie', 'variable', 'knowledge_base', 'api_proxy', 'connection'],
-  'usecase': ['sync', 'workflow', 'queue', 'genie', 'variable', 'knowledge_base', 'api_proxy'],
+// The header row each section's table must have, written as its cells.
+export const TABLE_HEADERS = {
+  'resource:Connects to': ['Resource', 'How they link', 'Tool'],
+  'resource:Common problems': ['What the person sees', 'Why', 'What to do'],
+  'blueprint:Shape': ['Step', 'Resource', 'Links to', 'How'],
 };
-export const USECASE_DIRECTIONS = ['one-way', 'two-way'];
-export const USECASE_TRIGGERS = ['change detection', 'webhook', 'schedule', 'email'];
 export const APPS_FILE = join('data', 'apps.json');
-export const BEFORE_YOU_START_FILE = join(TEMPLATE_FOLDER, 'usecase', 'before-you-start.md');
 export const EVALS_FILE = join('evals', 'evals.json');
 // The banned word is spelled in two parts so this file passes its own check.
 const BANNED_WORDS = ['ki' + 'nd'];
@@ -68,9 +56,8 @@ const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 // A GitHub team, for example @stacksyncdata/ai-team, so CODEOWNERS and the owner agree.
 const OWNER_PATTERN = /^@[A-Za-z0-9-]+\/[A-Za-z0-9_-]+$/;
-// "Syncs orders from Shopify to sales orders in NetSuite with Stacksync. Use when …"
-const USECASE_DESCRIPTION_PATTERN = /^[A-Z][a-z]+s\b.* with Stacksync\. Use when /;
-
+const NUMBERED_LINE_PATTERN = /^\d+\.\s/;
+const SKILL_NAME_IN_BACKTICKS_PATTERN = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/g;
 export function findSkillProblems(skill, repositoryRules = null) {
   const problems = [];
   const { frontmatter, body, skillName, text } = skill;
@@ -145,8 +132,13 @@ function findMetadataProblems(skill, repositoryRules) {
   for (const key of REQUIRED_METADATA_BY_TYPE[type]) {
     if (!(key in metadata)) problems.push(`metadata.${key} is required for type ${type}`);
   }
-  if (type in SECTIONS_BY_TYPE) problems.push(...findGuidedBuildProblems(skill, repositoryRules));
-  if (type === 'usecase') problems.push(...findUseCaseProblems(skill, repositoryRules));
+  if (metadata.verified_on !== undefined && !isPastOrPresentDate(metadata.verified_on)) {
+    problems.push('metadata.verified_on must be a real date written YYYY-MM-DD, not in the future');
+  }
+  if (status !== 'deprecated') problems.push(...findSectionProblems(skill, repositoryRules));
+  // A template names example skills that need not be published yet; only published skills must link to real ones.
+  if (skill.folder !== TEMPLATE_FOLDER) problems.push(...findLinkedSkillProblems(skill, repositoryRules));
+  if (type === 'solution') problems.push(...findSolutionProblems(skill, repositoryRules));
   return problems;
 }
 
@@ -169,98 +161,166 @@ export function findSkillWarnings(skill) {
   return warnings;
 }
 
-// repositoryRules holds what a playbook or use case is compared with: the app slugs from
-// data/apps.json, the names of published playbooks and the exact "Before you start" block.
-export function findGuidedBuildProblems(skill, repositoryRules) {
-  if (!repositoryRules) return ['repository rules are not loaded'];
-  const problems = [];
-  const { body, path } = skill;
-  const metadata = skill.frontmatter.metadata;
-  const type = metadata.type;
-
-  if (metadata.resources !== undefined) {
-    const allowedResources = RESOURCES_BY_TYPE[type];
-    const resources = splitWords(metadata.resources);
-    if (resources.length === 0 || resources.some((resource) => !allowedResources.includes(resource))) {
-      problems.push(`metadata.resources must list only: ${allowedResources.join(', ')}`);
-    }
-  }
-  if (metadata.verified_on !== undefined && !isPastOrPresentDate(metadata.verified_on)) {
-    problems.push('metadata.verified_on must be a real date written YYYY-MM-DD, not in the future');
-  }
-
-  const bodyLineCount = body.split('\n').length;
-  if (bodyLineCount > MAXIMUM_GUIDED_BODY_LINES) {
-    problems.push(`body is ${bodyLineCount} lines, over ${MAXIMUM_GUIDED_BODY_LINES} for a ${type}`);
-  }
-
-  const { required, optional } = SECTIONS_BY_TYPE[type];
-  const sections = splitSections(body);
+// The sections are exactly the type's sections, in order, and each holds the structure its readers rely on.
+export function findSectionProblems(skill, repositoryRules) {
+  const type = skill.frontmatter.metadata.type;
+  const required = SECTIONS_BY_TYPE[type];
+  const sections = splitSections(skill.body);
   const headings = sections.map((section) => section.heading);
-  const requiredHeadings = headings.filter((heading) => required.includes(heading));
-  const unknownHeadings = headings.filter((heading) => !required.includes(heading) && !optional.includes(heading));
-  if (requiredHeadings.join('\n') !== required.join('\n') || unknownHeadings.length > 0) {
-    const optionalNote = optional.length > 0 ? `, plus optionally ${optional.join(', ')}` : '';
-    problems.push(`sections must be, in order: ${required.join(', ')}${optionalNote}; found: ${headings.join(', ')}`);
+  if (headings.join('\n') !== required.join('\n')) {
+    return [`a ${type}'s sections must be exactly, in order: ${required.join(', ')}; found: ${headings.join(', ') || 'none'}`];
   }
-  if (sections[0]?.heading === required[0] && sections[0].text !== repositoryRules.beforeYouStartText) {
-    problems.push(`"Before you start" must equal ${BEFORE_YOU_START_FILE} word for word`);
+  const problems = [];
+  const sectionText = (heading) => sectionContent(sections.find((section) => section.heading === heading));
+  for (const [key, header] of Object.entries(TABLE_HEADERS)) {
+    const [tableType, heading] = key.split(':');
+    if (tableType !== type) continue;
+    const tableHeaders = findTableHeaders(sectionText(heading));
+    if (!tableHeaders.some((cells) => cells.join('|') === header.join('|'))) {
+      problems.push(`"## ${heading}" must hold a table whose header is | ${header.join(' | ')} |`);
+    }
   }
-  // The reader decides from this section whether the playbook fits, and only a threshold decides.
-  const whenToUse = sections.find((section) => section.heading === WHEN_TO_USE_PLAYBOOK_SECTION);
-  if (type === 'playbook' && whenToUse && !/\d/.test(whenToUse.text.replace(/^.*\n/, ''))) {
-    problems.push(`"${WHEN_TO_USE_PLAYBOOK_SECTION}" must give a number, for example "more than 100 changes per minute"`);
+  if (type === 'resource') problems.push(...findOperationProblems(sectionText('Operations')));
+  if (type === 'blueprint') {
+    // The reader decides from this section whether the blueprint fits, and only a threshold decides.
+    if (!/\d/.test(sectionText('Use it when'))) {
+      problems.push('"## Use it when" must give a number, for example "more than 100 changes per minute"');
+    }
+    if (!/^```/m.test(sectionText('Shape'))) problems.push('"## Shape" must hold a text diagram in a code block');
+    if (findNumberedItems(sectionText('Build it')).length === 0) problems.push('"## Build it" must be a numbered list');
   }
-
-  problems.push(...findEvalsProblems(join(dirname(path), EVALS_FILE)));
+  if (type === 'runbook') {
+    const steps = findNumberedItems(sectionText('Steps'));
+    if (steps.length === 0) problems.push('"## Steps" must be a numbered list');
+    steps.forEach((step, index) => {
+      if (!/^\s*Check:/m.test(step)) problems.push(`step ${index + 1} of "## Steps" must end with a "Check:" line`);
+    });
+  }
+  if (type === 'solution' && repositoryRules && skill.folder !== TEMPLATE_FOLDER) {
+    const linkedBlueprints = findNamesInBackticks(sectionText('Blueprint')).filter((name) => repositoryRules.blueprintNames.has(name));
+    if (linkedBlueprints.length === 0) problems.push('"## Blueprint" must name the published blueprint it follows, in backticks');
+  }
   return problems;
 }
 
-// The name and description patterns apply to published use cases only, because the template keeps
-// its own name and an explanatory description.
-export function findUseCaseProblems(skill, repositoryRules) {
+// Each operation is one "### " block: when to use it, the tools in call order, then numbered steps.
+export function findOperationProblems(operationsText) {
+  const blocks = splitSubsections(operationsText);
+  if (blocks.length === 0) return ['"## Operations" must hold at least one "### <Operation>" block'];
+  const problems = [];
+  for (const { heading, text } of blocks) {
+    if (!/\bUse when\b/.test(text)) problems.push(`operation "${heading}" must say "Use when …"`);
+    if (!/^\s*Tools:/m.test(text)) problems.push(`operation "${heading}" must list its tools on a "Tools:" line`);
+    if (findNumberedItems(text).length === 0) problems.push(`operation "${heading}" must have numbered steps`);
+  }
+  return problems;
+}
+
+// Metadata and tables that link skills must name published skills of the right type, so skills_get never refuses
+// a name the model was sent to.
+export function findLinkedSkillProblems(skill, repositoryRules) {
   if (!repositoryRules) return ['repository rules are not loaded'];
   const problems = [];
-  const { frontmatter, folder } = skill;
-  const { source_app: sourceApp, destination_app: destinationApp, direction, trigger } = frontmatter.metadata;
-  const { appSlugs, playbookNames } = repositoryRules;
-
-  for (const [key, slug] of [['source_app', sourceApp], ['destination_app', destinationApp]]) {
-    if (typeof slug === 'string' && !appSlugs.has(slug)) problems.push(`metadata.${key} "${slug}" is not in ${APPS_FILE}`);
-  }
-  if (direction !== undefined && !USECASE_DIRECTIONS.includes(direction)) {
-    problems.push(`metadata.direction must be one of: ${USECASE_DIRECTIONS.join(', ')}`);
-  }
-  if (trigger !== undefined && !USECASE_TRIGGERS.includes(trigger)) {
-    problems.push(`metadata.trigger must be one of: ${USECASE_TRIGGERS.join(', ')}`);
-  }
-  for (const playbookName of splitWords(frontmatter.metadata.playbooks)) {
-    if (!playbookNames.has(playbookName)) {
-      problems.push(`metadata.playbooks names "${playbookName}", which is not a published playbook`);
+  const { metadata } = skill.frontmatter;
+  const { resourceNames, blueprintNames, appSlugs } = repositoryRules;
+  if (metadata.type === 'blueprint') {
+    const resources = splitWords(metadata.resources);
+    if (metadata.resources !== undefined && resources.length < 2) problems.push('metadata.resources must name at least two resource skills');
+    for (const name of resources) {
+      if (!resourceNames.has(name)) problems.push(`metadata.resources names "${name}", which is not a published resource skill`);
     }
   }
-
-  if (folder !== TEMPLATE_FOLDER) {
-    const expectedNames = buildUseCaseNamePatterns(sourceApp, destinationApp, direction);
-    if (!expectedNames.some((pattern) => pattern.test(frontmatter.name))) {
-      problems.push(direction === 'two-way'
-        ? 'name must be <a>-and-<b>-<object>-two-way-sync, using source_app and destination_app'
-        : 'name must be <source_app>-to-<destination_app>-<object>');
+  if (metadata.type === 'solution') {
+    for (const name of splitWords(metadata.blueprints)) {
+      if (!blueprintNames.has(name)) problems.push(`metadata.blueprints names "${name}", which is not a published blueprint`);
     }
-    if (typeof frontmatter.description === 'string' && !USECASE_DESCRIPTION_PATTERN.test(frontmatter.description)) {
-      problems.push('description must read "<Verb>s … with Stacksync. Use when …" in the third person');
+    for (const slug of splitWords(metadata.apps)) {
+      if (!appSlugs.has(slug)) problems.push(`metadata.apps names "${slug}", which is not in ${APPS_FILE}`);
+    }
+  }
+  const sections = splitSections(skill.body);
+  const tableColumns = { resource: ['Connects to', 'Resource'], blueprint: ['Shape', 'Resource'] }[metadata.type];
+  if (tableColumns) {
+    const [heading, column] = tableColumns;
+    for (const name of findTableColumnNames(sectionContent(sections.find((section) => section.heading === heading)), column)) {
+      if (!resourceNames.has(name)) problems.push(`"## ${heading}" names "${name}", which is not a published resource skill`);
     }
   }
   return problems;
 }
 
-function buildUseCaseNamePatterns(sourceApp, destinationApp, direction) {
-  const object = '[a-z0-9]+(-[a-z0-9]+)*';
-  if (direction === 'two-way') {
-    return [[sourceApp, destinationApp], [destinationApp, sourceApp]]
-      .map(([first, second]) => new RegExp(`^${first}-and-${second}-${object}-two-way-sync$`));
+// A solution is proven live, so it carries its test prompts.
+export function findSolutionProblems(skill) {
+  const problems = [];
+  const bodyLineCount = skill.body.split('\n').length;
+  if (bodyLineCount > MAXIMUM_SOLUTION_BODY_LINES) {
+    problems.push(`body is ${bodyLineCount} lines, over ${MAXIMUM_SOLUTION_BODY_LINES} for a solution`);
   }
-  return [new RegExp(`^${sourceApp}-to-${destinationApp}-${object}$`)];
+  if (splitWords(skill.frontmatter.metadata.apps).length < 2) problems.push('metadata.apps must name at least two apps');
+  problems.push(...findEvalsProblems(join(dirname(skill.path), EVALS_FILE)));
+  return problems;
+}
+
+// A section's text without its heading line
+function sectionContent(section) {
+  return section ? section.text.replace(/^.*\n?/, '') : '';
+}
+
+// Splits a section into its "### " blocks, ignoring headings inside fenced code blocks.
+export function splitSubsections(text) {
+  const blocks = [];
+  let isInCodeBlock = false;
+  for (const line of text.split('\n')) {
+    if (line.startsWith('```')) isInCodeBlock = !isInCodeBlock;
+    if (!isInCodeBlock && line.startsWith('### ')) blocks.push({ heading: line.slice(4).trim(), lines: [] });
+    else if (blocks.length > 0) blocks.at(-1).lines.push(line);
+  }
+  return blocks.map(({ heading, lines }) => ({ heading, text: lines.join('\n') }));
+}
+
+// The top level numbered items of a list, each with the lines that follow it up to the next item.
+export function findNumberedItems(text) {
+  const items = [];
+  let isInCodeBlock = false;
+  for (const line of text.split('\n')) {
+    if (line.trimStart().startsWith('```')) isInCodeBlock = !isInCodeBlock;
+    if (!isInCodeBlock && NUMBERED_LINE_PATTERN.test(line)) items.push([line]);
+    else if (items.length > 0) items.at(-1).push(line);
+  }
+  return items.map((lines) => lines.join('\n'));
+}
+
+function splitTableRow(line) {
+  return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
+}
+
+function isTableSeparator(line) {
+  return /^\s*\|[\s:|-]+\|\s*$/.test(line ?? '');
+}
+
+// The header row of every table in the text, as its cells
+export function findTableHeaders(text) {
+  const lines = text.split('\n');
+  return lines.flatMap((line, index) => (line.trim().startsWith('|') && isTableSeparator(lines[index + 1]) ? [splitTableRow(line)] : []));
+}
+
+// The names in backticks in one column of the first table whose header holds that column
+function findTableColumnNames(text, column) {
+  const lines = text.split('\n');
+  const headerIndex = lines.findIndex((line, index) => line.trim().startsWith('|') && isTableSeparator(lines[index + 1]));
+  if (headerIndex === -1) return [];
+  const columnIndex = splitTableRow(lines[headerIndex]).indexOf(column);
+  if (columnIndex === -1) return [];
+  const names = [];
+  for (const line of lines.slice(headerIndex + 2)) {
+    if (!line.trim().startsWith('|')) break;
+    names.push(...findNamesInBackticks(splitTableRow(line)[columnIndex] ?? ''));
+  }
+  return names;
+}
+
+function findNamesInBackticks(text) {
+  return [...text.matchAll(SKILL_NAME_IN_BACKTICKS_PATTERN)].map((match) => match[1]);
 }
 
 export function isPastOrPresentDate(value) {
@@ -291,19 +351,20 @@ function isFilledString(value) {
 
 export function loadRepositoryRules(repositoryRoot) {
   const appsPath = join(repositoryRoot, APPS_FILE);
-  const beforeYouStartPath = join(repositoryRoot, BEFORE_YOU_START_FILE);
   const appSlugs = existsSync(appsPath) ? new Set(readJsonFile(appsPath).apps.map((app) => app.slug)) : new Set();
-  const beforeYouStartText = existsSync(beforeYouStartPath) ? readFileSync(beforeYouStartPath, 'utf8').trim() : null;
-  const playbookNames = new Set();
+  const resourceNames = new Set();
+  const blueprintNames = new Set();
   for (const skillFile of findSkillFiles(repositoryRoot, PUBLISHED_FOLDERS)) {
     try {
-      if (readSkill(skillFile).frontmatter.metadata?.type === 'playbook') playbookNames.add(skillFile.skillName);
+      const type = readSkill(skillFile).frontmatter.metadata?.type;
+      if (type === 'resource') resourceNames.add(skillFile.skillName);
+      if (type === 'blueprint') blueprintNames.add(skillFile.skillName);
     } catch (error) {
       // The skill's own validation reports a broken frontmatter.
       if (!(error instanceof FrontmatterError)) throw error;
     }
   }
-  return { appSlugs, beforeYouStartText, playbookNames };
+  return { appSlugs, resourceNames, blueprintNames };
 }
 
 export function validateRepository(repositoryRoot) {
@@ -354,12 +415,13 @@ export function findListingProblems(repositoryRoot, skillFiles) {
   );
 }
 
-// A guide that sends the reader to another skill by name must name one that exists: skills_get refuses an unknown
-// name, and the model is left guessing. Only phrasings that point at a skill are checked ("use `x`", "the `x` guide"),
+// A skill that sends the reader to another skill by name must name one that exists: skills_get refuses an unknown
+// name, and the model is left guessing. Only phrasings that point at a skill are checked ("use `x`", "the `x` resource"),
 // so a hyphenated package or command in backticks is not taken for a skill.
 const SKILL_MENTION_PATTERNS = [
   /\b(?:use|see|read|follow)\s+(?:the\s+)?`([a-z0-9]+(?:-[a-z0-9]+)+)`/gi,
-  /`([a-z0-9]+(?:-[a-z0-9]+)+)`\s+(?:guide|skill|playbook|use case|process)\b/gi,
+  /`([a-z0-9]+(?:-[a-z0-9]+)*)`\s+(?:skill|resource|blueprint|solution|runbook)\b/gi,
+  /\bthe\s+(?:skill|resource|blueprint|solution|runbook)\s+`([a-z0-9]+(?:-[a-z0-9]+)*)`/gi,
 ];
 
 export function findUnknownSkillMentions(body, publishedNames) {

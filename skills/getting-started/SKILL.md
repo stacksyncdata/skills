@@ -1,102 +1,127 @@
 ---
 name: getting-started
-description: Explains what Stacksync does, connects the Stacksync MCP server to an AI app, and sets the order and the rules for building in a live Stacksync workspace. Use when someone is new to Stacksync, asks what Stacksync can do, wants to connect Stacksync to their AI app, or asks where to start with syncs, workflows, Genies, queues, variables, knowledge bases or API proxies.
+description: Connects the Stacksync MCP server to an AI app, picks the workspace and region, lists the skills and routes each request to the resource skill, blueprint or runbook that covers it. Use when someone is new to Stacksync, asks what Stacksync can do, wants to connect Stacksync to their AI app, or does not know where to start.
 license: Apache-2.0
 metadata:
-  type: guide
+  type: runbook
   version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "onboarding"
-  tools: "workspaces_list workspaces_get connections_list connections_get connections_create connectors_list connectors_get syncs_list workflows_list genies_list queues_list variables_list knowledge_bases_list api_proxies_list skills_list skills_get"
+  tools: "workspaces_list workspaces_get skills_list skills_get connections_list"
 ---
 
-## When to use
+## Use it when
 
-Read this guide first in any conversation about Stacksync. It answers "what is Stacksync", "how do
-I connect it to my AI app" and "where do I start". For a specific build, it points to the guide
-that covers it (see "Which guide to read").
-
-## What Stacksync is
+Read this first in any conversation about Stacksync. It answers "what is Stacksync", "how do I
+connect it to my AI app" and "where do I start", then hands over to the skill that does the work.
 
 Stacksync connects the apps and databases a business runs on and automates the work between them.
-The parts, in the words the web app uses:
+In the words the web app uses: **connections** sign in to the person's apps; **syncs** keep
+records equal between two apps, one way or both; **workflows** run steps when a record changes, a
+webhook or email arrives, or a schedule fires; **queues** batch work for a workflow; **variables**
+hold values and secrets workflows read; **Genies** are AI agents people talk to in Slack,
+Microsoft Teams or email; **knowledge bases** hold documents a Genie answers from; **API proxies**
+put a managed API in front of an app.
 
-| Part | What it does |
-| --- | --- |
-| Connections | Signed in accounts of the person's apps and databases, such as a CRM, an ERP or a Postgres database. Every other part uses them |
-| Syncs | Keep records equal between two apps. A change on one side is copied to the other, in one direction or both (two-way sync) |
-| Workflows | Run steps in order when something happens: a record changes, a webhook arrives, an email comes in or a schedule fires |
-| Queues | Hold work items so a workflow can process a large number of changes at a steady pace |
-| Variables | Named values, such as an account ID or a threshold, that workflows read at run time |
-| Genies | AI agents in the workspace. Each has instructions and skills built on the workspace's connections, and people talk to it in Slack, Microsoft Teams or email |
-| Knowledge bases | Documents a Genie reads to answer questions about the business |
-| API proxies | A managed API in front of an app, so other software can read and write that app through Stacksync |
+## Before you start
 
-## Connect the Stacksync MCP server
+- The person has a Stacksync account and can sign in to the web app.
+- Their AI app supports remote MCP servers over HTTP with OAuth sign in.
 
-The Stacksync MCP server does the work in the person's account, as them, with the same access
-they have in the web app.
+## Steps
 
-- Server URL: `https://mcp.stacksync.com/mcp`
-- Sign in: the AI app opens a Stacksync sign in page (OAuth). No API key is needed, so none is
-  ever pasted into the chat.
-- Check it works: call `workspaces_list`. If the person has more than 1 workspace, ask which one to
-  work in and use it for every later call.
+1. **Connect the Stacksync MCP server.** Server URL: `https://mcp.stacksync.com/mcp`. Sign in
+   happens on a Stacksync page (OAuth); no API key is pasted into the chat. The server acts as the
+   person, with the same access they have in the web app.
 
-| AI app | How to add it |
-| --- | --- |
-| Claude and claude.ai | Settings > Connectors > Add custom connector, with the URL above |
-| Claude Code | `claude mcp add --transport http stacksync https://mcp.stacksync.com/mcp` |
-| Codex | `codex mcp add stacksync --url https://mcp.stacksync.com/mcp` |
-| Cursor | `"stacksync": { "url": "https://mcp.stacksync.com/mcp" }` under `mcpServers` in `.cursor/mcp.json` |
-| VS Code | `"stacksync": { "type": "http", "url": "https://mcp.stacksync.com/mcp" }` under `servers` in `.vscode/mcp.json` |
+   | AI app | How to add it |
+   | --- | --- |
+   | Claude and claude.ai | Settings > Connectors > Add custom connector, with the URL above |
+   | Claude Code | `claude mcp add --transport http stacksync https://mcp.stacksync.com/mcp` |
+   | Codex | `codex mcp add stacksync --url https://mcp.stacksync.com/mcp` |
+   | Cursor | `"stacksync": { "url": "https://mcp.stacksync.com/mcp" }` under `mcpServers` in `.cursor/mcp.json` |
+   | VS Code | `"stacksync": { "type": "http", "url": "https://mcp.stacksync.com/mcp" }` under `servers` in `.vscode/mcp.json` |
 
-## Build order
+   Check: the AI app lists Stacksync tools such as `workspaces_list`.
+2. **Pick the workspace and region.** Call `workspaces_list` (see `workspaces`). If the person has
+   more than 1 workspace, ask which one and pass its `workspace_id` to every later call. Resources
+   live in a region: `besg` (Europe) or `usnv` (United States). List tools take `region` `all`;
+   pass the resource's own `region` to every call on it.
+   Check: one `workspace_id` is chosen and the person recognises the workspace name.
+3. **List the skills.** Call `skills_list` for every skill with its type and when to use it, and
+   `skills_get` with a name to read one the AI app does not have installed.
+   Check: `skills_list` returned the skills named in step 4.
+4. **Route the request.** Discover before building: list what exists with the resource's `_list`
+   tool and read the closest match with its `_get` tool, because a second copy of a sync or
+   workflow writes the same records twice. Then hand over:
+   - **One operation on one resource** (create, change, run, delete, read): the resource skill.
 
-Build in this order, because each step uses what the step before it made.
+     | Resource | Skill |
+     | --- | --- |
+     | Workspaces, members, roles, access | `workspaces` |
+     | Folders, finding a resource by name | `folders` |
+     | Connections to apps and databases | `connections` |
+     | The app catalog: apps, actions, triggers, running one app action now | `connectors` |
+     | Syncs, sync issues, sync event triggers, sync webhooks | `syncs` |
+     | Workflows, triggers, steps, code steps, runs, replay, deploy | `workflows` |
+     | Genies, their tasks, access, approvals, asking a Genie | `genies` |
+     | Queues | `queues` |
+     | Variables and secrets | `variables` |
+     | API proxies | `api-proxies` |
+     | Knowledge bases | `knowledge-bases` |
+     | Files in the workspace | `files` |
+     | Hosted apps, databases, storage and internal APIs | `internal-apps` |
 
-1. **Connections.** Every sync, workflow step and Genie skill runs through a connection. Check
-   `connections_list` first; create only what is missing.
-2. **Syncs and variables.** Syncs keep the base data equal between apps; variables hold the values
-   workflows will read.
-3. **Workflows and queues.** Workflows act on synced data and on events; a queue goes in front of
-   a workflow when changes arrive in bursts larger than it should process at once.
-4. **Genies.** A Genie's skills call the connections and workflows built above, so it comes last.
+   - **Build something that combines resources**: the blueprint that matches.
+
+     | The person wants | Blueprint |
+     | --- | --- |
+     | Act on every record change in an app | `react-to-each-record-change` |
+     | Process sync changes in batches | `batch-sync-changes-through-a-queue` |
+     | Enrich records after they sync | `enrich-records-after-a-sync` |
+     | Turn incoming emails into records | `inbound-email-to-records` |
+     | Turn incoming webhooks into records | `inbound-webhook-to-records` |
+     | Run work on a schedule | `scheduled-workflow` |
+     | Keep two apps equal both ways | `two-way-sync-between-apps` |
+     | Stay under an app's write limits | `throttle-writes-with-a-queue` |
+     | A Genie that answers email from documents | `knowledge-grounded-email-genie` |
+     | A Genie that does a job on a schedule | `scheduled-genie-task` |
+     | Call an app's API from their own code | `api-proxy-for-an-app` |
+     | One workflow starting another | `chain-workflows` |
+     | Send warehouse data to an app | `reverse-etl-from-a-warehouse` |
+     | Keep a database copy of an app | `database-replica-of-an-app` |
+
+   - **Something is wrong, or a procedure across resources**: the runbook.
+
+     | The person says | Runbook |
+     | --- | --- |
+     | Records do not sync, a sync is paused, late or different | `troubleshooting-a-sync` |
+     | A workflow failed or did not run | `troubleshooting-workflow-runs` |
+     | A Genie failed, is stuck, or its task did not run | `troubleshooting-a-genie` |
+     | Counts, logs, activity, log retention, alerts | `exploring-data-and-logs` |
+     | Move integrations from another platform | `migrating-to-stacksync` |
+     | The app has no Stacksync connector | `building-a-connector` |
+
+   Check: the person agrees the named skill matches what they want, and you read it with
+   `skills_get` if it is not installed.
 
 ## Rules
 
 | Rule | Why |
 | --- | --- |
-| Discover before building: list what exists (`connections_list`, `syncs_list`, `workflows_list`, `genies_list`) and read the closest match with its `_get` tool | The workspace may already hold what the person asks for; a second copy of a sync or workflow writes the same records twice |
-| Never ask for or accept a password, API key or token in the chat. Call `connections_create`: it returns a secure sign in link the person opens to connect the app | A secret typed into a chat is stored in the chat history, outside the person's control |
-| Some changes show a preview card in the AI app. Wait for the person to accept it before saying the change is done | The card is where the person approves a change to their live account; a declined card means nothing changed |
-| Ask before deleting anything, and name what will be deleted | Deleting a sync, workflow or connection cannot be undone from the chat |
-| Use the names the web app shows (sync, workflow, connection, Genie), and give the person the web app link when a setting exists only there | The person checks the work in the web app and must recognise what they see |
+| Build in order: connections, then syncs and variables, then workflows and queues, then Genies | Each part uses what the one before it made; a Genie's skills call the connections and workflows built earlier |
+| Never ask for or accept a password, API key or token in the chat. Call `connections_create`: it returns a secure sign in link the person opens | A secret typed into a chat is stored in the chat history, outside the person's control |
+| Writes run directly unless the workspace turned on "Ask before every change"; then the person accepts the change, and only then report it as done | The person approves changes to their live account; a declined change means nothing changed |
+| Ask before deleting anything, and name what will be deleted | A deleted sync, workflow or connection cannot be restored from the chat |
+| Use the names the web app shows (sync, workflow, connection, Genie) | The person checks the work in the web app and must recognise what they see |
+| A tool that says the person has no access is final; a workspace owner changes the role | The MCP server never goes beyond the person's own access |
 
-## Which guide to read
+## When the MCP cannot do it
 
-| The person wants to | Read |
-| --- | --- |
-| Keep records equal between two apps, in one or both directions, or fix a failing sync | `designing-two-way-syncs` |
-| Move integrations from another platform to Stacksync | `migrating-to-stacksync` |
-| Connect an app Stacksync has no connector for | `building-connectors` |
-| Host an app, a managed database, file storage or an internal API | `building-internal-apps` |
-
-Call `skills_list` for every skill with when to read it, then `skills_get` with a skill's name to
-read one that is not installed in the AI app.
-
-## When Stacksync lacks something
-
-- **No connector for the app.** Check `connectors_list` first. If the app is not there, read
-  `building-connectors`: a workflow can often reach the app with an HTTP request step or a code
-  step, and a new connector can be built with the Stacksync CLI.
-- **A hosted database, file storage or a custom app.** Read `building-internal-apps`.
-
-## Common problems and fixes
-
-| What the person sees | Why it happens | What to do |
-| --- | --- | --- |
-| The AI app has no Stacksync tools | The MCP server is not added, or sign in did not finish | Add the server with the table above and finish the sign in page |
-| `workspaces_list` returns nothing the person expects | They signed in with a different Stacksync account | Sign out of the connector in the AI app and sign in with the right account |
-| A tool says the person has no access | Their role in the workspace does not allow the change | Ask a workspace admin to change the role; the MCP server never goes beyond the person's own access |
-| An app is missing from `connections_list` | It was never connected in this workspace | Call `connections_create` and give the person the sign in link |
+- **No Stacksync tools appear**: the server is not added or sign in did not finish. Add it with
+  step 1 and finish the sign in page.
+- **The expected workspaces are missing**: the person signed in with another Stacksync account.
+  Sign out of the connector in the AI app and sign in again.
+- **A setting exists only in the web app**: the resource skill names the screen; give the person
+  that place.
+- **No connector for the app**: check `connectors_list`, then follow `building-a-connector`.

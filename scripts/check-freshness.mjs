@@ -1,6 +1,6 @@
-// Warns when a playbook or use case was last proven on a live workspace more than 90 days ago, so its
-// owner runs it again each quarter. Apps and the product change; a use case nobody has run since is
-// a guess. It only warns: an old date does not block a pull request.
+// Warns when a solution (or a blueprint that carries verified_on) was last proven on a live workspace more than
+// 90 days ago, so its owner runs it again each quarter. Apps and the product change; a solution nobody has run
+// since is a guess. It only warns: an old date does not block a pull request.
 import {
   REPOSITORY_ROOT, PUBLISHED_FOLDERS, findSkillFiles, readSkill, displayPath, isRunDirectly,
 } from './lib/skill-files.mjs';

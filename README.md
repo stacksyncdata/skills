@@ -16,9 +16,13 @@ Every skill lives in `skills/<name>/` and states its type in `metadata.type`:
 
 | Type | What it is |
 | --- | --- |
-| `guide` | How to work with one Stacksync resource, such as syncs, or one method, such as getting started, planning a whole integration or moving to Stacksync |
-| `playbook` | How several resources work together, whatever the apps, such as a sync trigger feeding a queue that a workflow works through |
-| `usecase` | A playbook applied to two named apps, such as Shopify orders to NetSuite, proven on a live workspace |
+| `resource` | One Stacksync resource, such as syncs or queues: what it is, what it connects to, and every operation on it |
+| `blueprint` | A reusable design that combines two or more resources, whatever the apps, such as a sync feeding a queue that a workflow works through |
+| `solution` | A real build between named apps, such as Shopify orders to NetSuite, proven on a live workspace |
+| `runbook` | An ordered procedure with a check at each step, such as getting started, fixing a sync or moving to Stacksync |
+
+Start with `getting-started`. A solution follows a blueprint, a blueprint's steps point at resource
+operations, and a runbook's steps do too.
 
 [skills/README.md](skills/README.md) lists every published skill, and `catalog.json` holds the
 same list for programs.
@@ -36,8 +40,8 @@ same list for programs.
 ## Connect the Stacksync MCP first
 
 The skills describe the work; the [Stacksync MCP server](https://docs.stacksync.com/mcp) does it
-in your account, as you, with your access. Every playbook and use case starts by checking that it is
-connected. You sign in with your Stacksync account (OAuth); no API key is needed.
+in your account, as you, with your access. `getting-started` connects it, and every runbook checks
+that it is connected before its first step. You sign in with your Stacksync account (OAuth); no API key is needed.
 
 | AI app | How to add it |
 | --- | --- |
@@ -55,22 +59,22 @@ The Claude Code plugin connects it for you. Then:
 3. Each step calls a Stacksync MCP tool, which works in your account with the same access you
    have in the web app. Apps are connected through a sign in link, never by pasting a secret
    into the chat.
-4. The MCP server also serves these skills to AI apps that have not installed them, so the
-   guidance is the same everywhere.
+4. The MCP server also serves these skills to AI apps that have not installed them, as published
+   on this repository's `prod` branch when the server was last deployed.
 
 Full documentation: [docs.stacksync.com/mcp](https://docs.stacksync.com/mcp).
 
 ## Names
 
-- One-way: `<source>-to-<destination>-<object>`, for example `shopify-to-netsuite-orders`.
-- Two-way: `<a>-and-<b>-<object>-two-way-sync`, for example
-  `hubspot-and-salesforce-contacts-two-way-sync`.
-- App names are the slugs in [data/apps.json](data/apps.json).
+- Resources: the resource in the plural, for example `syncs` or `knowledge-bases`.
+- Blueprints: what the design does, for example `batch-sync-changes-through-a-queue`.
+- Runbooks: the procedure, for example `troubleshooting-a-sync` or `building-a-connector`.
+- Solutions: the apps and the objects, for example `shopify-to-netsuite-orders`, with app names
+  from the slugs in [data/apps.json](data/apps.json).
 - Lowercase letters, digits and single hyphens, at most 64 characters.
 - Never "claude" or "anthropic", which are reserved.
-- Playbooks are named for what they do, for example `high-volume-changes-through-a-queue`.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [STYLE.md](STYLE.md). Use cases can be requested without
-code through the **Integration use case** issue form. Skills are licensed under [Apache 2.0](LICENSE).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [STYLE.md](STYLE.md). Solutions can be requested without
+code through the **Integration solution** issue form. Skills are licensed under [Apache 2.0](LICENSE).

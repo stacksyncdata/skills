@@ -1,16 +1,31 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  validateRepository, findUnknownSkillMentions, findWebAppScreenProblems, MAXIMUM_BODY_LINES, MAXIMUM_DESCRIPTION_LENGTH, MAXIMUM_GUIDED_BODY_LINES,
+  validateRepository, findUnknownSkillMentions, findWebAppScreenProblems, MAXIMUM_BODY_LINES, MAXIMUM_DESCRIPTION_LENGTH,
+  MAXIMUM_SOLUTION_BODY_LINES,
 } from '../validate-skills.mjs';
 import { REPOSITORY_ROOT } from '../lib/skill-files.mjs';
 import {
-  createRepository, createRepositoryWithRules, buildSkillText, buildPlaybookText, fixtureUseCaseText, fixtureEvalsText,
+  createRepository, createRepositoryWithRules, buildSkillText, buildTemplateText, fixtureSolutionText, fixtureEvalsText,
+  RUNBOOK_BODY,
 } from './helpers.mjs';
 
-function problemsFor(skillText, path = 'skills/building-syncs/SKILL.md') {
+const RUNBOOK_PATH = 'skills/getting-started/SKILL.md';
+
+function problemsFor(skillText, path = RUNBOOK_PATH) {
   const { problemsByFile } = validateRepository(createRepository({ [path]: skillText }));
   return problemsByFile.get(path) ?? [];
+}
+
+// Validates one skill in a repository that also holds data/apps.json and the resource and blueprint skills the
+// fixtures link to.
+function problemsWithRulesFor(path, text, extraFiles = {}) {
+  const { problemsByFile } = validateRepository(createRepositoryWithRules({ [path]: text, ...extraFiles }));
+  return (problemsByFile.get(path) ?? []).join('\n');
+}
+
+function withMetadata(text, key, value) {
+  return text.replace(new RegExp(`^  ${key}: .*$`, 'm'), `  ${key}: ${value}`);
 }
 
 test('this repository passes', () => {
@@ -18,17 +33,17 @@ test('this repository passes', () => {
   assert.deepEqual([...problemsByFile], []);
 });
 
-test('a valid guide passes', () => {
+test('a valid runbook passes', () => {
   assert.deepEqual(problemsFor(buildSkillText()), []);
 });
 
 test('a SKILL.md sits only at skills/<name>/SKILL.md', () => {
   const repositoryRoot = createRepository({
     'skills/SKILL.md': buildSkillText(),
-    'skills/guides/building-syncs/SKILL.md': buildSkillText(),
+    'skills/runbooks/getting-started/SKILL.md': buildSkillText(),
   });
   const { problemsByFile } = validateRepository(repositoryRoot);
-  assert.deepEqual([...problemsByFile.keys()].sort(), ['skills/SKILL.md', 'skills/guides/building-syncs/SKILL.md']);
+  assert.deepEqual([...problemsByFile.keys()].sort(), ['skills/SKILL.md', 'skills/runbooks/getting-started/SKILL.md']);
   assert.match(problemsByFile.get('skills/SKILL.md').join(), /belongs at skills\/<name>\/SKILL.md/);
 });
 
@@ -37,7 +52,7 @@ test('the name must equal the folder', () => {
 });
 
 test('the name must be lowercase with single hyphens and at most 64 characters', () => {
-  assert.match(problemsFor(buildSkillText({ name: 'Building_Syncs' })).join(), /lowercase/);
+  assert.match(problemsFor(buildSkillText({ name: 'Getting_Started' })).join(), /lowercase/);
   const longName = 'a'.repeat(65);
   assert.match(problemsFor(buildSkillText({ name: longName }), `skills/${longName}/SKILL.md`).join(), /over 64/);
 });
@@ -49,162 +64,195 @@ test('the description has a length limit and says "Use when"', () => {
 });
 
 test('the body has a line limit', () => {
-  const body = 'line\n'.repeat(MAXIMUM_BODY_LINES + 1);
+  const body = `${RUNBOOK_BODY}${'line\n'.repeat(MAXIMUM_BODY_LINES)}`;
   assert.match(problemsFor(buildSkillText({ body })).join(), /over 500/);
 });
 
 test('the banned word for type is rejected anywhere in the file', () => {
-  const body = `Pick the ${'ki' + 'nd'} of sync.\n`;
+  const body = `${RUNBOOK_BODY}Pick the ${'ki' + 'nd'} of sync.\n`;
   assert.match(problemsFor(buildSkillText({ body })).join(), /say "type"/);
-  assert.deepEqual(problemsFor(buildSkillText({ body: 'Be kindly precise.\n' })), []);
+  assert.deepEqual(problemsFor(buildSkillText({ body: `${RUNBOOK_BODY}Be kindly precise.\n` })), []);
 });
 
-test('every skill requires type, version and owner, and type is one of three', () => {
+test('every skill requires type, version and owner, and type is one of four', () => {
   const problems = problemsFor(buildSkillText({ metadataLines: ['tools: syncs_list'] })).join();
   for (const key of ['type', 'version', 'owner']) assert.match(problems, new RegExp(`metadata.${key} is required`));
-  const widget = buildSkillText({ metadataLines: ['type: widget', 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"'] });
-  assert.match(problemsFor(widget).join(), /guide, playbook, usecase/);
+  for (const removedType of ['guide', 'playbook', 'usecase']) {
+    const text = buildSkillText({ metadataLines: [`type: ${removedType}`, 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"'] });
+    assert.match(problemsFor(text).join(), /resource, blueprint, solution, runbook/);
+  }
 });
 
 test('owner is a GitHub team handle', () => {
-  const text = buildSkillText({ metadataLines: ['type: guide', 'version: "1.0.0"', 'owner: sync-team'] });
+  const text = buildSkillText({ metadataLines: ['type: runbook', 'version: "1.0.0"', 'owner: sync-team'] });
   assert.match(problemsFor(text).join(), /GitHub team handle/);
 });
 
-test('a deprecated skill names its replacement', () => {
-  const lines = ['type: guide', 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"', 'status: deprecated'];
+test('a deprecated skill names its replacement, and only its sections are skipped', () => {
+  const lines = ['type: runbook', 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"', 'status: deprecated'];
   assert.match(problemsFor(buildSkillText({ metadataLines: lines })).join(), /superseded_by is required/);
-  assert.deepEqual(problemsFor(buildSkillText({ metadataLines: [...lines, 'superseded_by: managing-syncs'] })), []);
+  const stub = buildSkillText({ metadataLines: [...lines, 'superseded_by: troubleshooting-a-sync'], body: 'Read the new skill.\n' });
+  assert.deepEqual(problemsFor(stub), []);
   const retired = buildSkillText({ metadataLines: [...lines.slice(0, 3), 'status: retired'] });
   assert.match(problemsFor(retired).join(), /active, deprecated/);
 });
 
 test('an unknown metadata key is a warning, not a problem', () => {
-  const path = 'skills/building-syncs/SKILL.md';
-  const text = buildSkillText({ metadataLines: ['type: guide', 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"', 'industry: retail'] });
-  const { problemsByFile, warningsByFile } = validateRepository(createRepository({ [path]: text }));
+  const text = buildSkillText({ metadataLines: ['type: runbook', 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"', 'industry: retail'] });
+  const { problemsByFile, warningsByFile } = validateRepository(createRepository({ [RUNBOOK_PATH]: text }));
   assert.equal(problemsByFile.size, 0);
-  assert.deepEqual(warningsByFile.get(path), ['metadata.industry is not a known key for type guide']);
+  assert.deepEqual(warningsByFile.get(RUNBOOK_PATH), ['metadata.industry is not a known key for type runbook']);
 });
 
-const USECASE_PATH = 'skills/shopify-to-netsuite-orders/SKILL.md';
-const USECASE_EVALS_PATH = 'skills/shopify-to-netsuite-orders/evals/evals.json';
-const PLAYBOOK_NAME = 'high-volume-changes-through-a-queue';
-const PLAYBOOK_PATH = `skills/${PLAYBOOK_NAME}/SKILL.md`;
-const PLAYBOOK_EVALS_PATH = `skills/${PLAYBOOK_NAME}/evals/evals.json`;
+test('every template passes', () => {
+  const { problemsByFile } = validateRepository(createRepositoryWithRules({
+    'templates/resource/SKILL.md': buildTemplateText('resource', 'resource'),
+    'templates/blueprint/SKILL.md': buildTemplateText('blueprint', 'blueprint'),
+  }));
+  assert.deepEqual([...problemsByFile], []);
+});
 
-// Validates one use case (by default the fixture) with its evals, in a repository holding the real
-// data/apps.json and "Before you start" block.
-function useCaseProblemsFor(useCaseText = fixtureUseCaseText, extraFiles = {}, path = USECASE_PATH) {
-  const evalsPath = path.replace('SKILL.md', 'evals/evals.json');
-  const files = { [path]: useCaseText, [evalsPath]: fixtureEvalsText, ...extraFiles };
-  const { problemsByFile } = validateRepository(createRepositoryWithRules(files));
-  return (problemsByFile.get(path) ?? []).join('\n');
+// Runbooks
+
+test('a runbook has exactly the runbook sections, in order', () => {
+  const swapped = RUNBOOK_BODY.replace('## Rules', '## Temporary').replace('## Steps', '## Rules').replace('## Temporary', '## Steps');
+  assert.match(problemsFor(buildSkillText({ body: swapped })).join(), /sections must be exactly, in order: Use it when, Before you start/);
+  const extra = `${RUNBOOK_BODY}## Notes\n\nMore.\n`;
+  assert.match(problemsFor(buildSkillText({ body: extra })).join(), /found: .*Notes/);
+});
+
+test('a runbook\'s steps are a numbered list, each ending with a "Check:" line', () => {
+  const bullets = RUNBOOK_BODY.replace('1. Call `workspaces_list`.', '- Call `workspaces_list`.');
+  assert.match(problemsFor(buildSkillText({ body: bullets })).join(), /"## Steps" must be a numbered list/);
+  const unchecked = RUNBOOK_BODY.replace('   Check: the workspace is listed.', '   Check: the workspace is listed.\n2. Call `folders_list`.');
+  assert.match(problemsFor(buildSkillText({ body: unchecked })).join(), /step 2 of "## Steps" must end with a "Check:" line/);
+});
+
+// Resources
+
+const RESOURCE_PATH = 'skills/variables/SKILL.md';
+const resourceText = buildTemplateText('resource', 'variables');
+
+test('a resource follows the resource sections and requires metadata.resource', () => {
+  assert.equal(problemsWithRulesFor(RESOURCE_PATH, resourceText), '');
+  assert.match(problemsWithRulesFor(RESOURCE_PATH, resourceText.replace(/^ {2}resource: .*\n/m, '')), /metadata.resource is required/);
+  assert.match(problemsWithRulesFor(RESOURCE_PATH, resourceText.replace('## Defaults and limits', '## Limits')), /sections must be exactly/);
+});
+
+test('a resource\'s operations are "###" blocks with "Use when", a "Tools:" line and numbered steps', () => {
+  const withoutBlocks = resourceText.replace(/### Create a queue\n[\s\S]*?(?=## Defaults and limits)/, 'Nothing yet.\n\n');
+  assert.match(problemsWithRulesFor(RESOURCE_PATH, withoutBlocks), /at least one "### <Operation>" block/);
+  const incomplete = resourceText.replace('Use when the person wants', 'When the person wants').replace('Tools: `queues_list`', '`queues_list`')
+    .replace(/^1\. One numbered step.*\n.*\n/m, '');
+  const problems = problemsWithRulesFor(RESOURCE_PATH, incomplete);
+  assert.match(problems, /operation "Create a queue" must say "Use when …"/);
+  assert.match(problems, /operation "Create a queue" must list its tools on a "Tools:" line/);
+  assert.match(problems, /operation "Create a queue" must have numbered steps/);
+});
+
+test('a resource\'s "Connects to" and "Common problems" hold their tables', () => {
+  const noTable = resourceText.replace('| Resource | How they link | Tool |', '| Resource | Link | Tool |');
+  assert.match(problemsWithRulesFor(RESOURCE_PATH, noTable), /"## Connects to" must hold a table whose header is \| Resource \| How they link \| Tool \|/);
+  const noProblemsTable = resourceText.replace('| What the person sees | Why | What to do |', '| Symptom | Fix |');
+  assert.match(problemsWithRulesFor(RESOURCE_PATH, noProblemsTable), /"## Common problems" must hold a table/);
+});
+
+test('a resource\'s "Connects to" names published resource skills only', () => {
+  const unknown = resourceText.replace('| `workflows` | A queue', '| `pipelines` | A queue');
+  assert.match(problemsWithRulesFor(RESOURCE_PATH, unknown), /"## Connects to" names "pipelines", which is not a published resource skill/);
+});
+
+// Blueprints
+
+const BLUEPRINT_PATH = 'skills/batch-sync-changes-through-a-queue/SKILL.md';
+const blueprintText = buildTemplateText('blueprint', 'batch-sync-changes-through-a-queue');
+
+test('a blueprint follows the blueprint sections and names two or more published resource skills', () => {
+  assert.equal(problemsWithRulesFor(BLUEPRINT_PATH, blueprintText), '');
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, blueprintText.replace('## Variations', '## Options')), /sections must be exactly/);
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, withMetadata(blueprintText, 'resources', '"syncs pipelines"')),
+    /metadata.resources names "pipelines", which is not a published resource skill/);
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, withMetadata(blueprintText, 'resources', 'syncs')), /at least two resource skills/);
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, blueprintText.replace(/^ {2}resources: .*\n/m, '')), /metadata.resources is required/);
+});
+
+test('a blueprint\'s "Use it when" gives a number', () => {
+  const text = blueprintText.replace(/## Use it when\n[\s\S]*?(?=## Why this design)/, '## Use it when\n\nChanges arrive in bursts.\n\n');
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, text), /"## Use it when" must give a number/);
+});
+
+test('a blueprint\'s shape is a table of published resources plus a diagram, and "Build it" is numbered', () => {
+  const noDiagram = blueprintText.replace(/```\nsync -> queue -> workflow\n```\n/, '');
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, noDiagram), /"## Shape" must hold a text diagram/);
+  const noTable = blueprintText.replace('| Step | Resource | Links to | How |', '| Step | Resource |');
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, noTable), /"## Shape" must hold a table/);
+  const unknown = blueprintText.replace('| 2 | `queues` |', '| 2 | `buffers` |');
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, unknown), /"## Shape" names "buffers"/);
+  const notNumbered = blueprintText.replace('1. Name the resource skill', '- Name the resource skill');
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, notNumbered), /"## Build it" must be a numbered list/);
+});
+
+test('a blueprint may carry verified_on, and it must be a real date', () => {
+  const lines = blueprintText.replace('  resources:', '  verified_on: "2026-02-30"\n  resources:');
+  assert.match(problemsWithRulesFor(BLUEPRINT_PATH, lines), /real date/);
+});
+
+// Solutions
+
+const SOLUTION_PATH = 'skills/shopify-to-netsuite-orders/SKILL.md';
+const SOLUTION_EVALS_PATH = 'skills/shopify-to-netsuite-orders/evals/evals.json';
+
+function solutionProblemsFor(text = fixtureSolutionText, extraFiles = {}) {
+  return problemsWithRulesFor(SOLUTION_PATH, text, { [SOLUTION_EVALS_PATH]: fixtureEvalsText, ...extraFiles });
 }
 
-function withMetadata(text, key, value) {
-  return text.replace(new RegExp(`^  ${key}: .*$`, 'm'), `  ${key}: ${value}`);
-}
-
-test('the fixture use case passes', () => {
-  assert.equal(useCaseProblemsFor(), '');
+test('the fixture solution passes', () => {
+  assert.equal(solutionProblemsFor(), '');
 });
 
-test('a use case needs every use case metadata key', () => {
-  const text = fixtureUseCaseText.replace(/^  volume_tested: .*\n/m, '');
-  assert.match(useCaseProblemsFor(text), /metadata.volume_tested is required/);
-});
-
-test('a one-way use case name is <source>-to-<destination>-<object>', () => {
-  const text = fixtureUseCaseText.replace('name: shopify-to-netsuite-orders', 'name: netsuite-orders');
-  assert.match(useCaseProblemsFor(text, {}, 'skills/netsuite-orders/SKILL.md'), /<source_app>-to-<destination_app>-<object>/);
-});
-
-test('a two-way use case name is <a>-and-<b>-<object>-two-way-sync, in either order', () => {
-  const twoWayText = withMetadata(fixtureUseCaseText, 'direction', 'two-way');
-  for (const name of ['shopify-and-netsuite-orders-two-way-sync', 'netsuite-and-shopify-orders-two-way-sync']) {
-    const text = twoWayText.replace('name: shopify-to-netsuite-orders', `name: ${name}`);
-    assert.equal(useCaseProblemsFor(text, {}, `skills/${name}/SKILL.md`), '');
+test('a solution needs blueprints, apps and verified_on', () => {
+  for (const key of ['blueprints', 'apps', 'verified_on']) {
+    const text = fixtureSolutionText.replace(new RegExp(`^ {2}${key}: .*\\n`, 'm'), '');
+    assert.match(solutionProblemsFor(text), new RegExp(`metadata.${key} is required for type solution`));
   }
-  assert.match(useCaseProblemsFor(twoWayText), /two-way-sync/);
 });
 
-test('apps, direction, trigger and resources come from fixed lists', () => {
-  assert.match(useCaseProblemsFor(withMetadata(fixtureUseCaseText, 'source_app', 'shopfy')), /"shopfy" is not in data\/apps.json/);
-  assert.match(useCaseProblemsFor(withMetadata(fixtureUseCaseText, 'direction', 'both')), /direction must be one of/);
-  assert.match(useCaseProblemsFor(withMetadata(fixtureUseCaseText, 'trigger', 'polling')), /trigger must be one of/);
-  assert.match(useCaseProblemsFor(withMetadata(fixtureUseCaseText, 'resources', '"workflow connection"')), /resources must list only/);
+test('a solution names published blueprints and at least two apps from data/apps.json', () => {
+  assert.match(solutionProblemsFor(withMetadata(fixtureSolutionText, 'blueprints', 'orders-pipeline')),
+    /metadata.blueprints names "orders-pipeline", which is not a published blueprint/);
+  assert.match(solutionProblemsFor(withMetadata(fixtureSolutionText, 'apps', '"shopfy netsuite"')), /"shopfy", which is not in data\/apps.json/);
+  assert.match(solutionProblemsFor(withMetadata(fixtureSolutionText, 'apps', 'shopify')), /at least two apps/);
+});
+
+test('a solution\'s "## Blueprint" names a published blueprint', () => {
+  const text = fixtureSolutionText.replace('Follows `inbound-webhook-to-records`.', 'Follows the webhook design.');
+  assert.match(solutionProblemsFor(text), /"## Blueprint" must name the published blueprint/);
 });
 
 test('verified_on must be a real date that has passed', () => {
-  assert.match(useCaseProblemsFor(withMetadata(fixtureUseCaseText, 'verified_on', '"2026-02-30"')), /real date/);
-  assert.match(useCaseProblemsFor(withMetadata(fixtureUseCaseText, 'verified_on', '"15/01/2026"')), /real date/);
-  assert.match(useCaseProblemsFor(withMetadata(fixtureUseCaseText, 'verified_on', '"2999-01-01"')), /not in the future/);
+  assert.match(solutionProblemsFor(withMetadata(fixtureSolutionText, 'verified_on', '"2026-02-30"')), /real date/);
+  assert.match(solutionProblemsFor(withMetadata(fixtureSolutionText, 'verified_on', '"15/01/2026"')), /real date/);
+  assert.match(solutionProblemsFor(withMetadata(fixtureSolutionText, 'verified_on', '"2999-01-01"')), /not in the future/);
 });
 
-test('the description follows the third person use case pattern', () => {
-  const text = fixtureUseCaseText.replace('Syncs orders from Shopify', 'I sync orders from Shopify');
-  assert.match(useCaseProblemsFor(text), /third person/);
+test('the sections are exactly the solution sections, in order', () => {
+  const swapped = fixtureSolutionText.replace('## Proof', '## Temporary').replace('## Build log', '## Proof').replace('## Temporary', '## Build log');
+  assert.match(solutionProblemsFor(swapped), /sections must be exactly, in order/);
 });
 
-test('the sections are exactly the use case sections, in order', () => {
-  const swapped = fixtureUseCaseText.replace('## Field mapping', '## Temporary').replace('## Build steps', '## Field mapping')
-    .replace('## Temporary', '## Build steps');
-  assert.match(useCaseProblemsFor(swapped), /sections must be, in order/);
-  assert.match(useCaseProblemsFor(fixtureUseCaseText.replace('## Limits', '## Notes')), /sections must be, in order/);
+test('a solution body has a line limit', () => {
+  const text = `${fixtureSolutionText}${'- line\n'.repeat(MAXIMUM_SOLUTION_BODY_LINES)}`;
+  assert.match(solutionProblemsFor(text), new RegExp(`over ${MAXIMUM_SOLUTION_BODY_LINES} for a solution`));
 });
 
-test('"Before you start" must equal the fixed block word for word', () => {
-  const text = fixtureUseCaseText.replace('skip to the next section', 'carry on');
-  assert.match(useCaseProblemsFor(text), /word for word/);
-});
-
-test('a use case body has a 200 line limit', () => {
-  const text = `${fixtureUseCaseText}${'- line\n'.repeat(MAXIMUM_GUIDED_BODY_LINES)}`;
-  assert.match(useCaseProblemsFor(text), /over 200 for a usecase/);
-});
-
-test('a use case needs at least three evals', () => {
+test('a solution needs at least three evals', () => {
   const twoEvals = JSON.stringify({ evals: JSON.parse(fixtureEvalsText).evals.slice(0, 2) });
-  assert.match(useCaseProblemsFor(fixtureUseCaseText, { [USECASE_EVALS_PATH]: twoEvals }), /at least 3 evals/);
-  assert.match(useCaseProblemsFor(fixtureUseCaseText, { [USECASE_EVALS_PATH]: '{' }), /not valid JSON/);
-  const { problemsByFile } = validateRepository(createRepositoryWithRules({ [USECASE_PATH]: fixtureUseCaseText }));
-  assert.match(problemsByFile.get(USECASE_PATH).join(), /evals.json is missing/);
+  assert.match(solutionProblemsFor(fixtureSolutionText, { [SOLUTION_EVALS_PATH]: twoEvals }), /at least 3 evals/);
+  assert.match(solutionProblemsFor(fixtureSolutionText, { [SOLUTION_EVALS_PATH]: '{' }), /not valid JSON/);
+  assert.match(problemsWithRulesFor(SOLUTION_PATH, fixtureSolutionText), /evals.json is missing/);
 });
 
-test('a use case may name playbooks, and each must be a published playbook', () => {
-  const text = fixtureUseCaseText.replace('  verified_on:', `  playbooks: ${PLAYBOOK_NAME}\n  verified_on:`);
-  assert.match(useCaseProblemsFor(text), /not a published playbook/);
-  const playbookFiles = { [PLAYBOOK_PATH]: buildPlaybookText(), [PLAYBOOK_EVALS_PATH]: fixtureEvalsText };
-  assert.equal(useCaseProblemsFor(text, playbookFiles), '');
-});
-
-function playbookProblemsFor(text) {
-  const files = { [PLAYBOOK_PATH]: text, [PLAYBOOK_EVALS_PATH]: fixtureEvalsText };
-  return (validateRepository(createRepositoryWithRules(files)).problemsByFile.get(PLAYBOOK_PATH) ?? []).join();
-}
-
-test('a playbook follows the playbook sections and allows connection as a resource', () => {
-  assert.equal(playbookProblemsFor(buildPlaybookText()), '');
-  assert.equal(playbookProblemsFor(withMetadata(buildPlaybookText(), 'resources', '"sync queue workflow connection"')), '');
-  assert.match(playbookProblemsFor(buildPlaybookText().replace('## Settings that matter', '## Settings')), /sections must be/);
-  assert.match(playbookProblemsFor(buildPlaybookText().replace(/^  verified_on: .*\n/m, '')), /verified_on is required/);
-});
-
-test('a playbook may drop its optional sections', () => {
-  const withoutOptional = buildPlaybookText()
-    .replace(/## Questions to ask first\n[\s\S]*?(?=## How the resources connect)/, '')
-    .replace(/## Rules\n[\s\S]*?(?=## When something goes wrong)/, '');
-  assert.doesNotMatch(withoutOptional, /## Rules/);
-  assert.equal(playbookProblemsFor(withoutOptional), '');
-});
-
-test('"When to use this playbook" must give a number', () => {
-  const text = buildPlaybookText().replace(
-    /## When to use this playbook\n[\s\S]*?(?=## Questions)/, '## When to use this playbook\n\nUse it when changes arrive in bursts.\n\n',
-  );
-  assert.match(playbookProblemsFor(text), /must give a number/);
-});
+// Shared checks
 
 test('names must not use the words Anthropic reserves', () => {
   const name = 'claude-helper';
@@ -217,21 +265,24 @@ test('a broken frontmatter is reported, not thrown', () => {
 });
 
 test('every skill a skills.sh group lists is a published skill', () => {
-  const listing = JSON.stringify({ groupings: [{ title: 'Guides', skills: ['building-syncs', 'missing-skill'] }] });
-  const { problemsByFile } = validateRepository(createRepository({ 'skills/building-syncs/SKILL.md': buildSkillText(), 'skills.sh.json': listing }));
-  assert.deepEqual(problemsByFile.get('skills.sh.json'), ['group "Guides" lists "missing-skill", which is not a published skill']);
+  const listing = JSON.stringify({ groupings: [{ title: 'Start here', skills: ['getting-started', 'missing-skill'] }] });
+  const { problemsByFile } = validateRepository(createRepository({ [RUNBOOK_PATH]: buildSkillText(), 'skills.sh.json': listing }));
+  assert.deepEqual(problemsByFile.get('skills.sh.json'), ['group "Start here" lists "missing-skill", which is not a published skill']);
 });
 
-test('a guide that points at a skill that does not exist fails; a hyphenated package does not', () => {
-  const publishedNames = new Set(['building-workflows', 'fixing-sync-issues']);
+test('a skill that points at a skill that does not exist fails; a hyphenated package does not', () => {
+  const publishedNames = new Set(['workflows', 'troubleshooting-a-sync', 'queues']);
   const body = [
-    'Use the `enterprise-architect` guide when it is available.',
-    'Then follow the `fixing-sync-issues` process, or see `building-workflows`.',
+    'Use the `enterprise-architect` runbook when it is available.',
+    'Then follow the `troubleshooting-a-sync` runbook, or see the `workflows` resource and the `queues` skill.',
+    'The `pipelines` resource does not exist, nor does the blueprint `orders-pipeline`.',
     'Packages: `dayjs`, `live-plugin-manager`.',
   ].join('\n');
 
   assert.deepEqual(findUnknownSkillMentions(body, publishedNames), [
     'mentions the skill "enterprise-architect", which is not a published skill',
+    'mentions the skill "pipelines", which is not a published skill',
+    'mentions the skill "orders-pipeline", which is not a published skill',
   ]);
 });
 

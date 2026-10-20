@@ -20,7 +20,7 @@ jobs:
         run: node scripts/check-writing.mjs
       - name: Check for credentials
         run: node scripts/check-secrets.mjs
-      - name: Flag playbooks and use cases not run in 90 days
+      - name: Flag solutions not run in 90 days
         # Prints warnings only; an old verified_on never fails the build.
         run: node scripts/check-freshness.mjs
       - name: Check catalog.json and the skills/README.md index are current

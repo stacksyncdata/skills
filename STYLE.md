@@ -29,7 +29,7 @@ and reports each hit as `file:line`.
 | Hedging | "you may want to", "it is important to note" | Say what to do; if it matters, the sentence shows it |
 | Claims | "real-time" without a number on the same line | Every sync has a delay; say how long it is |
 | Promotion | Anything beyond the functional "Before you start" block: pricing amounts ("$49", "30 USD", "$/month", "per seat"), "best", or comparisons such as "faster than", "unlike", "versus", "alternative to" or "replaces" before a product name | Skill directories accept an external tool only when the task needs it, never as an advertisement |
-| Other platforms | Any platform name outside the `references/<format>.md` file that declares it in its first line, `# <Format> exports from <Platform>` | A migration guide needs the name to read an export; nothing else does |
+| Other platforms | Any platform name outside the `references/<format>.md` file that declares it in its first line, `# <Format> exports from <Platform>` | A migration runbook needs the name to read an export; nothing else does |
 
 Code in backticks or a fenced block is exempt from the phrase, punctuation and `{{ }}` rules,
 because code has its own syntax (`!=`, template expressions). TODO, TBD, lorem and `<your …>` are
