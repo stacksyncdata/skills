@@ -44,7 +44,7 @@ export const WRITING_RULES = [
     reason: 'give the delay, for example "within 60 seconds"', isCheckedInCode: false,
   },
   { label: '"best"', pattern: /\bbest\b/i, reason: 'promotion; say what it does and how fast', isCheckedInCode: false },
-  // Only amounts: a record's price, or the word "pricing", is ordinary data in a guide.
+  // Only amounts: a record's price, or the word "pricing", is ordinary data in a skill.
   {
     label: 'pricing', pattern: /[$€£]\s?\d|\d\s?(?:USD|EUR|GBP)\b|[$€£]\s?\/\s?(?:month|year|seat|user)\b|\bper seat\b/i,
     reason: 'promotion; pricing lives on the website', isCheckedInCode: false,
@@ -83,7 +83,7 @@ export function findWritingProblemsInText(text) {
   return problems;
 }
 
-// A migration guide needs another platform's name to read its export files, and only there. Each
+// A migration runbook needs another platform's name to read its export files, and only there. Each
 // such file is references/<format>.md with the first line "# <Format> exports from <Platform>";
 // that line declares the platform name, and the name is allowed in that file alone.
 const PLATFORM_DECLARATION_PATTERN = /^# .+ exports from (.+?)\s*$/;

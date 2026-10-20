@@ -16,7 +16,7 @@
     {
       "id": 3,
       "prompt": "Our Shopify orders stopped reaching NetSuite and the runs say Invalid item.",
-      "expected_output": "Uses the When something goes wrong table: explains that a Shopify SKU has no matching NetSuite item, asks the person to create the item, then replays the failed run with workflows_replay.",
+      "expected_output": "Explains that a Shopify SKU has no matching NetSuite item, asks the person to create the item, then replays the failed run with workflows_replay.",
       "files": []
     }
   ]

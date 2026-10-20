@@ -4,19 +4,60 @@
   "groupings": [
     {
       "title": "Start here",
-      "description": "Connect Stacksync to your AI app, learn the build order, or move to Stacksync.",
+      "description": "Connect Stacksync to your AI app and learn the order to build in.",
       "skills": [
-        "getting-started",
-        "migrating-to-stacksync"
+        "getting-started"
       ]
     },
     {
-      "title": "Guides",
-      "description": "How to build with one Stacksync resource or tool.",
+      "title": "Resources",
+      "description": "One skill per Stacksync resource: what it is, what it connects to, and every operation on it.",
       "skills": [
-        "designing-two-way-syncs",
-        "building-connectors",
-        "building-internal-apps"
+        "workspaces",
+        "folders",
+        "connections",
+        "connectors",
+        "syncs",
+        "workflows",
+        "genies",
+        "queues",
+        "variables",
+        "api-proxies",
+        "knowledge-bases",
+        "files",
+        "internal-apps"
+      ]
+    },
+    {
+      "title": "Blueprints",
+      "description": "Reusable designs that combine resources, with when to use each, the trade-offs, and how to build it.",
+      "skills": [
+        "react-to-each-record-change",
+        "batch-sync-changes-through-a-queue",
+        "enrich-records-after-a-sync",
+        "inbound-email-to-records",
+        "inbound-webhook-to-records",
+        "scheduled-workflow",
+        "two-way-sync-between-apps",
+        "throttle-writes-with-a-queue",
+        "knowledge-grounded-email-genie",
+        "scheduled-genie-task",
+        "api-proxy-for-an-app",
+        "chain-workflows",
+        "reverse-etl-from-a-warehouse",
+        "database-replica-of-an-app"
+      ]
+    },
+    {
+      "title": "Runbooks",
+      "description": "Step by step procedures with a check at each step: fix a sync, a workflow run or a Genie, read data and logs, move to Stacksync, or build a connector.",
+      "skills": [
+        "troubleshooting-a-sync",
+        "troubleshooting-workflow-runs",
+        "troubleshooting-a-genie",
+        "exploring-data-and-logs",
+        "migrating-to-stacksync",
+        "building-a-connector"
       ]
     }
   ]

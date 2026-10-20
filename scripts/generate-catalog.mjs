@@ -16,7 +16,7 @@ export const INDEX_END_MARKER = '<!-- catalog:end -->';
 export function buildCatalog(skills, repositoryRoot, generatedAt = new Date().toISOString()) {
   const entries = skills.map(({ frontmatter, path }) => {
     const metadata = frontmatter.metadata ?? {};
-    const isUseCase = metadata.type === 'usecase';
+    const isSolution = metadata.type === 'solution';
     return {
       name: frontmatter.name,
       type: metadata.type ?? null,
@@ -28,26 +28,23 @@ export function buildCatalog(skills, repositoryRoot, generatedAt = new Date().to
       owner: metadata.owner ?? null,
       areas: splitWords(metadata.areas),
       tools: splitWords(metadata.tools),
-      resources: splitWords(metadata.resources),
-      // The MCP matches use cases to a person's connected apps by these slugs.
-      apps: isUseCase ? [metadata.source_app, metadata.destination_app].filter(Boolean) : [],
-      playbooks: splitWords(metadata.playbooks),
+      // A resource skill covers its one resource; a blueprint lists the resource skills it combines.
+      resources: metadata.type === 'resource' ? splitWords(metadata.resource) : splitWords(metadata.resources),
+      // The MCP matches solutions to a person's connected apps by these slugs.
+      apps: splitWords(metadata.apps),
+      blueprints: splitWords(metadata.blueprints),
       verified_on: metadata.verified_on ?? null,
-      usecase: isUseCase ? buildUseCaseEntry(metadata) : null,
+      solution: isSolution ? buildSolutionEntry(metadata) : null,
     };
   });
   return { schema: CATALOG_SCHEMA_VERSION, generated_at: generatedAt, skills: entries };
 }
 
-function buildUseCaseEntry(metadata) {
+function buildSolutionEntry(metadata) {
   return {
-    source_app: metadata.source_app ?? null,
-    destination_app: metadata.destination_app ?? null,
-    objects: metadata.objects ?? null,
-    direction: metadata.direction ?? null,
-    trigger: metadata.trigger ?? null,
-    frequency: metadata.frequency ?? null,
-    volume_tested: metadata.volume_tested ?? null,
+    apps: splitWords(metadata.apps),
+    blueprints: splitWords(metadata.blueprints),
+    verified_on: metadata.verified_on ?? null,
   };
 }
 
@@ -61,13 +58,29 @@ export function isSameCatalogContent(firstCatalog, secondCatalog) {
   return withoutTimestamp(firstCatalog) === withoutTimestamp(secondCatalog);
 }
 
+// The index groups skills by type, in the order a newcomer reads them; getting-started opens the runbooks.
+export const INDEX_GROUPS = [
+  { type: 'runbook', title: 'Runbooks' },
+  { type: 'resource', title: 'Resources' },
+  { type: 'blueprint', title: 'Blueprints' },
+  { type: 'solution', title: 'Solutions' },
+];
+export const FIRST_SKILL = 'getting-started';
+
 export function renderIndex(catalog) {
   if (catalog.skills.length === 0) return 'No skills are published yet.';
-  const rows = catalog.skills.map(({ name, type, status, description }) => {
-    const label = status === 'deprecated' ? `${type}, deprecated` : type;
-    return `| [${name}](${name}/SKILL.md) | ${label} | ${description.replace(/\|/g, '\\|')} |`;
-  });
-  return ['| Skill | Type | Description |', '| --- | --- | --- |', ...rows].join('\n');
+  const blocks = [];
+  for (const { type, title } of INDEX_GROUPS) {
+    const skills = catalog.skills.filter((skill) => skill.type === type)
+      .sort((first, second) => Number(second.name === FIRST_SKILL) - Number(first.name === FIRST_SKILL));
+    if (skills.length === 0) continue;
+    const rows = skills.map(({ name, status, description }) => {
+      const label = status === 'deprecated' ? `[${name}](${name}/SKILL.md) (deprecated)` : `[${name}](${name}/SKILL.md)`;
+      return `| ${label} | ${description.replace(/\|/g, '\\|')} |`;
+    });
+    blocks.push([`### ${title}`, '', '| Skill | Description |', '| --- | --- |', ...rows].join('\n'));
+  }
+  return blocks.join('\n\n');
 }
 
 export function replaceIndex(readmeText, indexText) {

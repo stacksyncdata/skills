@@ -13,32 +13,46 @@ export function createRepository(skillTextsByPath) {
   return repositoryRoot;
 }
 
+export const RUNBOOK_BODY = [
+  '## Use it when', '', 'Someone is new.', '',
+  '## Before you start', '', 'Connect the MCP.', '',
+  '## Steps', '', '1. Call `workspaces_list`.', '   Check: the workspace is listed.', '',
+  '## Rules', '', 'Ask before every change.', '',
+  '## When the MCP cannot do it', '', 'Roles: do this in the web app.', '',
+].join('\n');
+
 export function buildSkillText({
-  name = 'building-syncs',
-  description = 'Create and fix two way syncs. Use when records must stay equal between two apps.',
-  metadataLines = ['type: guide', 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"', 'tools: syncs_list syncs_get'],
-  body = '## When to use\n\nWhen someone wants records kept equal.\n',
+  name = 'getting-started',
+  description = 'Connects the Stacksync MCP and sets the build order. Use when someone is new to Stacksync.',
+  metadataLines = ['type: runbook', 'version: "1.0.0"', 'owner: "@stacksyncdata/ai-team"', 'tools: workspaces_list'],
+  body = RUNBOOK_BODY,
 } = {}) {
   const metadata = metadataLines.map((line) => `  ${line}`).join('\n');
   return `---\nname: ${name}\ndescription: ${description}\nlicense: Apache-2.0\nmetadata:\n${metadata}\n---\n${body}`;
 }
 
-// A playbook or use case is checked against data/apps.json and the fixed "Before you start" block,
-// so a test repository for one gets copies of the real files.
-const RULE_FILES = ['data/apps.json', 'templates/usecase/before-you-start.md'];
-const FIXTURE_USECASE_FOLDER = join(REPOSITORY_ROOT, 'scripts/test/fixtures/shopify-to-netsuite-orders');
+const FIXTURE_SOLUTION_FOLDER = join(REPOSITORY_ROOT, 'scripts/test/fixtures/shopify-to-netsuite-orders');
 
-export const fixtureUseCaseText = readFileSync(join(FIXTURE_USECASE_FOLDER, 'SKILL.md'), 'utf8');
-export const fixtureEvalsText = readFileSync(join(FIXTURE_USECASE_FOLDER, 'evals/evals.json'), 'utf8');
+export const fixtureSolutionText = readFileSync(join(FIXTURE_SOLUTION_FOLDER, 'SKILL.md'), 'utf8');
+export const fixtureEvalsText = readFileSync(join(FIXTURE_SOLUTION_FOLDER, 'evals/evals.json'), 'utf8');
 export const fixtureReferenceText = readFileSync(join(REPOSITORY_ROOT, 'scripts/test/fixtures/references/flow-json.md'), 'utf8');
-export const playbookTemplateText = readFileSync(join(REPOSITORY_ROOT, 'templates/playbook/SKILL.md'), 'utf8');
 
-export function createRepositoryWithRules(textsByPath) {
-  const ruleTexts = Object.fromEntries(RULE_FILES.map((path) => [path, readFileSync(join(REPOSITORY_ROOT, path), 'utf8')]));
-  return createRepository({ ...ruleTexts, ...textsByPath });
+// A template with its guidance comments removed and its name set, so it reads like a published skill.
+export function buildTemplateText(type, name) {
+  const templateText = readFileSync(join(REPOSITORY_ROOT, 'templates', type, 'SKILL.md'), 'utf8');
+  return templateText.replace(`name: ${type}\n`, `name: ${name}\n`).replace(/<!--[\s\S]*?-->\n\n/g, '');
 }
 
-// The template with its guidance comments removed, so it reads like a published playbook.
-export function buildPlaybookText(name = 'high-volume-changes-through-a-queue') {
-  return playbookTemplateText.replace('name: playbook\n', `name: ${name}\n`).replace(/<!--[\s\S]*?-->\n\n/g, '');
+// The published skills the fixture solution links to: the resources its blueprint combines and the blueprint itself.
+export const LINKED_SKILL_TEXTS = {
+  'skills/syncs/SKILL.md': buildTemplateText('resource', 'syncs'),
+  'skills/queues/SKILL.md': buildTemplateText('resource', 'queues'),
+  'skills/workflows/SKILL.md': buildTemplateText('resource', 'workflows'),
+  'skills/inbound-webhook-to-records/SKILL.md': buildTemplateText('blueprint', 'inbound-webhook-to-records'),
+};
+
+// A solution is checked against data/apps.json and the skills it links to, so a test repository gets copies of both.
+export function createRepositoryWithRules(textsByPath) {
+  const appsText = readFileSync(join(REPOSITORY_ROOT, 'data/apps.json'), 'utf8');
+  return createRepository({ 'data/apps.json': appsText, ...LINKED_SKILL_TEXTS, ...textsByPath });
 }

@@ -1,88 +1,47 @@
 ---
 name: shopify-to-netsuite-orders
-description: Syncs orders from Shopify to sales orders in NetSuite with Stacksync. Use when someone wants to connect Shopify to NetSuite, sync or integrate online orders with the ERP, or automate order entry.
+description: Creates a NetSuite sales order for each new Shopify order with Stacksync. Use when someone wants to connect Shopify to NetSuite, sync or integrate online orders with the ERP, or automate order entry.
 license: Apache-2.0
 metadata:
-  type: usecase
+  type: solution
   version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
-  source_app: shopify
-  destination_app: netsuite
-  objects: "orders → sales orders"
-  direction: one-way
-  resources: "workflow variable"
-  trigger: webhook
-  frequency: "within 60 seconds"
-  volume_tested: "2,000 orders per day"
+  tools: "connections_create variables_save workflows_save workflows_run workflows_deploy"
+  blueprints: inbound-webhook-to-records
+  apps: "shopify netsuite"
   verified_on: "2026-01-15"
 ---
 
-## Before you start
+## Outcome
 
-Check whether a tool from the Stacksync MCP server, such as `connections_list`, is available in
-this conversation. If it is, the Stacksync MCP is already connected: skip to the next section.
+Each new Shopify order becomes a NetSuite sales order within 60 seconds. One-way. Tested with
+2,000 orders per day.
 
-If it is not, set it up once:
+## Blueprint
 
-1. Ask the person to add `https://mcp.stacksync.com/mcp` as a connector or MCP server in their
-   AI app. The steps for each app are in the README of github.com/stacksyncdata/skills.
-2. The person signs in with their Stacksync account when the AI app asks. Sign in uses OAuth, so
-   nobody creates or copies an API key.
-3. Call `connections_list` to confirm the tools respond.
+Follows `inbound-webhook-to-records`. The workflow reads the NetSuite subsidiary from a variable
+instead of a fixed value.
 
-Then connect in Stacksync each app the build uses; for a use case, that is the source app and the
-destination app. Call `connections_create` once per app. It returns a secure sign in link; give
-the link to the person and wait until they say they have signed in. Never ask the person to paste
-a password, token or API key into the chat.
-
-## What this builds
-
-| | |
-| --- | --- |
-| Source | Shopify |
-| Destination | NetSuite |
-| Objects | Orders → sales orders |
-| Direction | One-way |
-| Stacksync resources | Workflow, variable |
-| Trigger | Webhook: Shopify sends each new order |
-| Frequency | Within 60 seconds of the order |
-| Volume tested | 2,000 orders per day |
-
-## Field mapping
+## What was built
 
 | Source field | Destination field | Transform | Required |
 | --- | --- | --- | --- |
 | Order number | External ID | None | Yes |
 | Customer email | Customer | Find the customer by email; create one if none matches | Yes |
 | Line items | Items | Match each SKU to an item by its item name | Yes |
-| Created at | Date | Convert to the subsidiary's time zone | Yes |
 
-## Build steps
+## Build log
 
-1. Call `connections_list` and note the Shopify and NetSuite connections from "Before you
-   start".
-2. Call `variables_create` with the name `netsuite_subsidiary_id` and the subsidiary the person
-   names, so the workflow reads it instead of a fixed value.
-3. Call `connectors_module_form` for the Shopify order trigger and the NetSuite create record
-   step, and fill each form from the field mapping above.
-4. Call `workflows_create` with the trigger and steps from step 3. The workflow is created
-   switched off.
-5. Show the person the workflow and the field mapping, and ask them to confirm both.
-6. Call `workflows_deploy` only after the person confirms.
+1. Called `connections_create` for Shopify and NetSuite and gave the person each sign in link.
+2. Called `variables_save` with the `variable_name` `netsuite_subsidiary_id`.
+3. Called `workflows_save` with the Shopify order trigger and the NetSuite create record step.
+4. Called `workflows_run` on one order, then `workflows_deploy`.
 
-## When something goes wrong
+## Proof
 
-| What the person sees | Cause | Fix |
-| --- | --- | --- |
-| "Customer not found" on a run | The email matches no NetSuite customer | Check the step that creates a customer runs before the sales order step |
-| The run fails with "Invalid item" | A Shopify SKU has no matching NetSuite item | Create the item in NetSuite, then replay the run with `workflows_replay` |
+On 2026-01-15, on a test workspace, a test order in Shopify produced one successful run in
+`workflows_runs`, and NetSuite showed a sales order whose External ID equals the order number.
 
-## Check it works
+## Adapt it
 
-Place a test order in Shopify. Within 60 seconds, `workflows_runs` shows one successful run, and
-NetSuite shows a sales order whose External ID equals the Shopify order number.
-
-## Limits
-
-- Refunds and cancellations do not reach NetSuite.
-- Orders placed before the workflow was deployed are not copied.
+For another ERP, change the create record step and the field mapping; the trigger stays.

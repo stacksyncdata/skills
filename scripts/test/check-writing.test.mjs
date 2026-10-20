@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { findWritingProblemsInText, scanRepository } from '../check-writing.mjs';
 import { REPOSITORY_ROOT } from '../lib/skill-files.mjs';
-import { createRepository, fixtureUseCaseText, fixtureReferenceText } from './helpers.mjs';
+import { createRepository, fixtureSolutionText, fixtureReferenceText } from './helpers.mjs';
 
 function labelsFor(text) {
   return findWritingProblemsInText(text).map((problem) => problem.label);
@@ -89,21 +89,21 @@ test('allows only the catalog markers as comments', () => {
   assert.deepEqual(labelsFor('<!-- catalog:start --> <!-- note -->'), ['a template comment']);
 });
 
-test('the fixture use case has no banned writing', () => {
-  assert.deepEqual(findWritingProblemsInText(fixtureUseCaseText), []);
+test('the fixture solution has no banned writing', () => {
+  assert.deepEqual(findWritingProblemsInText(fixtureSolutionText), []);
 });
 
 test('checks skills/, and leaves templates/ and evals out', () => {
   const repositoryRoot = createRepository({
     'skills/building-syncs/SKILL.md': 'A robust sync.\n',
-    'skills/high-volume-changes-through-a-queue/SKILL.md': 'Fine.\nOrders arrive!\n',
+    'skills/batch-sync-changes-through-a-queue/SKILL.md': 'Fine.\nOrders arrive!\n',
     'skills/shopify-to-netsuite-orders/SKILL.md': '<!-- leftover -->\n',
     'skills/shopify-to-netsuite-orders/evals/evals.json': '{"prompt": "Sync it now!"}\n',
-    'templates/usecase/SKILL.md': 'A robust sync.\n',
+    'templates/solution/SKILL.md': 'A robust sync.\n',
   });
   assert.deepEqual(scanRepository(repositoryRoot).map(({ filePath, lineNumber }) => `${filePath}:${lineNumber}`), [
+    'skills/batch-sync-changes-through-a-queue/SKILL.md:2',
     'skills/building-syncs/SKILL.md:1',
-    'skills/high-volume-changes-through-a-queue/SKILL.md:2',
     'skills/shopify-to-netsuite-orders/SKILL.md:1',
   ]);
 });
@@ -117,8 +117,8 @@ function problemsInRepository(files) {
 
 test('a platform name is allowed only in the reference file that declares it', () => {
   assert.deepEqual(problemsInRepository({ [REFERENCE_PATH]: fixtureReferenceText }), []);
-  const guide = 'Read references/flow-json.md for each export.\nThen rebuild each ACME  flows step.\n';
-  assert.deepEqual(problemsInRepository({ [REFERENCE_PATH]: fixtureReferenceText, 'skills/migrating-to-stacksync/SKILL.md': guide }), [
+  const runbook = 'Read references/flow-json.md for each export.\nThen rebuild each ACME  flows step.\n';
+  assert.deepEqual(problemsInRepository({ [REFERENCE_PATH]: fixtureReferenceText, 'skills/migrating-to-stacksync/SKILL.md': runbook }), [
     'skills/migrating-to-stacksync/SKILL.md:2: the platform name "Acme Flows"',
   ]);
 });
