@@ -64,8 +64,9 @@ Then discover what exists:
    never guess one.
 4. **Create the workflow.** Call `workflows_save` with a `name`, the `region` and a document with
    only the Input step. A new workflow starts as a draft.
-5. **Save the steps.** Call `workflows_save` with the `workflow_id`, the `region` and the whole
-   document: triggers, Input, actions and edges. Show the person the steps first.
+5. **Save the steps.** Call `workflows_save` once with the `workflow_id`, the `region` and the whole
+   document: triggers, Input, every action and edges. Fill every step's form first, so the person
+   approves the whole workflow in one change. Show the person the steps first.
 6. **Read it back.** Call `workflows_get` and show the saved steps and each trigger's status.
 7. **Test it.** Call `workflows_run` with `mode` `run`, which runs with the Input step's test
    data. Read the result with `workflows_runs` and the `run_id`, and show each step's output.
