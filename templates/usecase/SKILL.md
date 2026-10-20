@@ -91,8 +91,7 @@ without it.
 <!--
 One numbered step per tool call. Name the MCP tool in backticks and say what to pass.
 Build in this order: connections, then syncs and variables, then workflows and queues, then
-genies. Everything is created switched off; the last steps test it and switch it on only after
-the person confirms.
+genies. The last steps test it and put it live.
 -->
 
 1. Call `connections_list` and note the Shopify and NetSuite connections from "Before you
@@ -101,10 +100,8 @@ the person confirms.
    names, so the workflow reads it instead of a fixed value.
 3. Call `connectors_module_form` for the Shopify order trigger and the NetSuite create record
    step, and fill each form from the field mapping above.
-4. Call `workflows_create` with the trigger and steps from step 3. The workflow is created
-   switched off.
-5. Show the person the workflow and the field mapping, and ask them to confirm both.
-6. Call `workflows_deploy` only after the person confirms.
+4. Call `workflows_create` with the trigger and steps from step 3.
+5. Test it with `workflows_run` on one order, then call `workflows_deploy`.
 
 ## When something goes wrong
 

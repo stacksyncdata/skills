@@ -59,13 +59,13 @@ Then discover what exists:
 
 1. **Draft the table pairs.** For each pair, state the direction and the mapped fields, and show
    the plan to the person as a table: table A, table B, direction, fields.
-2. **Create the sync switched off** with `syncs_save`. A new sync is saved paused, so nothing is
-   written until the person switches it on.
+2. **Create the sync** with `syncs_save`. Stacksync saves a new sync paused, so nothing is
+   written until it is switched on.
 3. **Read it back** with `syncs_get` and show the person the saved table pairs and fields.
 4. **Associations and per-field direction.** If the plan needs either, give the person the link
    to the sync in the web app and wait until they confirm they set it.
 5. **Check record linking** (next section) before switching on.
-6. **Switch it on** with `syncs_switch` only after the person confirms.
+6. **Switch it on** with `syncs_switch`. The first run copies the records already in each app.
 7. **Watch the first run.** Call `syncs_issues` and report what it returns.
 
 To change a running sync, read it with `syncs_get`, then send the complete new list of table
@@ -129,7 +129,6 @@ change, depending on the sync's schema update settings. What an AI app can do wi
 | Rule | Why |
 | --- | --- |
 | Show the plan (tables, direction, fields) and wait for confirmation before `syncs_save` | A sync writes to live apps; the person owns that decision |
-| Save new syncs switched off; switch on with `syncs_switch` only after the person confirms | The first run copies every existing record |
 | Never delete and recreate a running sync | The new sync duplicates every record the old one linked |
 | Never choose an issue resolution for the person; ask which one for each group of issues | Revert, retry and ignore each change data in a different app |
 | Never switch Delete Protection off without an explicit yes after stating the held count | The held deletes run at once and cannot be undone |

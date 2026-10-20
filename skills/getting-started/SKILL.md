@@ -68,7 +68,6 @@ Build in this order, because each step uses what the step before it made.
 | Rule | Why |
 | --- | --- |
 | Discover before building: list what exists (`connections_list`, `syncs_list`, `workflows_list`, `genies_list`) and read the closest match with its `_get` tool | The workspace may already hold what the person asks for; a second copy of a sync or workflow writes the same records twice |
-| Create everything switched off, show the person the result, then switch it on only after they confirm | A new sync or workflow starts changing records in live apps the moment it runs |
 | Never ask for or accept a password, API key or token in the chat. Call `connections_create`: it returns a secure sign in link the person opens to connect the app | A secret typed into a chat is stored in the chat history, outside the person's control |
 | Some changes show a preview card in the AI app. Wait for the person to accept it before saying the change is done | The card is where the person approves a change to their live account; a declined card means nothing changed |
 | Ask before deleting anything, and name what will be deleted | Deleting a sync, workflow or connection cannot be undone from the chat |

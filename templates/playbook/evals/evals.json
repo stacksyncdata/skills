@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Our two-way sync changes thousands of records at month end and the workflow it triggers keeps failing. How should we set this up?",
-      "expected_output": "Explains when the queue playbook fits better than a direct trigger using the numbers in the skill, then builds the queue, the workflow and the sync trigger in order, switched off, and deploys only after the person confirms.",
+      "expected_output": "Explains when the queue playbook fits better than a direct trigger using the numbers in the skill, then builds the queue, the workflow and the sync trigger in order, tests it with workflows_run, then deploys.",
       "files": []
     },
     {

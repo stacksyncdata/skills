@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-10-20T04:40:54.345Z",
+  "generated_at": "2026-10-20T05:39:12.974Z",
   "skills": [
     {
       "name": "adding-sync-triggers",
@@ -449,7 +449,7 @@
       "type": "guide",
       "status": "active",
       "superseded_by": null,
-      "description": "Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, a switched off build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.",
+      "description": "Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, the build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.",
       "path": "skills/migrating-to-stacksync/SKILL.md",
       "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",

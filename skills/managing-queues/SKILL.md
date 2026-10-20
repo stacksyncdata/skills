@@ -71,7 +71,6 @@ flush, clear or delete it. To build the workflows on either side, use `building-
 
 | Rule | Why |
 | --- | --- |
-| Create the queue with `status` `paused` until the consumer workflow is built and tested | A running queue sends records to whatever consumer it has |
 | Ask before `queues_clear`, and state `waiting_record_count` | Cleared records never reach the consumer and cannot be recovered |
 | Ask before `queues_delete`, and name the producers and consumers it breaks | Producers can no longer add records, and the waiting records are deleted |
 | Ask how many records before `queues_flush` | Each flush starts a consumer run that may write to live apps |

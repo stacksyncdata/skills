@@ -44,7 +44,7 @@ A workflow step that sends an HTTP request to any URL and passes the response to
 
 1. `workflows_list` and `workflows_get`: find the workflow the step belongs in, or plan a new one.
 2. Add an HTTP request step with the method, URL, headers and body from the app's API
-   documentation, and save with `workflows_save`. Keep the workflow switched off.
+   documentation, and save with `workflows_save`.
 3. Keep the app's API key out of the chat and out of the step text. The person stores it as a
    workspace secret or in a connection they create in the web app; `connections_create` returns a
    secure sign in link.

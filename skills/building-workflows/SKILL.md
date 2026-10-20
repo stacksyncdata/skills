@@ -108,7 +108,6 @@ wrapped once more, as the docs show: `{{ {{ text to keep }} }}`.
 | Configure every step from `connectors_module_form`; never copy a step from another workflow as a template | The form holds the app's live fields and dropdown options; a copied step carries another workflow's connection and values |
 | Send the whole document to `workflows_save` | A save overwrites the draft's document; a partial document removes the missing steps |
 | Test with `workflows_run` before `workflows_deploy` | A deployed workflow starts on every webhook, schedule, email or app change |
-| Pause the workflow with `workflows_save` `status` `paused` while testing, when it has a schedule, email or app trigger | Saving sets those triggers up, so they can start runs before the person is ready |
 | Put changing values in variables, not in step fields | One variable change updates every step that reads it |
 | Delete a workflow with `workflows_delete` only after the person names it and agrees; pausing with `workflows_save` `status` `paused` keeps it | A deleted workflow's schedules and sync triggers stop, and it cannot be brought back |
 | Never ask for a password or key; use `connections_create` | A secret typed into a chat stays in the chat history |

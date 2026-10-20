@@ -59,8 +59,8 @@ sees one preview card for each write and selects Accept before anything changes.
    `sync_id`; a create takes only the connections and the table pairs.
 5. Call `syncs_get` with `include_columns: true` and show the person the saved table pairs and
    fields.
-6. Switch it on with `syncs_switch` only after the person confirms. The first run copies the
-   records already in each app; check "Record linking" in `designing-two-way-syncs` first.
+6. Switch it on with `syncs_switch`. The first run copies the records already in each app;
+   check "Record linking" in `designing-two-way-syncs` first.
 
 The sync lives in the region of its connections, `besg` (Europe) or `usnv` (United States). Both
 connections must be in the same region.
@@ -81,7 +81,7 @@ A saved configuration change cannot be undone. Show the change and wait for a ye
 1. Call `syncs_get` on the sync to copy, with `include_columns: true`.
 2. Call `syncs_save` without `sync_id`, with a new `name`, the same or new connections in `app_1`
    and `app_2`, and the `table_pairs` from the copied document.
-3. The copy is saved paused. Set its app settings, then switch it on after the person confirms.
+3. The copy is saved paused. Set its app settings, then switch it on with `syncs_switch`.
 
 A copy does not know which records the original linked. Pointing a copy at the same two apps as a
 running sync copies every record again and creates duplicates, so copy to other connections, such
@@ -128,7 +128,6 @@ change, update the sync, then start it again. Details in
 | --- | --- |
 | Show the plan and wait for a yes before every `syncs_save` | A sync writes to live apps |
 | Send the full `table_pairs` list on every edit that sends it | A table pair left out is removed from the sync |
-| Create switched off, check with `syncs_get`, then `syncs_switch` | The first run copies every existing record |
 | Pause instead of delete when the person wants it stopped | A deleted sync cannot come back; a new one duplicates records |
 | Never switch Delete Protection off without the held count and a yes | The held deletes run at once and cannot be undone |
 | Never ask for a password or key; use the link from `connections_create` | Secrets in a chat leave the person's control |

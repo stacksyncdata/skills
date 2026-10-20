@@ -31,7 +31,6 @@ questions to ask them before changing anything.
 ## Steps
 
 1. One numbered step per tool call, naming the tool and what to pass to it.
-2. Create new things switched off, show the person the result, then switch them on.
 
 ## Rules
 
