@@ -46,9 +46,8 @@ Stacksync already holds, so nothing is built twice.
    | Large batches, or work that must run at a steady pace | A queue in front of the workflow |
    | Stored credentials | New connections created with `connections_create` |
 
-4. **Design the whole target.** Use the `enterprise-architect` guide when it is available (call
-   `skills_get` to check); otherwise draw the design by hand: one row per integration with its
-   syncs, workflows, queues and variables. Show it to the person and wait for approval.
+4. **Design the whole target.** Draw it as one row per integration with its syncs, workflows,
+   queues and variables. Show it to the person and wait for approval.
 5. **Connect the apps.** For each app, call `connections_list`; if it is missing, call
    `connections_create` and give the person the secure sign in link it returns.
 6. **Build everything switched off.** Syncs with `syncs_save`, workflows with `workflows_save`,

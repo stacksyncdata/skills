@@ -87,7 +87,6 @@ A playbook or use case merges only after all four:
 | `scripts/validate-skills.mjs` | A skill breaks a rule above or sits anywhere but `skills/<name>/SKILL.md`. Unknown metadata keys only warn |
 | `scripts/check-writing.mjs` | A Markdown file in `skills/` uses something STYLE.md bans, or a platform name outside its reference file |
 | `scripts/check-secrets.mjs` | A value shaped like an API key, token or private key appears in any file |
-| `scripts/check-tools.mjs` | A tool in `metadata.tools` is not in the MCP tool list; skipped unless `STACKSYNC_TOOLS_JSON` points at it |
 | `scripts/check-freshness.mjs` | Never fails; warns when `verified_on` is more than 90 days old |
 | `scripts/generate-catalog.mjs --check` | `catalog.json` or the index in `skills/README.md` is out of date |
 | `node --test scripts/test/*.test.mjs` | A check itself is broken |
