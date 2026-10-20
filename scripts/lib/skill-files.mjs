@@ -1,14 +1,16 @@
 // Shared helpers for the CI checks: find every SKILL.md and read its frontmatter.
 // No dependencies on purpose, so the checks run on a bare Node 22 install.
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
-import { join, relative, basename, dirname, resolve } from 'node:path';
+import { join, relative, basename, dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-// Published skills live in skills/ and recipes/; templates/ holds the starting points to copy.
-export const PUBLISHED_FOLDERS = ['skills', 'recipes'];
+// Every published skill lives in skills/<name>/; metadata.type alone says what it is. templates/
+// holds the starting points to copy.
+export const PUBLISHED_FOLDERS = ['skills'];
 export const TEMPLATE_FOLDER = 'templates';
+export const SKILL_FILE_NAME = 'SKILL.md';
 
 export function findSkillFiles(repositoryRoot, folders) {
   const skillFiles = [];
@@ -16,13 +18,28 @@ export function findSkillFiles(repositoryRoot, folders) {
     const folderPath = join(repositoryRoot, folder);
     if (!existsSync(folderPath)) continue;
     for (const entry of readdirSync(folderPath, { withFileTypes: true })) {
-      const skillFile = join(folderPath, entry.name, 'SKILL.md');
+      const skillFile = join(folderPath, entry.name, SKILL_FILE_NAME);
       if (entry.isDirectory() && existsSync(skillFile)) {
         skillFiles.push({ folder, skillName: entry.name, path: skillFile });
       }
     }
   }
   return skillFiles.sort((first, second) => first.path.localeCompare(second.path));
+}
+
+// A SKILL.md anywhere other than <folder>/<name>/SKILL.md is never loaded by an AI app, so the
+// validator reports it instead of silently skipping it.
+export function findMisplacedSkillFiles(repositoryRoot, folders) {
+  const misplacedPaths = [];
+  for (const folder of folders) {
+    const folderPath = join(repositoryRoot, folder);
+    if (!existsSync(folderPath)) continue;
+    for (const filePath of listFilesRecursively(folderPath)) {
+      const depth = relative(folderPath, filePath).split(sep).length;
+      if (basename(filePath) === SKILL_FILE_NAME && depth !== 2) misplacedPaths.push(filePath);
+    }
+  }
+  return misplacedPaths.sort();
 }
 
 export function listFilesRecursively(directoryPath, ignoredNames = new Set(['.git', 'node_modules'])) {
@@ -93,6 +110,23 @@ export function readSkill(skillFile) {
 // because the standard allows only string to string metadata.
 export function splitWords(value) {
   return typeof value === 'string' ? value.split(/\s+/).filter(Boolean) : [];
+}
+
+// Splits a body into its "## " sections, ignoring headings inside fenced code blocks. Each
+// section keeps its heading line, so callers can compare a whole block word for word.
+export function splitSections(body) {
+  const sections = [];
+  let isInCodeBlock = false;
+  for (const line of body.split('\n')) {
+    if (line.startsWith('```')) isInCodeBlock = !isInCodeBlock;
+    if (!isInCodeBlock && line.startsWith('## ')) sections.push({ heading: line.slice(3).trim(), lines: [line] });
+    else if (sections.length > 0) sections.at(-1).lines.push(line);
+  }
+  return sections.map(({ heading, lines }) => ({ heading, text: lines.join('\n').trim() }));
+}
+
+export function readJsonFile(filePath) {
+  return JSON.parse(readFileSync(filePath, 'utf8'));
 }
 
 export function displayPath(repositoryRoot, filePath) {

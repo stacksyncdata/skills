@@ -16,13 +16,18 @@ jobs:
           node-version: 22
       - name: Validate skills
         run: node scripts/validate-skills.mjs
+      - name: Check writing against STYLE.md
+        run: node scripts/check-writing.mjs
       - name: Check for credentials
         run: node scripts/check-secrets.mjs
       - name: Check tool names
         # Skipped until the Stacksync MCP build publishes tools.json; then download it here and
         # point STACKSYNC_TOOLS_JSON at it.
         run: node scripts/check-tools.mjs
-      - name: Check catalog.json is current
+      - name: Flag playbooks and use cases not run in 90 days
+        # Prints warnings only; an old verified_on never fails the build.
+        run: node scripts/check-freshness.mjs
+      - name: Check catalog.json and the skills/README.md index are current
         run: node scripts/generate-catalog.mjs --check
       - name: Test the checks
         run: node --test scripts/test/*.test.mjs

@@ -1,0 +1,23 @@
+{
+  "skill_name": "playbook",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our two-way sync changes thousands of records at month end and the workflow it triggers keeps failing. How should we set this up?",
+      "expected_output": "Explains when the queue playbook fits better than a direct trigger using the numbers in the skill, then builds the queue, the workflow and the sync trigger in order, switched off, and deploys only after the person confirms.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The Stacksync MCP is already connected. Route every change from my sync into a queue and process it with a workflow.",
+      "expected_output": "Skips the MCP setup, uses syncs_list, queues_create, workflows_create and sync_triggers_create in that order, and states the batch size, retries and ordering with their reasons.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "My Stacksync queue keeps growing and nothing seems to process it.",
+      "expected_output": "Uses the When something goes wrong table: checks workflows_runs for a failing or switched off workflow, fixes it, and confirms the queue empties with queues_records.",
+      "files": []
+    }
+  ]
+}

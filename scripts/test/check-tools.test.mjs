@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readToolNames, findUnknownTools } from '../check-tools.mjs';
+import { readToolNames, findUnknownTools, findUntaughtTools } from '../check-tools.mjs';
 
 test('reads every supported tools.json shape', () => {
   const expected = new Set(['syncs_list', 'syncs_get']);
@@ -18,4 +18,9 @@ test('reports only the tools that do not exist', () => {
   assert.deepEqual(findUnknownTools(skills, new Set(['syncs_list'])), [
     { path: 'skills/building-syncs/SKILL.md', toolName: 'syncs_remove' },
   ]);
+});
+
+test('reports every tool that no skill teaches', () => {
+  const skills = [{ path: 'skills/building-syncs/SKILL.md', frontmatter: { metadata: { tools: 'syncs_list' } } }];
+  assert.deepEqual(findUntaughtTools(skills, new Set(['syncs_list', 'workflows_delete', 'genies_ask'])), ['genies_ask', 'workflows_delete']);
 });

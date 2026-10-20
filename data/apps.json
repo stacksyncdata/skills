@@ -1,0 +1,369 @@
+{
+  "apps": [
+    {
+      "slug": "acumatica",
+      "display_name": "Acumatica",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "airtable",
+      "display_name": "Airtable",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "amazon-s3",
+      "display_name": "Amazon S3",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "amazon-seller-central",
+      "display_name": "Amazon Seller Central",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "attio",
+      "display_name": "Attio",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "aviato",
+      "display_name": "Aviato",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "bamboohr",
+      "display_name": "BambooHR",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "better-contact",
+      "display_name": "BetterContact",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "bigquery",
+      "display_name": "BigQuery",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "campfire",
+      "display_name": "Campfire",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "crustdata",
+      "display_name": "Crustdata",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "customer-io",
+      "display_name": "Customer.io",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "dynamics365-business-central",
+      "display_name": "Microsoft Dynamics 365 Business Central",
+      "sources": [
+        "sync"
+      ]
+    },
+    {
+      "slug": "dynamics365-crm",
+      "display_name": "Microsoft Dynamics 365 CRM",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "dynamics365-finance",
+      "display_name": "Microsoft Dynamics 365 Finance and Operations",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "extensiv",
+      "display_name": "Extensiv",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "front",
+      "display_name": "Front",
+      "sources": [
+        "sync"
+      ]
+    },
+    {
+      "slug": "full-enrich",
+      "display_name": "FullEnrich",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "google-sheets",
+      "display_name": "Google Sheets",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "hubspot",
+      "display_name": "HubSpot",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "klaviyo",
+      "display_name": "Klaviyo",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "lemlist",
+      "display_name": "lemlist",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "marketo",
+      "display_name": "Marketo",
+      "sources": [
+        "sync"
+      ]
+    },
+    {
+      "slug": "microsoft-teams",
+      "display_name": "Microsoft Teams",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "monday",
+      "display_name": "monday.com",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "mongodb",
+      "display_name": "MongoDB",
+      "sources": [
+        "sync"
+      ]
+    },
+    {
+      "slug": "motherduck",
+      "display_name": "MotherDuck",
+      "sources": [
+        "sync"
+      ]
+    },
+    {
+      "slug": "mysql",
+      "display_name": "MySQL",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "netsuite",
+      "display_name": "NetSuite",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "nextgen",
+      "display_name": "NextGen Enterprise",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "orderful",
+      "display_name": "Orderful",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "pipedrive",
+      "display_name": "Pipedrive",
+      "sources": [
+        "sync"
+      ]
+    },
+    {
+      "slug": "postgres",
+      "display_name": "PostgreSQL",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "resend",
+      "display_name": "Resend",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "rillet",
+      "display_name": "Rillet",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "salesforce",
+      "display_name": "Salesforce",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "sendgrid",
+      "display_name": "SendGrid",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "shopify",
+      "display_name": "Shopify",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "slack",
+      "display_name": "Slack",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "snowflake",
+      "display_name": "Snowflake",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "sqlserver",
+      "display_name": "SQL Server",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "stripe",
+      "display_name": "Stripe",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "suiteanalytics",
+      "display_name": "NetSuite SuiteAnalytics",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "tiktok-shop",
+      "display_name": "TikTok Shop",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "twilio",
+      "display_name": "Twilio",
+      "sources": [
+        "sync"
+      ]
+    },
+    {
+      "slug": "vitally",
+      "display_name": "Vitally",
+      "sources": [
+        "workflows"
+      ]
+    },
+    {
+      "slug": "zendesk",
+      "display_name": "Zendesk",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "zoho-crm",
+      "display_name": "Zoho CRM",
+      "sources": [
+        "sync",
+        "workflows"
+      ]
+    },
+    {
+      "slug": "zoho-salesiq",
+      "display_name": "Zoho SalesIQ",
+      "sources": [
+        "workflows"
+      ]
+    }
+  ]
+}

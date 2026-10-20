@@ -1,0 +1,152 @@
+name: Integration use case
+description: Describe an integration you have run on a live Stacksync workspace, so it becomes a use case.
+title: "Use case: <source app> to <destination app> <objects>"
+labels: ["usecase-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill this in from an integration you have already run on a live workspace with the
+        Stacksync MCP. A maintainer adds the `draft-usecase` label, an AI agent drafts the use case as a
+        pull request, and a reviewer runs it live before it is merged.
+
+        Do not paste customer names, customer records, passwords, tokens or API keys. Describe
+        records by their fields, for example "an order with 3 line items".
+  - type: input
+    id: source_app
+    attributes:
+      label: Source app
+      description: The app the records come from. Use the name in data/apps.json, for example "shopify".
+      placeholder: shopify
+    validations:
+      required: true
+  - type: input
+    id: destination_app
+    attributes:
+      label: Destination app
+      description: The app the records go to, as named in data/apps.json, for example "netsuite".
+      placeholder: netsuite
+    validations:
+      required: true
+  - type: input
+    id: objects
+    attributes:
+      label: Objects
+      description: What moves, in each app's words.
+      placeholder: orders → sales orders
+    validations:
+      required: true
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Direction
+      options:
+        - one-way
+        - two-way
+    validations:
+      required: true
+  - type: checkboxes
+    id: resources
+    attributes:
+      label: Stacksync resources used
+      options:
+        - label: sync
+        - label: workflow
+        - label: queue
+        - label: genie
+        - label: variable
+        - label: knowledge_base
+        - label: api_proxy
+  - type: dropdown
+    id: trigger
+    attributes:
+      label: Trigger
+      description: What starts each run.
+      options:
+        - change detection
+        - webhook
+        - schedule
+        - email
+    validations:
+      required: true
+  - type: input
+    id: frequency
+    attributes:
+      label: Frequency
+      description: How long after a change the destination shows it, as measured.
+      placeholder: within 60 seconds
+    validations:
+      required: true
+  - type: input
+    id: volume_tested
+    attributes:
+      label: Volume tested
+      description: The volume you ran it at.
+      placeholder: 2,000 orders per day
+    validations:
+      required: true
+  - type: textarea
+    id: business_problem
+    attributes:
+      label: Business problem
+      description: Who needed this, what they did by hand before, and how they know it works now.
+    validations:
+      required: true
+  - type: textarea
+    id: field_mapping
+    attributes:
+      label: Field mapping
+      description: One line per field, as source field, destination field, transform, required.
+      placeholder: |
+        Order number, External ID, none, yes
+        Customer email, Customer, find the customer by email, yes
+    validations:
+      required: true
+  - type: textarea
+    id: problems_seen
+    attributes:
+      label: Problems seen
+      description: Each problem you hit, as what the person saw, the cause and the fix.
+      placeholder: |
+        "Invalid item" on a run, a SKU had no NetSuite item, created the item and replayed the run
+  - type: input
+    id: proven_on_date
+    attributes:
+      label: Date it ran end to end
+      description: YYYY-MM-DD
+      placeholder: "2026-10-19"
+    validations:
+      required: true
+  - type: input
+    id: proven_on_workspace
+    attributes:
+      label: Workspace type
+      description: The type of company and the app editions, without the customer's name.
+      placeholder: Retailer, Shopify Plus and NetSuite OneWorld
+    validations:
+      required: true
+  - type: textarea
+    id: proven_result
+    attributes:
+      label: Result
+      description: What you saw when it worked, with numbers.
+      placeholder: 412 orders reached NetSuite over 2 days; the slowest took 48 seconds.
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: The GitHub team that keeps this use case current and runs it again each quarter.
+      placeholder: "@stacksyncdata/ai-team"
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Before you submit
+      options:
+        - label: This ran end to end on a live Stacksync workspace through the Stacksync MCP.
+          required: true
+        - label: This issue holds no customer names, customer records, passwords, tokens or API keys.
+          required: true

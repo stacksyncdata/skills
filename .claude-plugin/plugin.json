@@ -11,7 +11,7 @@
   "repository": "https://github.com/stacksyncdata/skills",
   "license": "Apache-2.0",
   "keywords": ["stacksync", "integration", "sync", "workflows", "mcp"],
-  "skills": ["./recipes/"],
+  "skills": ["./skills/"],
   "mcpServers": {
     "stacksync": {
       "type": "http",

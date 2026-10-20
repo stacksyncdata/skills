@@ -1,5 +1,6 @@
-// Fails when a skill names an MCP tool that does not exist. The tool list (tools.json) is
-// published by the Stacksync MCP build; its path comes from STACKSYNC_TOOLS_JSON.
+// Fails when a skill names an MCP tool that does not exist, or when an MCP tool is named by no skill: the
+// skills are how an agent learns what Stacksync can do, so every capability must be taught by one. The tool
+// list (tools.json) is published by the Stacksync MCP build; its path comes from STACKSYNC_TOOLS_JSON.
 import { existsSync, readFileSync } from 'node:fs';
 import {
   REPOSITORY_ROOT, PUBLISHED_FOLDERS, findSkillFiles, readSkill, splitWords, displayPath, isRunDirectly,
@@ -24,6 +25,11 @@ export function findUnknownTools(skills, knownToolNames) {
   return unknownTools;
 }
 
+export function findUntaughtTools(skills, knownToolNames) {
+  const taughtToolNames = new Set(skills.flatMap((skill) => splitWords(skill.frontmatter.metadata?.tools)));
+  return [...knownToolNames].filter((toolName) => !taughtToolNames.has(toolName)).sort();
+}
+
 if (isRunDirectly(import.meta.url)) {
   const toolsFilePath = process.env[TOOLS_FILE_VARIABLE];
   if (!toolsFilePath || !existsSync(toolsFilePath)) {
@@ -36,6 +42,10 @@ if (isRunDirectly(import.meta.url)) {
   for (const { path, toolName } of unknownTools) {
     console.error(`${displayPath(REPOSITORY_ROOT, path)}: tool "${toolName}" is not in ${toolsFilePath}`);
   }
-  if (unknownTools.length > 0) process.exit(1);
-  console.log(`check-tools: every tool named in ${skills.length} skills exists`);
+  const untaughtTools = findUntaughtTools(skills, knownToolNames);
+  for (const toolName of untaughtTools) {
+    console.error(`tool "${toolName}" is in ${toolsFilePath} but no skill lists it in metadata.tools`);
+  }
+  if (unknownTools.length > 0 || untaughtTools.length > 0) process.exit(1);
+  console.log(`check-tools: every tool named in ${skills.length} skills exists, and every tool is taught by a skill`);
 }

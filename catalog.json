@@ -1,3 +1,624 @@
 {
-  "skills": []
+  "schema": 1,
+  "generated_at": "2026-10-20T00:36:36.726Z",
+  "skills": [
+    {
+      "name": "adding-sync-triggers",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Adds, changes, pauses and deletes Stacksync sync event triggers and sync webhooks through the Stacksync MCP. A trigger sends an HTTP call, runs a database query or adds a queue message when a synced record is created, updated or deleted; a webhook notifies a URL of a sync's activity, failed records or backfill. Use when someone wants something to happen when records change in a sync, wants to call an API or run SQL on a change, feed a queue from a sync, or be notified about sync issues or backfill.",
+      "path": "skills/adding-sync-triggers/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "syncs"
+      ],
+      "tools": [
+        "syncs_list",
+        "syncs_get",
+        "syncs_triggers_save",
+        "syncs_triggers_delete",
+        "syncs_webhooks_save",
+        "syncs_webhooks_delete",
+        "connections_list",
+        "queues_list"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "building-connectors",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Connects Stacksync to an app that has no Stacksync connector, first with an HTTP request step or a code step in a workflow, then by building a workflow connector with the Stacksync CLI and testing it locally before deploying it. Use when an app is missing from the Stacksync connector list, someone asks to build a custom connector or a new workflow module, or a workflow needs to call an API Stacksync does not cover.",
+      "path": "skills/building-connectors/SKILL.md",
+      "version": "0.1.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "connectors",
+        "workflows"
+      ],
+      "tools": [
+        "connectors_list",
+        "connectors_get",
+        "connectors_run_action",
+        "connections_list",
+        "connections_create",
+        "workflows_list",
+        "workflows_get",
+        "workflows_save",
+        "workflows_run",
+        "workflows_runs",
+        "variables_list"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "building-genies",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Builds and changes Stacksync Genies, the AI agents that work in a workspace's apps, from a business description; sets their skills (app actions), knowledge bases, interfaces (Slack, Microsoft Teams and email) and who may use them. Use when someone wants an AI agent, assistant or bot that answers in Slack, Teams or email, wants to create, change or share a Genie, add a skill or knowledge base to it, or change its instructions.",
+      "path": "skills/building-genies/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "genies"
+      ],
+      "tools": [
+        "genies_list",
+        "genies_get",
+        "genies_draft",
+        "genies_schema",
+        "genies_save",
+        "genies_access_save",
+        "genies_ask",
+        "genies_delete",
+        "connections_list",
+        "connections_create",
+        "knowledge_bases_list",
+        "variables_list",
+        "workspaces_get"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "building-internal-apps",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Deploys a hosted internal app, a managed PostgreSQL database, file storage or an internal API with Stacksync Enterprise OS, and points the person to the official Enterprise OS agent skill for the full command set. Use when someone wants to host a web app, portal, dashboard or API for their team, needs a managed database or file storage, or asks for something Stacksync syncs and workflows do not provide on their own.",
+      "path": "skills/building-internal-apps/SKILL.md",
+      "version": "0.1.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "enterprise-os"
+      ],
+      "tools": [
+        "workflows_list",
+        "workflows_get"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "building-workflows",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Builds and changes Stacksync workflows through the Stacksync MCP, from the workflow document to the trigger (webhook, schedule, email or app event), each step's form, Python and JavaScript code steps, data references between steps, drafts, versions, duplicates and deploys. Use when someone wants to automate a process, create or edit a workflow, add a step or a trigger, run code in a workflow, reference a previous step's output, copy a workflow to another region, or put a new version live.",
+      "path": "skills/building-workflows/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "workflows"
+      ],
+      "tools": [
+        "workflows_list",
+        "workflows_get",
+        "workflows_schema",
+        "connectors_list",
+        "connectors_get",
+        "connectors_module_form",
+        "connections_create",
+        "variables_list",
+        "workflows_save",
+        "workflows_run",
+        "workflows_runs",
+        "workflows_deploy",
+        "workflows_create_draft",
+        "workflows_duplicate",
+        "workflows_delete"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "connecting-apps",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Connects, reauthorizes, renames, shares and deletes Stacksync connections, lists the live tables and columns of a connected app, and explains network options (SSH tunnel, IP allowlist, private network setups) and app rate limits. Use when someone wants to connect an app or database to Stacksync, a connection needs reauthorization or has expired, a teammate cannot see a connection, a connection must be deleted, someone asks which tables or fields an app has, or a database sits behind a firewall or in a private network.",
+      "path": "skills/connecting-apps/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "connections"
+      ],
+      "tools": [
+        "workspaces_list",
+        "connections_list",
+        "connections_get",
+        "connections_create",
+        "connections_update",
+        "connections_delete",
+        "connections_tables",
+        "syncs_get",
+        "syncs_save"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "designing-two-way-syncs",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Designs, builds and repairs Stacksync syncs that keep records equal between two apps, choosing one-way or two-way direction per table and planning record linking, deletes, frequency, rate limits, associations and schema changes. Use when someone wants records kept equal between two apps or databases, asks whether a sync should be one-way or two-way, is about to switch on a sync on apps that already hold data, or has a sync with issues, missing parent links or changed fields.",
+      "path": "skills/designing-two-way-syncs/SKILL.md",
+      "version": "0.1.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "syncs"
+      ],
+      "tools": [
+        "connections_list",
+        "connections_get",
+        "connections_create",
+        "connections_tables",
+        "connectors_list",
+        "connectors_get",
+        "syncs_list",
+        "syncs_get",
+        "syncs_save",
+        "syncs_switch",
+        "syncs_issues",
+        "syncs_resolve_issues"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "exploring-data-and-logs",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Explains where to look at data, logs, sync statistics, monitoring charts and alerts in the Stacksync web app (Data Explorer, Log Explorer, Issues dashboard, Sync Stats, Monitoring) and which MCP tools read the same facts. Use when someone asks how many records a sync holds, how a sync or workflow is doing, where to find logs, how long logs are kept, how to see trends over time, or how to get alerted when something fails.",
+      "path": "skills/exploring-data-and-logs/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "monitoring"
+      ],
+      "tools": [
+        "syncs_list",
+        "syncs_get",
+        "syncs_issues",
+        "syncs_webhooks_save",
+        "workflows_runs",
+        "genies_activity"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "fixing-sync-issues",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Finds and fixes Stacksync sync problems through the Stacksync MCP with one process: find the sync, read its health and the records that failed, explain the cause, propose a fix, check it cannot create duplicates or lose data, apply it after the person agrees, and confirm the next sync succeeds. Use when someone says records are not syncing, a sync shows issues or errors, a sync is paused by errors, data looks different in the two apps, or changes are stuck or slow.",
+      "path": "skills/fixing-sync-issues/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "syncs"
+      ],
+      "tools": [
+        "syncs_list",
+        "syncs_get",
+        "syncs_issues",
+        "syncs_resolve_issues",
+        "syncs_switch",
+        "syncs_save",
+        "connections_list",
+        "connections_get",
+        "connections_create",
+        "connections_tables"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "getting-started",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Explains what Stacksync does, connects the Stacksync MCP server to an AI app, and sets the order and the rules for building in a live Stacksync workspace. Use when someone is new to Stacksync, asks what Stacksync can do, wants to connect Stacksync to their AI app, or asks where to start with syncs, workflows, Genies, queues, variables, knowledge bases or API proxies.",
+      "path": "skills/getting-started/SKILL.md",
+      "version": "0.1.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "onboarding"
+      ],
+      "tools": [
+        "workspaces_list",
+        "workspaces_get",
+        "connections_list",
+        "connections_get",
+        "connections_create",
+        "connectors_list",
+        "connectors_get",
+        "syncs_list",
+        "workflows_list",
+        "genies_list",
+        "queues_list",
+        "variables_list",
+        "knowledge_bases_list",
+        "api_proxies_list",
+        "skills_get"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "managing-knowledge-bases",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Creates, renames, shares and deletes Stacksync knowledge bases, the document collections Genies answer from, and adds or removes documents using files already in the workspace (PDF, Word, Excel, CSV, JSON, Markdown and text). Use when someone wants a Genie to answer from their own documents, policies, product catalogs or manuals, wants to add or remove a document, asks why a document failed to process, or looks for a file in the workspace.",
+      "path": "skills/managing-knowledge-bases/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "genies",
+        "knowledge-bases"
+      ],
+      "tools": [
+        "knowledge_bases_list",
+        "knowledge_bases_get",
+        "knowledge_bases_save",
+        "knowledge_bases_delete",
+        "knowledge_bases_documents_add",
+        "knowledge_bases_documents_remove",
+        "files_list",
+        "files_get",
+        "genies_list"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "managing-queues",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Creates and runs Stacksync queues through the Stacksync MCP, which collect records from producer workflows and hand them to one consumer workflow in batches, with flush rules for batch size, maximum age, rate limit and order, plus pausing, flushing now, clearing and deleting. Use when someone wants to process many changes at a steady pace, batch records between workflows, set how often a queue flushes, see what is waiting in a queue, push waiting records through now, or empty or remove a queue.",
+      "path": "skills/managing-queues/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "queues"
+      ],
+      "tools": [
+        "queues_list",
+        "queues_get",
+        "queues_save",
+        "queues_flush",
+        "queues_clear",
+        "queues_delete",
+        "workflows_list",
+        "workflows_get",
+        "connectors_list"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "managing-syncs",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Creates, edits, copies, starts, pauses and deletes Stacksync syncs through the Stacksync MCP, and changes their table pairs, fields, Data Sync Frequency, rate limits and Delete Protection. Use when someone asks to set up a new sync, add or remove a table or a custom field, change how often a sync runs, copy a sync, turn a sync on or off, rename it, or delete it.",
+      "path": "skills/managing-syncs/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "syncs"
+      ],
+      "tools": [
+        "syncs_list",
+        "syncs_get",
+        "syncs_save",
+        "syncs_switch",
+        "syncs_delete",
+        "connections_list",
+        "connections_create",
+        "connections_tables",
+        "folders_list"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "managing-variables-and-secrets",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Creates, reads, changes and deletes Stacksync workspace variables and secrets through the Stacksync MCP, and shows how workflow steps read them by reference. Use when someone wants to store a value that workflows share, such as an account ID, a threshold, a cursor or an API token, asks how a step reads a variable or secret, wants to change a value every workflow uses, or a workflow reads the wrong or an empty value.",
+      "path": "skills/managing-variables-and-secrets/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "variables"
+      ],
+      "tools": [
+        "variables_list",
+        "variables_get",
+        "variables_save",
+        "variables_delete",
+        "workflows_list",
+        "workflows_get"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "managing-workspace-access",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Shows the person's workspaces and role, lists workspace members and groups, shares a Genie with people or groups, and explains where users, roles, MFA, SSO and SCIM are set in the Stacksync web app. Use when someone asks which workspace or role they have, who is in the workspace, wants to invite a colleague or change a role, wants to give or remove access to a Genie, a teammate cannot use a Genie, or asks about MFA, single sign on or user provisioning.",
+      "path": "skills/managing-workspace-access/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "workspaces"
+      ],
+      "tools": [
+        "workspaces_list",
+        "workspaces_get",
+        "genies_list",
+        "genies_get",
+        "genies_access_save"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "migrating-to-stacksync",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, a switched off build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.",
+      "path": "skills/migrating-to-stacksync/SKILL.md",
+      "version": "0.1.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "migration"
+      ],
+      "tools": [
+        "workspaces_list",
+        "connections_list",
+        "connections_create",
+        "connectors_list",
+        "syncs_list",
+        "syncs_get",
+        "syncs_save",
+        "syncs_switch",
+        "syncs_issues",
+        "workflows_list",
+        "workflows_get",
+        "workflows_save",
+        "workflows_deploy",
+        "workflows_run",
+        "workflows_runs",
+        "queues_list",
+        "queues_save",
+        "variables_list",
+        "variables_save",
+        "skills_get"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "monitoring-workflow-runs",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Checks Stacksync workflow runs through the Stacksync MCP and fixes failed ones with one process: find the failed runs, read the failing step's input, output and error, explain the cause, propose a fix, check a replay cannot write records twice, apply it after the person agrees, and confirm the next run succeeds. Also runs workflows now and marks failed runs resolved. Use when someone asks whether a workflow ran, why it failed, what a step received or returned, wants to run a workflow now, rerun or replay failed runs after a fix, or clear failed runs from the Log Explorer.",
+      "path": "skills/monitoring-workflow-runs/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "workflows"
+      ],
+      "tools": [
+        "workflows_list",
+        "workflows_get",
+        "workflows_runs",
+        "workflows_run",
+        "workflows_replay",
+        "workflows_resolve_runs",
+        "workflows_create_draft",
+        "workflows_save",
+        "workflows_deploy",
+        "connections_list",
+        "connections_create"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "operating-genies",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Runs and watches Stacksync Genies: asks a Genie to do or answer something, passes the person's decision on an action the Genie paused on for approval, reads conversations, steps, errors and cost, and creates, pauses or deletes scheduled and one-time Genie tasks. Use when someone wants to ask or test a Genie, approve or reject a Genie action, see what a Genie did or what it cost, have a Genie do something every morning, every week or once at a set time, or find out why a Genie or its task failed.",
+      "path": "skills/operating-genies/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "genies"
+      ],
+      "tools": [
+        "genies_list",
+        "genies_get",
+        "genies_ask",
+        "genies_approve",
+        "genies_activity",
+        "genies_tasks_list",
+        "genies_tasks_save",
+        "genies_tasks_delete",
+        "connections_list",
+        "connections_create"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "organizing-resources",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Finds any Stacksync resource by name across syncs, workflows, Genies, connections, variables, queues and API proxies, and organizes them in folders by creating, renaming, moving and deleting folders. Use when someone asks where a sync, workflow or Genie is, cannot find a resource, wants to tidy the workspace, group resources by team or project, move resources into a folder or back to the root, or delete a folder.",
+      "path": "skills/organizing-resources/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "folders"
+      ],
+      "tools": [
+        "workspaces_list",
+        "folders_list",
+        "folders_save",
+        "folders_move",
+        "folders_delete"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "running-app-actions",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Runs one read, search or change in a connected app through the Stacksync MCP, without building a workflow, by choosing the app's action, filling its form and running it once. Use when someone asks to look up, find, create, update or delete a record in an app such as a CRM, an ERP or a database right now, wants a one-off answer from an app, or wants to try an action before putting it in a workflow.",
+      "path": "skills/running-app-actions/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "connectors"
+      ],
+      "tools": [
+        "connectors_list",
+        "connectors_get",
+        "connections_create",
+        "connectors_module_form",
+        "connectors_run_action"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    },
+    {
+      "name": "using-api-proxies",
+      "type": "guide",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Creates, renames, shares, reconnects and deletes Stacksync managed API proxies, which give scripts and internal tools one HTTPS endpoint and one access token for the API of a connected Salesforce, HubSpot, Pipedrive, Attio or Airtable account. Use when someone wants to call one of those APIs from their own code without handling its sign in or tokens, needs an API proxy for a connection, or a script calling an API proxy stopped working.",
+      "path": "skills/using-api-proxies/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "api-proxies"
+      ],
+      "tools": [
+        "api_proxies_list",
+        "api_proxies_get",
+        "api_proxies_save",
+        "api_proxies_delete",
+        "connections_list",
+        "connections_create"
+      ],
+      "resources": [],
+      "apps": [],
+      "playbooks": [],
+      "verified_on": null,
+      "usecase": null
+    }
+  ]
 }

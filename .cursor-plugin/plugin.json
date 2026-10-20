@@ -8,7 +8,7 @@
   "homepage": "https://docs.stacksync.com/mcp",
   "repository": "https://github.com/stacksyncdata/skills",
   "license": "Apache-2.0",
-  "skills": ["./skills/", "./recipes/"],
+  "skills": ["./skills/"],
   "mcpServers": {
     "stacksync": {
       "url": "https://mcp.stacksync.com/mcp"
