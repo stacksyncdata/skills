@@ -42,7 +42,14 @@ ran the use case live does.
 - Customer words only, and stand ins such as `YOUR_API_KEY`, never a real credential.
 
 Raise the patch version for wording fixes, the minor version for new steps, and the major version
-when the skill asks for different tools or a different order of work.
+when the skill asks for different tools or a different order of work. Until the first release
+every skill stays at 1.0.0; the bump rule applies from then on.
+
+A skill teaches the process and the MCP tools. The web app appears only where the MCP cannot do a
+step, as one line that says why: "Do this in the web app: **Screen > tab**". When the person may
+want to look themselves, one "In the web app: **Screen > tab**" line at most. No tables of web app
+screens and no web app column next to the MCP tools: the AI app reads the skill, and it cannot
+open a screen.
 
 ## Rules for playbooks and use cases
 
@@ -84,7 +91,7 @@ A playbook or use case merges only after all four:
 
 | Check | Fails when |
 | --- | --- |
-| `scripts/validate-skills.mjs` | A skill breaks a rule above or sits anywhere but `skills/<name>/SKILL.md`. Unknown metadata keys only warn |
+| `scripts/validate-skills.mjs` | A skill breaks a rule above, sits anywhere but `skills/<name>/SKILL.md`, names a skill that does not exist, or has a table column or heading of web app screens. Unknown metadata keys only warn |
 | `scripts/check-writing.mjs` | A Markdown file in `skills/` uses something STYLE.md bans, or a platform name outside its reference file |
 | `scripts/check-secrets.mjs` | A value shaped like an API key, token or private key appears in any file |
 | `scripts/check-freshness.mjs` | Never fails; warns when `verified_on` is more than 90 days old |

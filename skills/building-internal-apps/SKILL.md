@@ -4,7 +4,7 @@ description: Deploys a hosted internal app, a managed PostgreSQL database, file 
 license: Apache-2.0
 metadata:
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "enterprise-os"
   tools: "workflows_list workflows_get"

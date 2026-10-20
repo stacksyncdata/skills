@@ -4,10 +4,10 @@ description: Explains what Stacksync does, connects the Stacksync MCP server to 
 license: Apache-2.0
 metadata:
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "onboarding"
-  tools: "workspaces_list workspaces_get connections_list connections_get connections_create connectors_list connectors_get syncs_list workflows_list genies_list queues_list variables_list knowledge_bases_list api_proxies_list skills_get"
+  tools: "workspaces_list workspaces_get connections_list connections_get connections_create connectors_list connectors_get syncs_list workflows_list genies_list queues_list variables_list knowledge_bases_list api_proxies_list skills_list skills_get"
 ---
 
 ## When to use
@@ -68,7 +68,6 @@ Build in this order, because each step uses what the step before it made.
 | Rule | Why |
 | --- | --- |
 | Discover before building: list what exists (`connections_list`, `syncs_list`, `workflows_list`, `genies_list`) and read the closest match with its `_get` tool | The workspace may already hold what the person asks for; a second copy of a sync or workflow writes the same records twice |
-| Create everything switched off, show the person the result, then switch it on only after they confirm | A new sync or workflow starts changing records in live apps the moment it runs |
 | Never ask for or accept a password, API key or token in the chat. Call `connections_create`: it returns a secure sign in link the person opens to connect the app | A secret typed into a chat is stored in the chat history, outside the person's control |
 | Some changes show a preview card in the AI app. Wait for the person to accept it before saying the change is done | The card is where the person approves a change to their live account; a declined card means nothing changed |
 | Ask before deleting anything, and name what will be deleted | Deleting a sync, workflow or connection cannot be undone from the chat |
@@ -83,7 +82,8 @@ Build in this order, because each step uses what the step before it made.
 | Connect an app Stacksync has no connector for | `building-connectors` |
 | Host an app, a managed database, file storage or an internal API | `building-internal-apps` |
 
-Call `skills_get` with a guide's name to read a guide that is not installed in the AI app.
+Call `skills_list` for every skill with when to read it, then `skills_get` with a skill's name to
+read one that is not installed in the AI app.
 
 ## When Stacksync lacks something
 

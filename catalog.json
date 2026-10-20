@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-10-20T00:36:36.726Z",
+  "generated_at": "2026-10-20T05:39:12.974Z",
   "skills": [
     {
       "name": "adding-sync-triggers",
@@ -37,7 +37,7 @@
       "superseded_by": null,
       "description": "Connects Stacksync to an app that has no Stacksync connector, first with an HTTP request step or a code step in a workflow, then by building a workflow connector with the Stacksync CLI and testing it locally before deploying it. Use when an app is missing from the Stacksync connector list, someone asks to build a custom connector or a new workflow module, or a workflow needs to call an API Stacksync does not cover.",
       "path": "skills/building-connectors/SKILL.md",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "connectors",
@@ -102,7 +102,7 @@
       "superseded_by": null,
       "description": "Deploys a hosted internal app, a managed PostgreSQL database, file storage or an internal API with Stacksync Enterprise OS, and points the person to the official Enterprise OS agent skill for the full command set. Use when someone wants to host a web app, portal, dashboard or API for their team, needs a managed database or file storage, or asks for something Stacksync syncs and workflows do not provide on their own.",
       "path": "skills/building-internal-apps/SKILL.md",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "enterprise-os"
@@ -188,7 +188,7 @@
       "superseded_by": null,
       "description": "Designs, builds and repairs Stacksync syncs that keep records equal between two apps, choosing one-way or two-way direction per table and planning record linking, deletes, frequency, rate limits, associations and schema changes. Use when someone wants records kept equal between two apps or databases, asks whether a sync should be one-way or two-way, is about to switch on a sync on apps that already hold data, or has a sync with issues, missing parent links or changed fields.",
       "path": "skills/designing-two-way-syncs/SKILL.md",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "syncs"
@@ -218,7 +218,7 @@
       "type": "guide",
       "status": "active",
       "superseded_by": null,
-      "description": "Explains where to look at data, logs, sync statistics, monitoring charts and alerts in the Stacksync web app (Data Explorer, Log Explorer, Issues dashboard, Sync Stats, Monitoring) and which MCP tools read the same facts. Use when someone asks how many records a sync holds, how a sync or workflow is doing, where to find logs, how long logs are kept, how to see trends over time, or how to get alerted when something fails.",
+      "description": "Reads sync counts, issues, workflow runs and Genie activity through the Stacksync MCP, sets up alerts to the person's own URL, and says plainly what only the web app shows. Use when someone asks how many records a sync holds, how a sync or workflow is doing, where to find logs, how long logs are kept, how to see trends over time, or how to get alerted when something fails.",
       "path": "skills/exploring-data-and-logs/SKILL.md",
       "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",
@@ -276,7 +276,7 @@
       "superseded_by": null,
       "description": "Explains what Stacksync does, connects the Stacksync MCP server to an AI app, and sets the order and the rules for building in a live Stacksync workspace. Use when someone is new to Stacksync, asks what Stacksync can do, wants to connect Stacksync to their AI app, or asks where to start with syncs, workflows, Genies, queues, variables, knowledge bases or API proxies.",
       "path": "skills/getting-started/SKILL.md",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "onboarding"
@@ -296,6 +296,7 @@
         "variables_list",
         "knowledge_bases_list",
         "api_proxies_list",
+        "skills_list",
         "skills_get"
       ],
       "resources": [],
@@ -423,7 +424,7 @@
       "type": "guide",
       "status": "active",
       "superseded_by": null,
-      "description": "Shows the person's workspaces and role, lists workspace members and groups, shares a Genie with people or groups, and explains where users, roles, MFA, SSO and SCIM are set in the Stacksync web app. Use when someone asks which workspace or role they have, who is in the workspace, wants to invite a colleague or change a role, wants to give or remove access to a Genie, a teammate cannot use a Genie, or asks about MFA, single sign on or user provisioning.",
+      "description": "Shows the person's workspaces and role, lists workspace members and groups, shares a Genie with people or groups, and sends the person to the one place where users, roles, MFA, SSO and SCIM are set. Use when someone asks which workspace or role they have, who is in the workspace, wants to invite a colleague or change a role, wants to give or remove access to a Genie, a teammate cannot use a Genie, or asks about MFA, single sign on or user provisioning.",
       "path": "skills/managing-workspace-access/SKILL.md",
       "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",
@@ -448,9 +449,9 @@
       "type": "guide",
       "status": "active",
       "superseded_by": null,
-      "description": "Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, a switched off build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.",
+      "description": "Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, the build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.",
       "path": "skills/migrating-to-stacksync/SKILL.md",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "migration"

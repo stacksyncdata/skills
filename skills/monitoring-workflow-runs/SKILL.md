@@ -91,12 +91,11 @@ only on a run that failed.
 - **`workflows_runs` is refused when "Allow log access" is off.** A workspace owner switches it
   on in the **MCP** page, under **Settings**.
 
-## In the web app
+## When the MCP cannot do it
 
-Each workflow has an **Execution Logs** panel below the canvas: the runs, each step's output, and
-the iterations of a loop under **Child Runs**. The toolbar holds **Run**, **Replay** and
-**Deploy**. **Log Explorer** in the sidebar searches logs across workflows. Email alerts for
-failed workflow runs are set in **Workspace Settings > Notifications**.
+Email alerts for failed workflow runs: do this in the web app: **Workspace Settings >
+Notifications**; the MCP has no tool for notification settings. The person can also look at a
+run themselves in the web app: the workflow's **Execution Logs** panel below the canvas.
 
 ## Rules
 

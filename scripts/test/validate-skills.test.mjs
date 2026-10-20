@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  validateRepository, findUnknownSkillMentions, MAXIMUM_BODY_LINES, MAXIMUM_DESCRIPTION_LENGTH, MAXIMUM_GUIDED_BODY_LINES,
+  validateRepository, findUnknownSkillMentions, findWebAppScreenProblems, MAXIMUM_BODY_LINES, MAXIMUM_DESCRIPTION_LENGTH, MAXIMUM_GUIDED_BODY_LINES,
 } from '../validate-skills.mjs';
 import { REPOSITORY_ROOT } from '../lib/skill-files.mjs';
 import {
@@ -233,4 +233,16 @@ test('a guide that points at a skill that does not exist fails; a hyphenated pac
   assert.deepEqual(findUnknownSkillMentions(body, publishedNames), [
     'mentions the skill "enterprise-architect", which is not a published skill',
   ]);
+});
+
+test('a table of web app screens or a web app column fails; a one-line handoff passes', () => {
+  const screensTable = ['## The screens in the web app', '', '| Screen | Where |', '| --- | --- |', '| Statistics | The sync tab |'].join('\n');
+  const webAppColumn = ['| The person asks | Answer with | Or in the web app |', '| --- | --- | --- |', '| Counts | `syncs_get` | Statistics |'].join('\n');
+  const screensHeading = '## Web app screens\n\nText.';
+  const handoff = 'Associations: do this in the web app: the sync\'s **Associations** tab; the MCP does not set them.';
+
+  assert.equal(findWebAppScreenProblems(screensTable).length, 1);
+  assert.deepEqual(findWebAppScreenProblems(webAppColumn), ['has a table column "Or in the web app": name a web app screen only as a one-line handoff']);
+  assert.equal(findWebAppScreenProblems(screensHeading).length, 1);
+  assert.deepEqual(findWebAppScreenProblems(handoff), []);
 });

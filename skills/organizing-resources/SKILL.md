@@ -70,8 +70,6 @@ sees one preview card and selects **Accept**.
 To move a folder itself, pass it to `folders_move` with `resource_type` `folder`. A rename with
 `folders_save` changes only the name.
 
-In the web app, a folder is created from **All Resources > Create Resource > Folder**.
-
 ## Delete a folder
 
 Only an empty folder can be deleted.

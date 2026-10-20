@@ -27,9 +27,8 @@ A step field reads a variable or secret by its reference:
 {{ WORKSPACE_VARIABLES.api_token }}
 ```
 
-`variables_list` and `variables_get` return each variable's exact reference. In the web app, the
-variable picker of any step field lists them under Workspace Variables. Replacement follows Jinja
-templating rules: a `json` value can be read field by field, as `{{ WORKSPACE_VARIABLES.settings.region }}`.
+`variables_list` and `variables_get` return each variable's exact reference. Replacement follows
+Jinja templating rules: a `json` value can be read field by field, as `{{ WORKSPACE_VARIABLES.settings.region }}`.
 
 A workflow can also change a workspace variable while it runs, with the **Workspace Variable -
 Update** step, for example to keep a cursor between runs.

@@ -45,6 +45,6 @@ When the person is about to rename, retype or remove fields in one of the apps:
 
 1. Switch the sync off with `syncs_switch`, so no change is copied half way.
 2. Make the change in the app.
-3. Update the sync with `syncs_save`, or in the web app.
+3. Update the sync with `syncs_save`.
 4. Check the saved configuration with `syncs_get`; a saved configuration change cannot be undone.
 5. Switch the sync on with `syncs_switch`.

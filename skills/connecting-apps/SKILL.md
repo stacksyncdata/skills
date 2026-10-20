@@ -98,8 +98,7 @@ Details and the order of work: [references/network-options.md](references/networ
 
 A rate limit is set per app inside a sync: the most API calls Stacksync makes to that app per
 second, minute, hour or day. Read it with `syncs_get`, and change it with `syncs_save` in the
-app's settings (`rate_limit` with `rate` and `frequency` in seconds: 1, 60, 3600 or 86400). In the
-web app: open the sync, select the app, change **Rate Limit**, and save.
+app's settings (`rate_limit` with `rate` and `frequency` in seconds: 1, 60, 3600 or 86400).
 
 - Prefer a limit per second or per minute, such as 5 to 10 requests per second. An hourly or
   daily limit can leave changes waiting until the window resets.

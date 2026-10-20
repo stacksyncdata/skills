@@ -142,4 +142,4 @@ the steps in order. Steps 1 to 4 only read; nothing changes until step 6.
 - **A decided approval cannot be decided again**; `genies_activity` shows its status.
 - **`genies_activity` is refused when "Allow log access" is off.** A workspace owner switches it
   on in the **MCP** page, under **Settings**.
-- **Genie conversations** in the web app sidebar shows the same conversations.
+- In the web app, **Genie conversations** in the sidebar shows the same conversations.

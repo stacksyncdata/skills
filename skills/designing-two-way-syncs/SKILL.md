@@ -4,7 +4,7 @@ description: Designs, builds and repairs Stacksync syncs that keep records equal
 license: Apache-2.0
 metadata:
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs"
   tools: "connections_list connections_get connections_create connections_tables connectors_list connectors_get syncs_list syncs_get syncs_save syncs_switch syncs_issues syncs_resolve_issues"
@@ -59,13 +59,13 @@ Then discover what exists:
 
 1. **Draft the table pairs.** For each pair, state the direction and the mapped fields, and show
    the plan to the person as a table: table A, table B, direction, fields.
-2. **Create the sync switched off** with `syncs_save`. A new sync is saved paused, so nothing is
-   written until the person switches it on.
+2. **Create the sync** with `syncs_save`. Stacksync saves a new sync paused, so nothing is
+   written until it is switched on.
 3. **Read it back** with `syncs_get` and show the person the saved table pairs and fields.
 4. **Associations and per-field direction.** If the plan needs either, give the person the link
    to the sync in the web app and wait until they confirm they set it.
 5. **Check record linking** (next section) before switching on.
-6. **Switch it on** with `syncs_switch` only after the person confirms.
+6. **Switch it on** with `syncs_switch`. The first run copies the records already in each app.
 7. **Watch the first run.** Call `syncs_issues` and report what it returns.
 
 To change a running sync, read it with `syncs_get`, then send the complete new list of table
@@ -98,9 +98,10 @@ show and wait for an explicit yes.
 
 ## Frequency and rate limits
 
-- **Data Sync Frequency** goes from real time to once a day, set in sync settings (1 setting per sync).
-  In the web app it is under Advanced Sync Settings. Choose the slowest frequency the business
-  accepts, for example 1 run per hour for data read once a morning; slower runs use fewer API calls.
+- **Data Sync Frequency** goes from real time to once a day, 1 setting per sync: set
+  `max_records_sync_delay_in_seconds` with `syncs_save` (values in `managing-syncs`). Choose the
+  slowest frequency the business accepts, for example 1 run per hour for data read once a
+  morning; slower runs use fewer API calls.
 - **Rate limit** is set per app in the sync: the maximum number of API calls Stacksync makes to
   that app, per second, minute, hour or day. Prefer a per second or per minute limit, such as
   5 to 10 requests per second; an hourly or daily limit can leave data waiting until the window
@@ -128,7 +129,6 @@ change, depending on the sync's schema update settings. What an AI app can do wi
 | Rule | Why |
 | --- | --- |
 | Show the plan (tables, direction, fields) and wait for confirmation before `syncs_save` | A sync writes to live apps; the person owns that decision |
-| Save new syncs switched off; switch on with `syncs_switch` only after the person confirms | The first run copies every existing record |
 | Never delete and recreate a running sync | The new sync duplicates every record the old one linked |
 | Never choose an issue resolution for the person; ask which one for each group of issues | Revert, retry and ignore each change data in a different app |
 | Never switch Delete Protection off without an explicit yes after stating the held count | The held deletes run at once and cannot be undone |
@@ -145,4 +145,4 @@ design choices that cause problems later.
 | A field never syncs back to an app | It is read-only in that app, so it syncs one-way | Explain it; map the value to a writable field if the person needs it written |
 | A view cannot be set to two-way | Views cannot be written to | Sync the underlying table, or keep the view one-way |
 | Records show in the issues list | The other app rejected the change | `syncs_issues`, then ask the person which resolution, then `syncs_resolve_issues` |
-| Changes arrive later than expected | Data Sync Frequency or the rate limit spaces the calls out | Check both in the sync settings; prefer a per second rate limit |
+| Changes arrive later than expected | Data Sync Frequency or the rate limit spaces the calls out | Check both with `syncs_get`; prefer a per second rate limit |

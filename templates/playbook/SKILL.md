@@ -5,7 +5,7 @@ license: Apache-2.0
 metadata:
   # Every value is one plain string. Replace each example value below.
   type: playbook
-  version: "0.1.0"
+  version: "1.0.0"
   # The GitHub team that keeps the playbook current and runs it again each quarter.
   owner: "@stacksyncdata/ai-team"
   # Any of: sync workflow queue genie variable knowledge_base api_proxy connection, separated by spaces.
@@ -91,15 +91,14 @@ Call `queues_list` and `workflows_list` first, and reuse a queue that already ho
 <!--
 One numbered step per tool call. Name the MCP tool in backticks and say what to pass.
 Build in this order: connections, then syncs and variables, then workflows and queues, then
-genies. Everything is created switched off; switch it on only after the person confirms.
+genies.
 -->
 
 1. Call `syncs_list` and note the two-way sync the person names.
 2. Call `queues_create` with a name that says what the items are.
-3. Call `workflows_create` with the queue as its trigger. It is created switched off.
+3. Call `workflows_create` with the queue as its trigger.
 4. Call `sync_triggers_create` to add one item to the queue for each change in the sync.
-5. Show the person the queue, the workflow and the trigger, and ask them to confirm.
-6. Call `workflows_deploy` only after the person confirms.
+5. Test it with `workflows_run` on one item, then call `workflows_deploy`.
 
 ## Settings that matter
 

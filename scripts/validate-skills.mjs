@@ -320,7 +320,7 @@ export function validateRepository(repositoryRoot) {
     let warnings = [];
     try {
       const skill = readSkill(skillFile);
-      problems = [...findSkillProblems(skill, repositoryRules), ...findUnknownSkillMentions(skill.body, publishedNames)];
+      problems = [...findSkillProblems(skill, repositoryRules), ...findUnknownSkillMentions(skill.body, publishedNames), ...findWebAppScreenProblems(skill.body)];
       warnings = findSkillWarnings(skill);
     } catch (error) {
       if (!(error instanceof FrontmatterError)) throw error;
@@ -365,6 +365,23 @@ const SKILL_MENTION_PATTERNS = [
 export function findUnknownSkillMentions(body, publishedNames) {
   const mentionedNames = new Set(SKILL_MENTION_PATTERNS.flatMap((pattern) => [...body.matchAll(pattern)].map((match) => match[1])));
   return [...mentionedNames].filter((name) => !publishedNames.has(name)).map((name) => `mentions the skill "${name}", which is not a published skill`);
+}
+
+// The AI app reads a skill and cannot open a web app screen: a table of screens, or a web app column next to the MCP
+// tools, sends it to point the person at the web app instead of answering. A handoff the MCP cannot do is one line.
+const WEB_APP_SCREENS_HEADING_PATTERN = /^#{1,6}\s.*(web app screens|screens in the web app)/im;
+
+export function findWebAppScreenProblems(body) {
+  const problems = [];
+  if (WEB_APP_SCREENS_HEADING_PATTERN.test(body)) problems.push('has a heading of web app screens: the skill teaches the MCP; name a screen only as a one-line handoff');
+  const lines = body.split('\n');
+  lines.forEach((line, index) => {
+    const isTableHeader = line.trim().startsWith('|') && /^\s*\|[\s:|-]+\|\s*$/.test(lines[index + 1] ?? '');
+    if (!isTableHeader) return;
+    const webAppColumns = line.split('|').map((cell) => cell.trim()).filter((cell) => /web app/i.test(cell));
+    for (const column of webAppColumns) problems.push(`has a table column "${column}": name a web app screen only as a one-line handoff`);
+  });
+  return problems;
 }
 
 if (isRunDirectly(import.meta.url)) {

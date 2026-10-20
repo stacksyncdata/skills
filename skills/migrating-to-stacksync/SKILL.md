@@ -1,10 +1,10 @@
 ---
 name: migrating-to-stacksync
-description: Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, a switched off build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.
+description: Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, the build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.
 license: Apache-2.0
 metadata:
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "migration"
   tools: "workspaces_list connections_list connections_create connectors_list syncs_list syncs_get syncs_save syncs_switch syncs_issues workflows_list workflows_get workflows_save workflows_deploy workflows_run workflows_runs queues_list queues_save variables_list variables_save skills_get"
@@ -50,8 +50,8 @@ Stacksync already holds, so nothing is built twice.
    queues and variables. Show it to the person and wait for approval.
 5. **Connect the apps.** For each app, call `connections_list`; if it is missing, call
    `connections_create` and give the person the secure sign in link it returns.
-6. **Build everything switched off.** Syncs with `syncs_save`, workflows with `workflows_save`,
-   queues with `queues_save`, variables with `variables_save`. Nothing runs yet.
+6. **Build.** Syncs with `syncs_save`, workflows with `workflows_save`, queues with
+   `queues_save`, variables with `variables_save`.
 7. **Run in parallel on test records.** Move one integration at a time, on test records only,
    while the old platform keeps running for everything else. Run a workflow on a test record with
    `workflows_run`. Point a sync at a sandbox or test copy of each app, or at a test table, so the
@@ -59,7 +59,7 @@ Stacksync already holds, so nothing is built twice.
 8. **Compare.** For each test record, compare what the old platform produced with what Stacksync
    produced, field by field. Check `syncs_issues` and `workflows_runs` for errors. Show the person
    the differences and fix them before going further.
-9. **Switch on.** With the person's approval, switch the Stacksync integration on for live
+9. **Cut over.** On the date the person chose, switch the Stacksync integration on for live
    records: `syncs_switch` for a sync, `workflows_deploy` for a workflow.
 10. **Switch the old one off.** Ask the person to switch off the same integration on the old
     platform straight after, so the two never write the same records at the same time.
@@ -73,7 +73,7 @@ Stacksync already holds, so nothing is built twice.
 | --- | --- |
 | Never reuse a password, API key or token found in an export. Create each connection with `connections_create`, which returns a secure sign in link | An export is a file; the person controls who signs in to their apps, not the file |
 | Never run the old and the new integration on the same records at the same time, except on test records during the parallel run | Both would write each change, creating duplicates or overwriting each other |
-| Build switched off and move one integration at a time | A problem stays limited to one integration and is easy to roll back |
+| Move one integration at a time | A problem stays limited to one integration and is easy to roll back |
 | Do not delete anything on the old platform as part of the move | The old integration is the rollback |
 | For two-way syncs, check for records that already exist in both apps before the first run | Stacksync does not merge existing duplicates; see `designing-two-way-syncs` |
 

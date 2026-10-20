@@ -39,8 +39,7 @@ object must allow triggers. Objects that cannot be written through the API do no
 
 ### Bulk API
 
-Turning on the bulk API for a sync (`bulk_api_access` in `syncs_save`, or **Use Bulk API** in the
-web app) needs **View All Data** on the user's profile: Setup, Users, Profiles, the profile, Edit,
+Turning on the bulk API for a sync (`bulk_api_access` in `syncs_save`) needs **View All Data** on the user's profile: Setup, Users, Profiles, the profile, Edit,
 **View All Data**.
 
 ### OAuth error on first sign in
