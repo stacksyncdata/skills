@@ -1,6 +1,6 @@
 ---
 name: managing-workspace-access
-description: Shows the person's workspaces and role, lists workspace members and groups, shares a Genie with people or groups, and explains where users, roles, MFA, SSO and SCIM are set in the Stacksync web app. Use when someone asks which workspace or role they have, who is in the workspace, wants to invite a colleague or change a role, wants to give or remove access to a Genie, a teammate cannot use a Genie, or asks about MFA, single sign on or user provisioning.
+description: Shows the person's workspaces and role, lists workspace members and groups, shares a Genie with people or groups, and sends the person to the one place where users, roles, MFA, SSO and SCIM are set. Use when someone asks which workspace or role they have, who is in the workspace, wants to invite a colleague or change a role, wants to give or remove access to a Genie, a teammate cannot use a Genie, or asks about MFA, single sign on or user provisioning.
 license: Apache-2.0
 metadata:
   type: guide
@@ -63,25 +63,28 @@ the person names a team.
 
 Who can talk to a Genie in Slack, Microsoft Teams or email is a separate setting. By default a
 Genie answers only signed in members of the workspace. To let everyone in a connected channel use
-it, the person opens the Genie's **Access rights** tab in the web app and sets **Who can use the
-Genie** to **Public (authentication not required)**. The same tab has the status toggle: setting
-a Genie to **Inactive** stops it handling new messages and suspends its scheduled tasks.
+it, set `public_access_rights` to `allow_without_authorization` with `genies_save`, after the
+person confirms. `status` set to `inactive` on the same tool stops the Genie handling new
+messages and suspends its scheduled tasks. Details are in `building-genies`.
 
-## Done in the web app
+## When the MCP cannot do it
 
-The MCP has no tool for these. Tell the person to do them in the web app:
+The MCP has no tool for workspace users, groups or security settings: these are settings the
+person sets themselves. Send them to the one place:
 
-| Task | Where |
-| --- | --- |
-| Invite a user | **Workspace Settings > Users**: enter the email, choose the role, select **Send invite**. The invitee joins through the link in the email |
-| Change a role, remove a user, revoke an invitation | **Workspace Settings > Users**, in the users list |
-| Create a group or change its members | **Workspace Settings > Groups** |
-| Require MFA for every member | **Workspace Settings > Security & API keys**, switch on MFA. Every member is signed out and sets up MFA at the next sign in. Available on the Pro and Enterprise plans |
-| Single sign on (SSO) and user provisioning (SCIM) | **Workspace Settings > SCIM & SSO**, on the Enterprise plan |
-| The workspace API key | **Workspace Settings > Security & API keys**; a personal API key is in **User Settings** |
-| See or change the plan | **Workspace Settings > General**, under **Pricing** |
-| Turn on "Ask before every change", or turn off log access or Genie creation for AI apps | The **MCP** page in the sidebar, under **Settings**; workspace owners only |
-| Switch workspace | The workspace selector lists owned and shared workspaces |
+- Invite a user: do this in the web app: **Workspace Settings > Users**, enter the email, choose
+  the role, select **Send invite**. The invitee joins through the link in the email.
+- Change a role, remove a user or revoke an invitation: **Workspace Settings > Users**.
+- Create a group or change its members: **Workspace Settings > Groups**.
+- Require MFA for every member: **Workspace Settings > Security & API keys** (Pro and Enterprise).
+  Every member is signed out and sets up MFA at the next sign in.
+- Single sign on (SSO) and user provisioning (SCIM): **Workspace Settings > SCIM & SSO**
+  (Enterprise).
+- The workspace API key: **Workspace Settings > Security & API keys**; a personal API key is in
+  **User Settings**.
+- See or change the plan: **Workspace Settings > General**, under **Pricing**.
+- Turn on "Ask before every change", or turn off log access or Genie creation for AI apps: the
+  **MCP** page in the sidebar, under **Settings**; workspace owners only.
 
 ## Rules
 

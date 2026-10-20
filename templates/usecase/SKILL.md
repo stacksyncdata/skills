@@ -5,7 +5,7 @@ license: Apache-2.0
 metadata:
   # Every value is one plain string. Replace each example value below.
   type: usecase
-  version: "0.1.0"
+  version: "1.0.0"
   # The GitHub team that keeps the use case current and runs it again each quarter.
   owner: "@stacksyncdata/ai-team"
   # Slugs from data/apps.json.

@@ -5,7 +5,7 @@ license: Apache-2.0
 metadata:
   # Every value is one plain string. Replace each example value below.
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   # The GitHub team that keeps the guide current.
   owner: "@stacksyncdata/ai-team"
   # Optional: the MCP tools the steps use, separated by spaces.

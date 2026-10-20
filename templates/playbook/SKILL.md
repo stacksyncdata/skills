@@ -5,7 +5,7 @@ license: Apache-2.0
 metadata:
   # Every value is one plain string. Replace each example value below.
   type: playbook
-  version: "0.1.0"
+  version: "1.0.0"
   # The GitHub team that keeps the playbook current and runs it again each quarter.
   owner: "@stacksyncdata/ai-team"
   # Any of: sync workflow queue genie variable knowledge_base api_proxy connection, separated by spaces.

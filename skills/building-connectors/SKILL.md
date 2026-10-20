@@ -4,7 +4,7 @@ description: Connects Stacksync to an app that has no Stacksync connector, first
 license: Apache-2.0
 metadata:
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "connectors workflows"
   tools: "connectors_list connectors_get connectors_run_action connections_list connections_create workflows_list workflows_get workflows_save workflows_run workflows_runs variables_list"

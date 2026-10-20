@@ -85,15 +85,15 @@ Details of the document: [references/genie-document.md](references/genie-documen
 
 ## Interfaces
 
-| Interface | Done in the web app | Then, with the MCP |
+| Interface | First, once, by the person | Then, with the MCP |
 | --- | --- | --- |
 | Slack | Connections > Create new connection > **Slack Genie**, then **Allow** in Slack. This adds the Genie app to the Slack workspace | Add a `slack` interface with that connection's id; people invite it with `/invite @Genie` and mention it |
 | Microsoft Teams | A Teams administrator uploads the Genie app package in Teams; then Connections > Create new connection > **Microsoft Teams**, signed in with an account that can grant admin consent | Add a `teams` interface with that connection's id |
 | Email | Nothing | Add an `email` interface with the address `<alias>@stacksync.email`, checked first with `genies_draft` `alias` |
 
-Installing the Slack or Teams app is done in the web app and in Slack or Teams; the MCP has no
-tool for it. Slack channel affinity (which channel gets which messages) is set in the web app on
-the Genie's **Interfaces** section.
+Installing the Slack or Teams app needs the person's sign in to Slack or Teams, so the MCP has no
+tool for it. Slack channel affinity (which channel gets which messages): do this in the web app,
+in the Genie's **Interfaces** section; the MCP does not set it.
 
 ## Access
 

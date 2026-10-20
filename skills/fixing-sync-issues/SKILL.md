@@ -109,18 +109,18 @@ changes data in a different place.
 - **A trigger that did not fire** was excluded by its filters, operations or ignored fields; see
   `adding-sync-triggers`.
 
-## In the web app only
+## When the MCP cannot make the fix
 
-The MCP has no tool for these. Send the person to the screen:
+The MCP has no tool for these settings. Say so, and send the person to the one place:
 
-| Task | Where |
-| --- | --- |
-| Browse issues across syncs with filters, resolve in bulk | **Sync issues** in the sidebar |
-| See what changed in the schema, including renames | The sync's **Schema History** tab |
-| Schema update settings, such as **Keep in mapping** | The sync's **Propagate Schema Updates** tab |
-| Per-field direction | The sync's **Schema** tab |
-| Associations | The sync's **Associations** tab |
-| Email alerts for sync issues | **Workspace Settings > Notifications** |
+- Schema update settings, such as **Keep in mapping**: do this in the web app: the sync's
+  **Propagate Schema Updates** tab.
+- Per field direction: do this in the web app: the sync's **Schema** tab.
+- Associations: do this in the web app: the sync's **Associations** tab.
+- Email alerts for sync issues: do this in the web app: **Workspace Settings > Notifications**.
+
+To see renames and other column changes the sync saw, look in the web app: the sync's **Schema
+History** tab; no MCP tool reads it.
 
 ## Rules
 

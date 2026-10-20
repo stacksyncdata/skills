@@ -4,10 +4,10 @@ description: Explains what Stacksync does, connects the Stacksync MCP server to 
 license: Apache-2.0
 metadata:
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "onboarding"
-  tools: "workspaces_list workspaces_get connections_list connections_get connections_create connectors_list connectors_get syncs_list workflows_list genies_list queues_list variables_list knowledge_bases_list api_proxies_list skills_get"
+  tools: "workspaces_list workspaces_get connections_list connections_get connections_create connectors_list connectors_get syncs_list workflows_list genies_list queues_list variables_list knowledge_bases_list api_proxies_list skills_list skills_get"
 ---
 
 ## When to use
@@ -83,7 +83,8 @@ Build in this order, because each step uses what the step before it made.
 | Connect an app Stacksync has no connector for | `building-connectors` |
 | Host an app, a managed database, file storage or an internal API | `building-internal-apps` |
 
-Call `skills_get` with a guide's name to read a guide that is not installed in the AI app.
+Call `skills_list` for every skill with when to read it, then `skills_get` with a skill's name to
+read one that is not installed in the AI app.
 
 ## When Stacksync lacks something
 

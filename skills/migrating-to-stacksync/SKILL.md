@@ -4,7 +4,7 @@ description: Moves integrations and automations from another integration or auto
 license: Apache-2.0
 metadata:
   type: guide
-  version: "0.1.0"
+  version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "migration"
   tools: "workspaces_list connections_list connections_create connectors_list syncs_list syncs_get syncs_save syncs_switch syncs_issues workflows_list workflows_get workflows_save workflows_deploy workflows_run workflows_runs queues_list queues_save variables_list variables_save skills_get"
