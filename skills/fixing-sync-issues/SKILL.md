@@ -1,6 +1,6 @@
 ---
 name: fixing-sync-issues
-description: Finds and fixes Stacksync sync problems through the Stacksync MCP with one process: find the sync, read its health and the records that failed, explain the cause, propose a fix, check it cannot create duplicates or lose data, apply it after the person agrees, and confirm the next sync succeeds. Use when someone says records are not syncing, a sync shows issues or errors, a sync is paused by errors, data looks different in the two apps, or changes are stuck or slow.
+description: "Finds and fixes Stacksync sync problems through the Stacksync MCP with one process: find the sync, read its health and the records that failed, explain the cause, propose a fix, check it cannot create duplicates or lose data, apply it after the person agrees, and confirm the next sync succeeds. Use when someone says records are not syncing, a sync shows issues or errors, a sync is paused by errors, data looks different in the two apps, or changes are stuck or slow."
 license: Apache-2.0
 metadata:
   type: guide

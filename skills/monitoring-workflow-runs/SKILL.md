@@ -1,6 +1,6 @@
 ---
 name: monitoring-workflow-runs
-description: Checks Stacksync workflow runs through the Stacksync MCP and fixes failed ones with one process: find the failed runs, read the failing step's input, output and error, explain the cause, propose a fix, check a replay cannot write records twice, apply it after the person agrees, and confirm the next run succeeds. Also runs workflows now and marks failed runs resolved. Use when someone asks whether a workflow ran, why it failed, what a step received or returned, wants to run a workflow now, rerun or replay failed runs after a fix, or clear failed runs from the Log Explorer.
+description: "Checks Stacksync workflow runs through the Stacksync MCP and fixes failed ones with one process: find the failed runs, read the failing step's input, output and error, explain the cause, propose a fix, check a replay cannot write records twice, apply it after the person agrees, and confirm the next run succeeds. Also runs workflows now and marks failed runs resolved. Use when someone asks whether a workflow ran, why it failed, what a step received or returned, wants to run a workflow now, rerun or replay failed runs after a fix, or clear failed runs from the Log Explorer."
 license: Apache-2.0
 metadata:
   type: guide

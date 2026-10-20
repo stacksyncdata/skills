@@ -1,6 +1,6 @@
 ---
 name: migrating-to-stacksync
-description: Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, the build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data.
+description: "Moves integrations and automations from another integration or automation platform to Stacksync, step by step: inventory, export, mapping to syncs, workflows, queues and variables, the build, a parallel run on test records, comparison, cutover and rollback. Use when someone wants to move existing integrations, automations or data pipelines to Stacksync, retire another platform, or plan a cutover without losing data."
 license: Apache-2.0
 metadata:
   type: guide
