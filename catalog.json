@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-10-20T15:13:48.631Z",
+  "generated_at": "2026-10-21T20:51:12.272Z",
   "skills": [
     {
       "name": "alert-on-sync-issues",
@@ -237,9 +237,9 @@
       "type": "resource",
       "status": "active",
       "superseded_by": null,
-      "description": "Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs one app action on its own without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, or try an action before putting it in a workflow.",
+      "description": "Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs one app action on its own without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.",
       "path": "skills/connectors/SKILL.md",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "connectors"
@@ -249,7 +249,9 @@
         "connectors_get",
         "connectors_module_form",
         "connectors_run_action",
-        "connections_create"
+        "connections_create",
+        "connections_list",
+        "connections_tables"
       ],
       "resources": [
         "connectors"
@@ -983,9 +985,9 @@
       "type": "runbook",
       "status": "active",
       "superseded_by": null,
-      "description": "Finds why Stacksync workflow runs failed and fixes them in order: locate the failed runs, read the failing step's input, output and error, explain the cause, suggest a fix, replay on the fixed version after the person's yes, and confirm the new runs succeed. Use when a workflow failed or did not run, someone asks why a step errored or what it received, or failed runs need a fix and a replay.",
+      "description": "Finds why Stacksync workflow runs failed and fixes them in order: locate the failed runs by status or by a record they handled, read the failing step's input, output, error and form, check the record in the app itself, explain the cause, suggest a fix, replay on the fixed version after the person's yes, and confirm the new runs succeed. Use when a workflow failed or did not run, someone asks why a step errored or what it received, a run for one order or record must be found, or failed runs need a fix and a replay.",
       "path": "skills/troubleshooting-workflow-runs/SKILL.md",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "workflows"
@@ -1001,7 +1003,11 @@
         "workflows_save",
         "workflows_deploy",
         "connections_list",
-        "connections_get"
+        "connections_get",
+        "connections_tables",
+        "connectors_get",
+        "connectors_module_form",
+        "connectors_run_action"
       ],
       "resources": [],
       "apps": [],

@@ -1,14 +1,14 @@
 ---
 name: connectors
-description: Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs one app action on its own without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, or try an action before putting it in a workflow.
+description: Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs one app action on its own without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "connectors"
   resource: "connectors"
-  tools: "connectors_list connectors_get connectors_module_form connectors_run_action connections_create"
+  tools: "connectors_list connectors_get connectors_module_form connectors_run_action connections_create connections_list connections_tables"
 ---
 
 ## What it is
@@ -101,6 +101,33 @@ Tools: `connectors_list`, `connectors_get`, `connectors_module_form`, `connector
 
 A read action is open to every workspace role; an action that changes data needs the editor or
 owner role. Every run, a read included, is recorded in the workspace's audit log.
+
+### Query a database
+
+Use when the person wants to look something up in a connected database (Postgres, MySQL, SQL
+Server, Oracle, Snowflake or BigQuery), or check a record a sync or a workflow wrote there.
+
+Tools: `connections_list`, `connections_tables`, `connectors_get`, `connectors_module_form`,
+`connectors_run_action`
+
+1. Pick the connection: `connections_list` with the app type. When several match, ask the person
+   which one, by name. Keep its `connection_id` for every call below: a query sent without it has
+   no credentials and is refused.
+2. Read the tables: `connections_tables` with the `connection_id` and no `table_names`.
+3. Read the columns of the tables you need: `connections_tables` again with up to 10
+   `table_names`. Never guess a column name: a guessed one fails with
+   `column "<name>" does not exist`.
+4. When a column's values are unclear (a status code, a date format, an id with a prefix), read a
+   sample first: `SELECT <columns> FROM <table> LIMIT 5`.
+5. Write the query with the table and column names exactly as returned, a `WHERE` on the value
+   the person gave, and a `LIMIT` of at most 100 rows. Find the query action with
+   `connectors_get` (its name contains Query), fill it with `connectors_module_form`, and run it
+   with `connectors_run_action` and the `connection_id`.
+6. Report the rows in the person's words, and say when the result stopped at the `LIMIT`.
+
+A free SQL query counts as a change, a `SELECT` included, because the text decides what it does:
+it needs the editor or owner role, and when the workspace turned on "Ask before every change" the
+person accepts it first. Write only `SELECT` unless the person asked for a change.
 
 ### Build a custom connector
 
