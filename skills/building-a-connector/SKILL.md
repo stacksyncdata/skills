@@ -4,10 +4,10 @@ description: Connects Stacksync to an app that has no Stacksync connector, first
 license: Apache-2.0
 metadata:
   type: runbook
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "connectors workflows"
-  tools: "connectors_list connectors_get connectors_module_form connectors_run_action connections_list connections_create workflows_list workflows_get workflows_save workflows_run workflows_runs variables_list"
+  tools: "connectors_list connectors_get connectors_module_form connectors_search_records connectors_get_records connectors_create_records connections_list connections_create workflows_list workflows_get workflows_save workflows_run workflows_runs variables_list"
 ---
 
 ## Use it when
@@ -115,8 +115,8 @@ back the output.
 
    Check: `deploy-status` shows the deployment live.
 10. **Confirm in the catalog.** Follow `connectors` "Run one app action": `connectors_list` and
-    `connectors_get` show the new connector; `connectors_run_action` tries one module on a test
-    record.
+    `connectors_get` show the new connector; the tool of a module's operation (such as
+    `connectors_search_records` or `connectors_create_records`) tries it on a test record.
     Check: the module returned the expected output on the test record.
 
 ## Rules
