@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-10-29T03:06:45.667Z",
+  "generated_at": "2026-10-29T19:41:27.747Z",
   "skills": [
     {
       "name": "alert-on-sync-issues",
@@ -239,9 +239,9 @@
       "type": "resource",
       "status": "active",
       "superseded_by": null,
-      "description": "Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs an action on an app's records, files or messages on its own, without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.",
+      "description": "Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, lists the API fields an action takes for an object, and runs an action on an app's records, files or messages on its own, without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.",
       "path": "skills/connectors/SKILL.md",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "connectors"

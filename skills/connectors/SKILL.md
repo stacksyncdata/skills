@@ -1,10 +1,10 @@
 ---
 name: connectors
-description: Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs an action on an app's records, files or messages on its own, without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.
+description: Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, lists the API fields an action takes for an object, and runs an action on an app's records, files or messages on its own, without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.2.0"
+  version: "1.3.0"
   owner: "@stacksyncdata/ai-team"
   areas: "connectors"
   resource: "connectors"
@@ -92,17 +92,19 @@ Tools: `connectors_module_form`
 Use when the person wants records, files or messages of an app searched, read, created, changed,
 deleted or sent now, without a workflow.
 
-Tools: `connectors_list`, `connectors_get`, `connectors_module_form`, and the tool of the
-action's operation
+Tools: `connectors_list`, `connectors_get`, and the tool of the action's operation
 
 1. Find the app and the connection with `connectors_get`, and the action whose `operation` matches
    what the person asked.
-2. Fill that action's form with `connectors_module_form` and its `module_id`.
+2. Call `connectors_get` again with the `operation`, the `object_type` (such as `contacts`) and the
+   `connection_id`: it lists the `api_fields` that action takes for that object. When it lists a
+   parent field without a value (an Airtable base, a database schema), call it again with that
+   field in `api_fields`.
 3. Before an action that changes data, show the person the app, the account, the action and the
-   values.
-4. Call the tool of the operation with the `app_type`, the `connection_id` and the form's
-   `values`. When `connectors_get` lists several actions with that operation, also pass the
-   `module_type` of the one the person chose.
+   fields.
+4. Call the tool of the operation with the `app_type`, the `connection_id`, the `object_type` and
+   the `api_fields`, each named exactly as listed. When `connectors_get` lists several actions with
+   that operation, also pass the `module_type` of the one the person chose.
 
    | Operation | Tool | What it does |
    | --- | --- | --- |
@@ -148,8 +150,9 @@ Tools: `connections_list`, `connections_tables`, `connectors_get`, `connectors_m
    sample first: `SELECT <columns> FROM <table> LIMIT 5`.
 5. Write the query with the table and column names exactly as returned, a `WHERE` on the value
    the person gave, and a `LIMIT` of at most 100 rows. Find the query action with
-   `connectors_get` (its `operation` is `run_query`), fill it with `connectors_module_form`, and
-   run it with `connectors_run_query` and the `connection_id`.
+   `connectors_get` (its `operation` is `run_query`), list its fields with `connectors_get` and that
+   `operation`, and run it with `connectors_run_query`, the `connection_id` and the query in
+   `api_fields`.
 6. Report the rows in the person's words, and say when the result stopped at the `LIMIT`.
 
 A free SQL query counts as a change, a `SELECT` included, because the text decides what it does:
@@ -177,7 +180,7 @@ Tools: none
 
 | Rule | Why |
 | --- | --- |
-| Take every value from `connectors_module_form` or from the person; never guess a required value | The action runs against the live app with exactly these values |
+| Take every field name from `connectors_get` and every value from the person or a read; never guess a required value | The app's API refuses any field it does not accept |
 | Search by capability with short single words and use a built-in module before any outside service | A built-in module needs no key and no extra account |
 | Never create an API key variable for a service the catalog covers without asking | A key the person did not ask for is a secret to manage |
 | Show the app, account, action and values before an action that changes data | The person owns changes to their live apps |
@@ -192,7 +195,8 @@ Tools: none
 | --- | --- | --- |
 | The search finds nothing | The word is not in any module name, type or app name | Try another single word: the app name or a verb such as `search` or `create` |
 | `connectors_get` lists no connection | The person has not connected this app | `connections_create`, give the link, then `connectors_get` again |
-| The run is refused for a missing or invalid value | A required field is empty or the app does not accept the value | `connectors_module_form` with the current `values`, load the dropdown, ask the person |
+| The run is refused for a missing or invalid field | A required field is empty, or the app's API does not accept the field or value | `connectors_get` with the `operation`, `object_type` and current `api_fields`, then ask the person |
+| The run is refused on `object_type` | The action takes its object in `api_fields`, or the app offers no such object | Follow the message: it names the fields, or lists the objects the app offers |
 | The run is refused for the role | The action changes data and the person is a viewer | A workspace owner gives them the editor role (see `workspaces`) |
 | The status is `failed` with the app's reason | The app rejected the action | Stop and show the reason; retry with other values only if the person asks |
 | The status is `outcome_unknown` | The app did not confirm whether the change happened | Check the record with a read action before running the change again |
