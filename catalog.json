@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-10-21T20:51:12.272Z",
+  "generated_at": "2026-10-29T03:06:45.667Z",
   "skills": [
     {
       "name": "alert-on-sync-issues",
@@ -141,7 +141,7 @@
       "superseded_by": null,
       "description": "Connects Stacksync to an app that has no Stacksync connector, first with an HTTP request step or a code step in a workflow, then by building a workflow connector with the Stacksync CLI, testing it locally and deploying it on request. Use when an app is missing from the Stacksync connector list, someone asks to build a custom connector or a new workflow module, or a workflow needs an API Stacksync does not cover.",
       "path": "skills/building-a-connector/SKILL.md",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "connectors",
@@ -151,7 +151,9 @@
         "connectors_list",
         "connectors_get",
         "connectors_module_form",
-        "connectors_run_action",
+        "connectors_search_records",
+        "connectors_get_records",
+        "connectors_create_records",
         "connections_list",
         "connections_create",
         "workflows_list",
@@ -237,9 +239,9 @@
       "type": "resource",
       "status": "active",
       "superseded_by": null,
-      "description": "Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs one app action on its own without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.",
+      "description": "Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs an action on an app's records, files or messages on its own, without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.",
       "path": "skills/connectors/SKILL.md",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "connectors"
@@ -248,7 +250,18 @@
         "connectors_list",
         "connectors_get",
         "connectors_module_form",
-        "connectors_run_action",
+        "connectors_search_records",
+        "connectors_get_records",
+        "connectors_query_records",
+        "connectors_read_files",
+        "connectors_create_records",
+        "connectors_update_records",
+        "connectors_upsert_records",
+        "connectors_delete_records",
+        "connectors_run_query",
+        "connectors_send_message",
+        "connectors_enrich_records",
+        "connectors_write_files",
         "connections_create",
         "connections_list",
         "connections_tables"
@@ -987,7 +1000,7 @@
       "superseded_by": null,
       "description": "Finds why Stacksync workflow runs failed and fixes them in order: locate the failed runs by status or by a record they handled, read the failing step's input, output, error and form, check the record in the app itself, explain the cause, suggest a fix, replay on the fixed version after the person's yes, and confirm the new runs succeed. Use when a workflow failed or did not run, someone asks why a step errored or what it received, a run for one order or record must be found, or failed runs need a fix and a replay.",
       "path": "skills/troubleshooting-workflow-runs/SKILL.md",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "workflows"
@@ -1007,7 +1020,9 @@
         "connections_tables",
         "connectors_get",
         "connectors_module_form",
-        "connectors_run_action"
+        "connectors_get_records",
+        "connectors_search_records",
+        "connectors_run_query"
       ],
       "resources": [],
       "apps": [],
@@ -1083,7 +1098,7 @@
       "superseded_by": null,
       "description": "Builds, changes, runs and deploys Stacksync workflows through the Stacksync MCP, from the workflow document, triggers (webhook, schedule, email, Gmail, queue), steps, code steps and data references to test runs, run logs, replays, resolved runs, drafts, copies and deletes. Use when someone wants to automate a process, create or edit a workflow, add a step or a trigger, run a workflow now, read what a run did, replay or resolve runs, put a version live, copy a workflow to another region, or pause, share or delete one.",
       "path": "skills/workflows/SKILL.md",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "workflows"

@@ -4,7 +4,7 @@ description: Builds, changes, runs and deploys Stacksync workflows through the S
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "workflows"
   resource: "workflows"
@@ -32,7 +32,8 @@ Triggers: [references/triggers.md](references/triggers.md). Code steps:
 ## When to use it
 
 - A process should repeat, run on a trigger, or chain several app actions.
-- For one action in an app, now, use `connectors` (`connectors_run_action`).
+- For one action in an app, now, use `connectors` (the tool of the action's operation, such as
+  `connectors_search_records`).
 - For records that stay equal between two apps, use `syncs`.
 - For a failed run to diagnose step by step, follow the runbook `troubleshooting-workflow-runs`.
 
@@ -91,7 +92,8 @@ Tools: `workflows_list`, `variables_list`, `workflows_schema`, `workflows_save`
 2. Check `workflows_list` and `variables_list` for what already exists.
 3. Call `workflows_save` with a `name`, the `region` and a document holding only the Input step.
    A new workflow starts as a draft.
-4. Add the trigger and steps with the next two operations, then save the whole document.
+4. Add the trigger and steps with the next two operations, then save the whole document: every
+   step and edge in one `workflows_save`, so the person approves one change for the steps.
 
 ### Add a step
 
@@ -326,6 +328,7 @@ Tools: none
 | Never create an API key variable for a service the catalog covers without asking | A key the person did not ask for is a secret to manage |
 | Ask whether an email arrives in the person's own Gmail mailbox or at a Stacksync address | The two need different triggers |
 | Send the whole document to `workflows_save` | A save overwrites the draft; missing steps are removed |
+| Create a workflow with only its Input step, then save all its steps and edges in one `workflows_save` | The person approves two changes for a new workflow, not one per step |
 | Test with `workflows_run` before `workflows_deploy` | A deployed workflow starts on every request, schedule, email or batch |
 | Replay on the fixed version, after the person's yes | A replay writes to the apps again |
 | Never ask for a password or key; use `connections_create` | A secret typed into a chat stays in the chat history |

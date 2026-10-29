@@ -1,23 +1,28 @@
 ---
 name: connectors
-description: Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs one app action on its own without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.
+description: Finds apps and built-in modules in the Stacksync catalog through the Stacksync MCP, shows an app's actions, triggers and connections, fills an action's form, and runs an action on an app's records, files or messages on its own, without a workflow. Use when someone asks which apps or actions Stacksync offers, what an app can do, or wants to look up, find, create, update or delete a record in an app right now, query a connected database, or try an action before putting it in a workflow.
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.1.0"
+  version: "1.2.0"
   owner: "@stacksyncdata/ai-team"
   areas: "connectors"
   resource: "connectors"
-  tools: "connectors_list connectors_get connectors_module_form connectors_run_action connections_create connections_list connections_tables"
+  tools: "connectors_list connectors_get connectors_module_form connectors_search_records connectors_get_records connectors_query_records connectors_read_files connectors_create_records connectors_update_records connectors_upsert_records connectors_delete_records connectors_run_query connectors_send_message connectors_enrich_records connectors_write_files connections_create connections_list connections_tables"
 ---
 
 ## What it is
 
 Connectors are the catalog of outside systems Stacksync works with: CRMs, ERPs, databases, email
-and more. Each app has an `app_type` and a list of modules: actions that read or change data in the
-app, and triggers that start a workflow. Each module has a `module_id` and `module_version`, and
-most need a connection to the app (see `connections`). The same action runs directly, once, with
-`connectors_run_action`, as a workflow step, or as a step a Genie runs.
+and more. Each one is Stacksync's own connector: it calls the app's API through the workspace's
+connection, never through another MCP server. Each app has an `app_type` and a list of modules:
+actions that read or change data in the app, and triggers that start a workflow. Each module has a
+`module_id`, a `module_type` and a `module_version`, and most need a connection to the app (see
+`connections`).
+
+An action that works on the app's records, files or messages has an `operation`, and runs
+directly, once, with the tool of that operation (see "Run one app action"). Every action also runs
+as a workflow step or as a step a Genie runs; an action without an operation runs only there.
 
 Stacksync's built-in modules need no connection. They enrich people and company records, find and
 check email addresses and phone numbers, search, scrape, crawl and map websites, extract data, run
@@ -63,8 +68,8 @@ Use when choosing an app's action or trigger and the connection it uses.
 Tools: `connectors_get`, `connections_create`
 
 1. Call `connectors_get` with the `app_type`.
-2. The answer lists the actions and triggers (`module_id`, `module_version`, name,
-   `is_read_action`) and the person's connections for that app.
+2. The answer lists the actions and triggers (`module_id`, `module_type`, `module_version`, name,
+   `is_read_action`, `operation`) and the person's connections for that app.
 3. When several actions or connections fit, ask the person which one.
 4. With no connection, call `connections_create` and give the person the sign in link it
    returns. Continue once they say they signed in.
@@ -84,23 +89,45 @@ Tools: `connectors_module_form`
 
 ### Run one app action
 
-Use when the person wants one search, read or change in an app now, without a workflow.
+Use when the person wants records, files or messages of an app searched, read, created, changed,
+deleted or sent now, without a workflow.
 
-Tools: `connectors_list`, `connectors_get`, `connectors_module_form`, `connectors_run_action`
+Tools: `connectors_list`, `connectors_get`, `connectors_module_form`, and the tool of the
+action's operation
 
-1. Find the app, the action and the connection with the operations above, and fill the form.
-2. Before an action that changes data, show the person the app, the account, the action and the
+1. Find the app and the connection with `connectors_get`, and the action whose `operation` matches
+   what the person asked.
+2. Fill that action's form with `connectors_module_form` and its `module_id`.
+3. Before an action that changes data, show the person the app, the account, the action and the
    values.
-3. Call `connectors_run_action` with the same `module_id`, `module_version`, `connection_id` and
-   `values`.
-   - A read action (one whose type starts with get, list, search, read, find, count or describe,
-     plus read-only query languages) runs at once and returns the data.
-   - Any other action, a free SQL query included, counts as a change. It runs directly, unless
-     the workspace turned on "Ask before every change": then the person accepts it first.
-4. Report the result in the app's own terms: the records found, or the record changed with its ID.
+4. Call the tool of the operation with the `app_type`, the `connection_id` and the form's
+   `values`. When `connectors_get` lists several actions with that operation, also pass the
+   `module_type` of the one the person chose.
 
-A read action is open to every workspace role; an action that changes data needs the editor or
-owner role. Every run, a read included, is recorded in the workspace's audit log.
+   | Operation | Tool | What it does |
+   | --- | --- | --- |
+   | `search` | `connectors_search_records` | Reads the records matching filters |
+   | `get` | `connectors_get_records` | Reads records by their ID |
+   | `query` | `connectors_query_records` | Runs a query in a language that only reads, such as SOQL or SuiteQL |
+   | `read_files` | `connectors_read_files` | Reads files |
+   | `create` | `connectors_create_records` | Creates records |
+   | `update` | `connectors_update_records` | Changes records |
+   | `upsert` | `connectors_upsert_records` | Creates records, or changes the ones that match |
+   | `delete` | `connectors_delete_records` | Deletes records |
+   | `run_query` | `connectors_run_query` | Runs free SQL, which can change data |
+   | `send_message` | `connectors_send_message` | Sends an email or a message |
+   | `enrich` | `connectors_enrich_records` | Adds people or company data to records |
+   | `write_files` | `connectors_write_files` | Uploads or changes files |
+
+   - The `search`, `get`, `query` and `read_files` tools only read: they run at once and return
+     the data.
+   - The other tools change data or reach people outside the workspace. They run directly, unless
+     the workspace turned on "Ask before every change" or the app's guardrails ask the person:
+     then the person accepts it first.
+5. Report the result in the app's own terms: the records found, or the record changed with its ID.
+
+A read is open to every workspace role; a change needs the editor or owner role. Every run, a read
+included, is recorded in the workspace's audit log.
 
 ### Query a database
 
@@ -108,7 +135,7 @@ Use when the person wants to look something up in a connected database (Postgres
 Server, Oracle, Snowflake or BigQuery), or check a record a sync or a workflow wrote there.
 
 Tools: `connections_list`, `connections_tables`, `connectors_get`, `connectors_module_form`,
-`connectors_run_action`
+`connectors_run_query`, `connectors_query_records`
 
 1. Pick the connection: `connections_list` with the app type. When several match, ask the person
    which one, by name. Keep its `connection_id` for every call below: a query sent without it has
@@ -121,13 +148,15 @@ Tools: `connections_list`, `connections_tables`, `connectors_get`, `connectors_m
    sample first: `SELECT <columns> FROM <table> LIMIT 5`.
 5. Write the query with the table and column names exactly as returned, a `WHERE` on the value
    the person gave, and a `LIMIT` of at most 100 rows. Find the query action with
-   `connectors_get` (its name contains Query), fill it with `connectors_module_form`, and run it
-   with `connectors_run_action` and the `connection_id`.
+   `connectors_get` (its `operation` is `run_query`), fill it with `connectors_module_form`, and
+   run it with `connectors_run_query` and the `connection_id`.
 6. Report the rows in the person's words, and say when the result stopped at the `LIMIT`.
 
 A free SQL query counts as a change, a `SELECT` included, because the text decides what it does:
 it needs the editor or owner role, and when the workspace turned on "Ask before every change" the
-person accepts it first. Write only `SELECT` unless the person asked for a change.
+person accepts it first. Write only `SELECT` unless the person asked for a change. A query
+language that only reads (Salesforce SOQL, NetSuite SuiteQL) has the `query` operation instead:
+run it with `connectors_query_records`, at once.
 
 ### Build a custom connector
 
@@ -152,6 +181,7 @@ Tools: none
 | Search by capability with short single words and use a built-in module before any outside service | A built-in module needs no key and no extra account |
 | Never create an API key variable for a service the catalog covers without asking | A key the person did not ask for is a secret to manage |
 | Show the app, account, action and values before an action that changes data | The person owns changes to their live apps |
+| Run each action with the tool of its operation | Each tool says what it does: a read never changes data, and a change asks the person when the workspace or a guardrail requires it |
 | Never reuse a `confirmation_token` for other values | The token is valid only for the exact call it was issued for |
 | Never ask for a password or key; use the link from `connections_create` | A secret typed into a chat stays in the chat history |
 | For many records or repeated runs, build a workflow | One action runs once; a workflow keeps run history and can replay failed runs |
@@ -166,4 +196,6 @@ Tools: none
 | The run is refused for the role | The action changes data and the person is a viewer | A workspace owner gives them the editor role (see `workspaces`) |
 | The status is `failed` with the app's reason | The app rejected the action | Stop and show the reason; retry with other values only if the person asks |
 | The status is `outcome_unknown` | The app did not confirm whether the change happened | Check the record with a read action before running the change again |
+| The tool says the app has no action for the operation | The app's actions for this have another operation, or none | `connectors_get` lists each action's `operation`; an action without one runs as a workflow step |
+| The tool lists several actions to choose from | The app has more than one action with that operation | Ask the person which one and pass its `module_type` |
 | The dropdown options are empty | The connected account cannot see those objects | Check the account's permissions in the app, or use another connection |

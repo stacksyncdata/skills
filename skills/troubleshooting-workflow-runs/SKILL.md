@@ -4,10 +4,10 @@ description: "Finds why Stacksync workflow runs failed and fixes them in order: 
 license: Apache-2.0
 metadata:
   type: runbook
-  version: "1.1.0"
+  version: "1.2.0"
   owner: "@stacksyncdata/ai-team"
   areas: "workflows"
-  tools: "workflows_list workflows_get workflows_runs workflows_run workflows_replay workflows_resolve_runs workflows_create_draft workflows_save workflows_deploy connections_list connections_get connections_tables connectors_get connectors_module_form connectors_run_action"
+  tools: "workflows_list workflows_get workflows_runs workflows_run workflows_replay workflows_resolve_runs workflows_create_draft workflows_save workflows_deploy connections_list connections_get connections_tables connectors_get connectors_module_form connectors_get_records connectors_search_records connectors_run_query"
 ---
 
 ## Use it when
@@ -60,8 +60,9 @@ order; [the product rules](references/product-rules.md) cover what the error tex
    accepts now, to compare with what the step sent.
    Check: for each group you know the step name, its input and the error.
 3. **Check the app.** Look up the record the run handled in the app itself, on the step's
-   connection, to see whether it exists and what it holds now: a read action such as Get Records
-   with `connectors_run_action`, or for a database follow `connectors` "Query a database". A run
+   connection, to see whether it exists and what it holds now: the app's get or search action
+   with `connectors_get_records` or `connectors_search_records`, or for a database follow
+   `connectors` "Query a database". A run
    that failed after the record was written, or a record changed by hand since, explains errors
    the logs alone do not.
    Check: you know the record's current state in the app.
