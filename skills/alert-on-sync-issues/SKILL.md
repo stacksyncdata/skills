@@ -1,13 +1,13 @@
 ---
 name: alert-on-sync-issues
-description: Sends a team a message or email when a sync has failed records, through a sync webhook of type real_time_issue_notification that calls a workflow. Use when someone wants to be told about sync errors as they happen instead of checking the sync, or wants failed records routed to a channel, an inbox or a ticket.
+description: Sends a team a message or email when a sync has failed records, through a sync webhook of type real_time_issue_notification that calls a workflow, or through the workspace's email notifications. Use when someone wants to be told about sync errors as they happen instead of checking the sync, or wants failed records routed to a channel, an inbox or a ticket.
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs workflows"
-  tools: "syncs_list syncs_get syncs_webhooks_save syncs_webhooks_delete syncs_issues connectors_list connectors_module_form workflows_save workflows_deploy workflows_runs"
+  tools: "syncs_list syncs_get syncs_webhooks_delete syncs_issues connectors_list connectors_module_form workflows_save workflows_deploy workflows_runs"
   resources: "syncs workflows variables"
 ---
 
@@ -26,13 +26,15 @@ Advantages:
 
 Trade-offs:
 - A burst of failures sends a burst of notifications; group them in the workflow or a queue.
-- The key is never returned by any tool; changing the webhook means entering it again.
+- The sync webhook carries that API key, so a developer adds it with Stacksync's public API; the AI
+  never takes the key in the chat.
 
 Alternatives and why they lose:
 
 | Alternative | Why it loses |
 | --- | --- |
 | A scheduled workflow that reads issues | Adds the interval as delay |
+| The workspace's Notifications settings alone | Email to members only: no channel, ticket or routing |
 | Checking the sync's issues by hand | Depends on someone looking |
 
 ## Shape
@@ -41,7 +43,7 @@ Alternatives and why they lose:
 | --- | --- | --- | --- |
 | 1 | `workflows` | caller | Webhook trigger; its URL is copied from the web app |
 | 2 | `variables` | `workflows` | The API key as a secret, checked against the incoming header |
-| 3 | `syncs` | `workflows` | Sync webhook, type `real_time_issue_notification`, to the workflow URL |
+| 3 | `syncs` | `workflows` | Sync webhook, type `real_time_issue_notification`, to the workflow URL, added by a developer |
 | 4 | `workflows` | channel | Message, email or ticket step |
 
 ```
@@ -54,7 +56,10 @@ sync record fails -> sync webhook (real_time_issue_notification, api key)
 1. `workflows` "Create a workflow" with the webhook trigger, the key check and the message step;
    "Deploy a version". The person copies the URL from the trigger step.
 2. `variables` "Create a secret" for the API key; the person enters the value in the web app.
-3. `syncs` "Add, change or delete a sync webhook" with type `real_time_issue_notification`, the URL and the key.
+3. The sync webhook needs the API key, so no tool adds it. Give the person what a developer sends
+   to Stacksync's public API: `POST /v1/workspaces/<workspace_id>/bases/<sync_id>/webhooks?region=<region>`
+   with `notification_type` `real_time_issue_notification`, the workflow URL as `url`, and the key
+   as `api_key` (reference: docs.stacksync.com/api-reference). Then `syncs_get` lists the webhook.
 4. Read a test failure: `syncs` "Read issues", then the run in `workflows` "Read runs".
 
 ## Variations
@@ -62,6 +67,9 @@ sync record fails -> sync webhook (real_time_issue_notification, api key)
 - Activity or backfill notices: the same pattern with `base_activity` or `backfill`.
 - Many syncs: each sync gets its own webhook to the same workflow; include the sync name in the
   message.
+- No developer, or email is enough: give the person the link to the workspace settings; on the
+  **Notifications** tab they turn on the issue notification for failed records, by email. No
+  workflow, webhook or key is needed.
 
 ## Check before going live
 
@@ -75,5 +83,5 @@ sync record fails -> sync webhook (real_time_issue_notification, api key)
 | Rule | Why |
 | --- | --- |
 | Use a public https URL that answers when the webhook is saved | The save is refused otherwise |
-| Ask the person for the API key; never invent or repeat it | No tool returns it, and chat history is not a secret store |
+| Never ask for the API key in the chat; the developer sets it in the public API call | Chat history is not a secret store |
 | Resolve the cause with `troubleshooting-a-sync`, not by muting the alert | An alert that is ignored hides lost records |

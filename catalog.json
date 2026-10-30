@@ -1,15 +1,15 @@
 {
   "schema": 1,
-  "generated_at": "2026-10-29T19:41:27.747Z",
+  "generated_at": "2026-10-30T01:20:09.333Z",
   "skills": [
     {
       "name": "alert-on-sync-issues",
       "type": "blueprint",
       "status": "active",
       "superseded_by": null,
-      "description": "Sends a team a message or email when a sync has failed records, through a sync webhook of type real_time_issue_notification that calls a workflow. Use when someone wants to be told about sync errors as they happen instead of checking the sync, or wants failed records routed to a channel, an inbox or a ticket.",
+      "description": "Sends a team a message or email when a sync has failed records, through a sync webhook of type real_time_issue_notification that calls a workflow, or through the workspace's email notifications. Use when someone wants to be told about sync errors as they happen instead of checking the sync, or wants failed records routed to a channel, an inbox or a ticket.",
       "path": "skills/alert-on-sync-issues/SKILL.md",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "syncs",
@@ -18,7 +18,6 @@
       "tools": [
         "syncs_list",
         "syncs_get",
-        "syncs_webhooks_save",
         "syncs_webhooks_delete",
         "syncs_issues",
         "connectors_list",
@@ -349,7 +348,7 @@
       "superseded_by": null,
       "description": "Reads sync counts, sync issues, workflow runs and Genie activity through the Stacksync MCP, sends a sync's activity to the person's own URL, and names the one web app place for what the MCP cannot read. Use when someone asks how many records a sync holds, how a sync, workflow or Genie is doing, where to find logs, how long logs are kept, how to see trends over time, or how to get alerted.",
       "path": "skills/exploring-data-and-logs/SKILL.md",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "monitoring"
@@ -358,7 +357,6 @@
         "syncs_list",
         "syncs_get",
         "syncs_issues",
-        "syncs_webhooks_save",
         "workflows_list",
         "workflows_runs",
         "genies_list",
@@ -868,9 +866,9 @@
       "type": "resource",
       "status": "active",
       "superseded_by": null,
-      "description": "Creates, edits, copies, starts, pauses and deletes Stacksync syncs that keep records equal between two apps, plans one-way or two-way direction per table, resolves failed records, and adds sync event triggers and sync webhooks. Use when someone asks to set up or change a sync, choose sync direction, add a table or field, change how often a sync runs, switch a sync on or off, retry or ignore failed records, or run a call, query or queue message when synced records change.",
+      "description": "Creates, edits, copies, starts, pauses and deletes Stacksync syncs that keep records equal between two apps, plans one-way or two-way direction per table, resolves failed records, adds sync event triggers, and lists and deletes sync webhooks. Use when someone asks to set up or change a sync, choose sync direction, add a table or field, change how often a sync runs, switch a sync on or off, retry or ignore failed records, or run a call, query or queue message when synced records change.",
       "path": "skills/syncs/SKILL.md",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "owner": "@stacksyncdata/ai-team",
       "areas": [
         "syncs"
@@ -885,7 +883,6 @@
         "syncs_resolve_issues",
         "syncs_triggers_save",
         "syncs_triggers_delete",
-        "syncs_webhooks_save",
         "syncs_webhooks_delete",
         "connections_list",
         "connections_create",
