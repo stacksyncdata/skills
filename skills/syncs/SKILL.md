@@ -1,14 +1,14 @@
 ---
 name: syncs
-description: Creates, edits, copies, starts, pauses and deletes Stacksync syncs that keep records equal between two apps, plans one-way or two-way direction per table, resolves failed records, and adds sync event triggers and sync webhooks. Use when someone asks to set up or change a sync, choose sync direction, add a table or field, change how often a sync runs, switch a sync on or off, retry or ignore failed records, or run a call, query or queue message when synced records change.
+description: Creates, edits, copies, starts, pauses and deletes Stacksync syncs that keep records equal between two apps, plans one-way or two-way direction per table, resolves failed records, adds sync event triggers, and lists and deletes sync webhooks. Use when someone asks to set up or change a sync, choose sync direction, add a table or field, change how often a sync runs, switch a sync on or off, retry or ignore failed records, or run a call, query or queue message when synced records change.
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs"
   resource: "syncs"
-  tools: "syncs_list syncs_get syncs_save syncs_switch syncs_delete syncs_issues syncs_resolve_issues syncs_triggers_save syncs_triggers_delete syncs_webhooks_save syncs_webhooks_delete connections_list connections_create connections_tables queues_list folders_list"
+  tools: "syncs_list syncs_get syncs_save syncs_switch syncs_delete syncs_issues syncs_resolve_issues syncs_triggers_save syncs_triggers_delete syncs_webhooks_delete connections_list connections_create connections_tables queues_list folders_list"
 ---
 
 ## What it is
@@ -232,18 +232,19 @@ Fields, placeholders (`<<record>>`, `<<changes>>`, `<<change_type>>`), condition
 [references/trigger-document.md](references/trigger-document.md). A change to a trigger takes up
 to 1 minute to apply. Each trigger runs on its own; one failing does not stop the others.
 
-### Add, change or delete a sync webhook
+### List or delete a sync webhook
 
 Use when a URL must be notified of the sync's activity, failed records or backfill.
 
-Tools: `syncs_get`, `syncs_webhooks_save`, `syncs_webhooks_delete`
+Tools: `syncs_get`, `syncs_webhooks_delete`
 
-1. Ask for the URL (public `https`, reachable when saved) and the API key Stacksync sends with each
-   notification.
-2. Call `syncs_webhooks_save` with `sync_id` and `notification_type` (`base_activity`,
-   `real_time_issue_notification` or `backfill`), `url` and `api_key`.
-3. To replace one, send its `webhook_id` with the complete document, the API key included: no tool
-   returns it, so ask the person again.
+1. A sync webhook sends an API key with each notification, so no tool adds or replaces one: never
+   ask for the key in the chat. A developer adds it with Stacksync's public API,
+   `POST /v1/workspaces/<workspace_id>/bases/<sync_id>/webhooks?region=<region>` with
+   `notification_type` (`base_activity`, `real_time_issue_notification` or `backfill`), `url`
+   (public `https`, reachable when saved) and `api_key` (reference: docs.stacksync.com/api-reference).
+2. When email to members is enough, give the link to the workspace settings, **Notifications** tab.
+3. `syncs_get` lists the sync's webhooks, never their keys.
 4. To delete one, call `syncs_webhooks_delete` with `webhook_id`.
 
 ### Set per-field direction, associations and schema settings

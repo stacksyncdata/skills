@@ -4,10 +4,10 @@ description: Reads sync counts, sync issues, workflow runs and Genie activity th
 license: Apache-2.0
 metadata:
   type: runbook
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "monitoring"
-  tools: "syncs_list syncs_get syncs_issues syncs_webhooks_save workflows_list workflows_runs genies_list genies_activity"
+  tools: "syncs_list syncs_get syncs_issues workflows_list workflows_runs genies_list genies_activity"
 ---
 
 ## Use it when
@@ -53,11 +53,10 @@ or `troubleshooting-a-genie`.
    and `region`; `genies_activity` gives conversations, steps, errors and tool runs, and with
    `genie_id` and `time_range_start` the cost of each message and the total.
    Check: you report counts and cost as numbers for the period asked.
-5. **Send alerts to the person's own system**, when asked. Follow `syncs` "Add, change or delete a sync webhook":
-   `syncs_webhooks_save` notifies a URL the person chooses of a sync's activity, failed records or
-   backfill. It is the only write in this runbook: it runs directly unless the workspace turned on
-   "Ask before every change"; then the person accepts it first, and only then report it as done.
-   Check: `syncs_get` lists the new webhook.
+5. **Send alerts to the person's own system**, when asked. Follow `syncs` "List or delete a sync webhook":
+   a sync webhook needs an API key, so a developer adds it with the public API; the AI never takes
+   the key. This runbook makes no change.
+   Check: `syncs_get` lists the webhook once it is added.
 
 ## Rules
 
