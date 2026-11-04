@@ -7,8 +7,13 @@ and writes its Salesforce `Id` into the opportunity once that account exists in 
 
 ## Where to set them
 
-In the web app: open the sync, then the **Associations** tab. The MCP tools do not set
-associations today, so give the person the link to the sync and the values below.
+With the MCP: on an existing sync, `syncs_save` takes them in the child table's
+`app_1_table_options` or `app_2_table_options` as `associations`, a list that replaces the
+table's stored list. Each entry names the reference key column of the child, the backfilled
+column, the parent table and its two columns by the ids the sync holds: read them with
+`syncs_get` and `include_columns: true` (`table_mapping_id`, `column_mapping_id`), never invent
+one. A new sync has no ids yet, so associations are added in an edit after the create. In the web
+app: open the sync, then the **Associations** tab.
 
 Each association connects one child table to one parent table on the database side of the sync:
 
@@ -19,9 +24,9 @@ Each association connects one child table to one parent table on the database si
 | Backfill source | Parent | The parent's record ID in the other app, such as the Salesforce `Id`. Filled in automatically |
 | Backfilled column | Child | A synced column on the child that receives the parent's record ID |
 
-To add one: click **Add your first Association** or **Edit**, fill the child table, its reference
-key and the backfilled column, choose the parent table, click **Add**, then **Save associations**.
-Saving pauses the sync for a short time and then resumes it.
+In the web app, to add one: click **Add your first Association** or **Edit**, fill the child
+table, its reference key and the backfilled column, choose the parent table, click **Add**, then
+**Save associations**. Saving pauses the sync for a short time and then resumes it.
 
 - The order records arrive in does not matter. A child that arrives before its parent waits, and
   the link is filled in once the parent's ID exists.

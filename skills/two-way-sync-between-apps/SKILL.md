@@ -4,7 +4,7 @@ description: Keeps the same records in two apps or an app and a database in step
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs connections"
   tools: "connections_list connections_create connections_tables syncs_list syncs_get syncs_save syncs_switch syncs_issues syncs_resolve_issues"
@@ -44,7 +44,7 @@ Alternatives and why they lose:
 | --- | --- | --- | --- |
 | 1 | `connections` | app 1, app 2 | One connection per app |
 | 2 | `syncs` | both connections | Table pairs with fields mapped, direction per pair |
-| 3 | `syncs` | web app | Per-field direction and associations, set in the web app |
+| 3 | `syncs` | both connections | Per-field direction and associations, set on the existing sync |
 
 ```
 app 1 <-> sync (table pairs, direction per pair) <-> app 2
@@ -55,7 +55,8 @@ app 1 <-> sync (table pairs, direction per pair) <-> app 2
 1. `connections` "Connect an app" for each app that has none; "Read tables and columns" for the real names.
 2. Decide direction per table with the decision table in `syncs`.
 3. `syncs` "Create a sync" with the table pairs. A new sync is saved paused.
-4. Per-field direction and associations: the person sets them in the web app; give them the link.
+4. Per-field direction and associations, when the plan needs them: `syncs` "Set per-field
+   direction, associations and schema settings", after the create.
 5. Check record linking (one side empty or de-duplicated), then `syncs` "Switch a sync on or off".
 6. Read the first run's issues with `syncs` "Read issues".
 

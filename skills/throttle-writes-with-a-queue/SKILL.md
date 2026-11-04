@@ -4,10 +4,10 @@ description: Puts a Stacksync queue between workflows that produce records and t
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "queues workflows"
-  tools: "queues_list queues_save queues_get queues_flush connectors_list connectors_module_form workflows_save workflows_deploy workflows_runs workflows_replay"
+  tools: "queues_list queues_save queues_get queues_flush connectors_list connectors_module_form workflows_save workflows_steps_save workflows_deploy workflows_runs workflows_replay"
   resources: "queues workflows"
 ---
 

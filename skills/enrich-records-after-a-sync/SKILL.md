@@ -4,10 +4,10 @@ description: Adds missing company and contact data, such as industry, size, emai
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs queues workflows"
-  tools: "syncs_get syncs_triggers_save queues_save connectors_list connectors_get connectors_module_form workflows_save workflows_deploy workflows_runs"
+  tools: "syncs_get syncs_triggers_save queues_save connectors_list connectors_get connectors_module_form workflows_save workflows_steps_save workflows_deploy workflows_runs"
   resources: "syncs queues workflows connectors"
 ---
 

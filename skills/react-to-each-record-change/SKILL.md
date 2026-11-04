@@ -4,10 +4,10 @@ description: Runs one workflow for each record that is created, updated or delet
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs workflows"
-  tools: "syncs_list syncs_get syncs_triggers_save connectors_list connectors_get connectors_module_form workflows_save workflows_get workflows_deploy workflows_runs workflows_replay"
+  tools: "syncs_list syncs_get syncs_triggers_save connectors_list connectors_get connectors_module_form connections_tables workflows_save workflows_steps_save workflows_get app_triggers_save workflows_deploy workflows_runs workflows_replay"
   resources: "syncs workflows connections connectors"
 ---
 
@@ -46,7 +46,7 @@ Alternatives and why they lose here:
 | Step | Resource | Links to | How |
 | --- | --- | --- | --- |
 | 1 | `connections` | the app that changes | A connection to the app that holds the records |
-| 2a | `workflows` | the app | A workflow sync trigger on the app's table (built in the web app) |
+| 2a | `workflows` | the app | A workflow sync trigger step on the app's table, with its app trigger |
 | 2b | `syncs` | `workflows` | Or: a sync event trigger, type `webhook`, that calls the workflow's webhook URL |
 | 3 | `workflows` | the target app | Steps that act on the one record |
 
@@ -63,9 +63,9 @@ change is seen once and the trigger reuses it.
 ## Build it
 
 1. `connections`: "Connect an app" for each app that does not have one yet.
-2. Option A: `workflows` "Add a trigger", the app's sync trigger. It is set up in the web app's
-   workflow builder; the MCP cannot set it. Ask the person to pick the table, the events and the
-   filters there.
+2. Option A: `workflows` "Create a workflow", then "Add a workflow sync trigger": the app's sync
+   trigger step, then `app_triggers_save` with the table, the record changes and the filters the
+   person chose. The app trigger starts on.
 3. Option B: `workflows` "Create a workflow" with the webhook trigger and "Deploy a version". The person
    copies the trigger URL from the trigger step in the web app. Then `syncs` "Add a sync event
    trigger" with type `webhook` and a cURL to that URL that sends the record.
@@ -74,8 +74,8 @@ change is seen once and the trigger reuses it.
 
 ## Variations
 
-- Only some changes matter: add `filters` to the sync event trigger, or filter conditions to the
-  workflow sync trigger, so other changes start no run.
+- Only some changes matter: add `filters` to the sync event trigger, or to the table of the
+  workflow sync trigger's app trigger, so other changes start no run.
 - Only one app's edits matter: set `changes_from` to that app.
 - Deletes: a deleted record carries only its primary key; act on the key alone.
 
@@ -84,8 +84,9 @@ change is seen once and the trigger reuses it.
 - Loops: when the workflow writes back to an app in the same sync, set `changes_from` to the
   other app, or list the fields the workflow writes in `columns_to_ignore`. Otherwise each write
   starts a new run.
-- Backfill: the workflow sync trigger's **Historic backfill** sends every existing record through
-  the workflow once. Leave it off unless the person confirms the run count.
+- Backfill: an app trigger saved through the MCP never loads existing records. The workflow sync
+  trigger's **Historic backfill** in the web app sends every existing record through the workflow
+  once; leave it off unless the person confirms the run count.
 - Rate limits: estimate changes per minute against the receiving app's API limit. When it is
   close, switch to `throttle-writes-with-a-queue`.
 

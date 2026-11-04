@@ -1,13 +1,13 @@
 ---
 name: genies
-description: Creates, changes, shares, asks, monitors and deletes Stacksync Genies, the AI agents that act in a workspace's apps, with their skills (app actions), knowledge bases, Slack, Microsoft Teams and email interfaces, approvals and scheduled or one-time tasks. Use when someone wants an AI agent or assistant that answers in Slack, Teams or email, wants to build, change, share, test or delete a Genie, ask a Genie something, approve or reject a Genie action, see what a Genie did or cost, or have a Genie do something on a schedule or once at a set time.
+description: Creates, changes, shares, asks, monitors and deletes Stacksync Genies, the AI agents that act in a workspace's apps, with their instructions, skills (app actions), knowledge bases, Slack, Microsoft Teams, Google Chat and email interfaces, app triggers on record changes, approvals and scheduled or one-time tasks. Use when someone wants an AI agent or assistant that answers in Slack, Teams or email, wants to build, change, share, test or delete a Genie, ask a Genie something, approve or reject a Genie action, see what a Genie did or cost, or have a Genie do something on a schedule or once at a set time.
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.1.0"
   owner: "@stacksyncdata/ai-team"
   areas: "genies"
-  tools: "genies_list genies_get genies_schema genies_draft genies_save genies_access_save genies_ask genies_activity genies_approve genies_tasks_list genies_tasks_save genies_tasks_delete genies_delete connections_list connections_create connections_get connectors_get knowledge_bases_list variables_list workspaces_get folders_move"
+  tools: "genies_list genies_get genies_schema genies_draft genies_save genies_access_save genies_ask genies_activity genies_approve genies_tasks_list genies_tasks_save genies_tasks_delete genies_delete connections_list connections_create connections_get connectors_get knowledge_bases_list variables_list workspaces_get folders_move connections_tables app_triggers_save app_triggers_get app_triggers_delete"
   resource: "genies"
 ---
 
@@ -15,12 +15,15 @@ metadata:
 
 A Genie is an AI agent in a Stacksync workspace. It has:
 
-- **Instructions** that define its job, written only by the Genie setup flow (`genies_draft`).
+- **Instructions** that define its job (`genie_config.master_prompt`): drafted for a new Genie
+  by `genies_draft`, then read and edited directly.
 - **Skills**: app actions such as "create a record" or "send a message". Each skill is one
   module of the app catalog and runs with one of the workspace's connections.
 - **Knowledge bases** it answers from.
-- **Interfaces**: the Slack, Microsoft Teams or email channels people use to talk to it. One
-  Genie can have several.
+- **Interfaces**: the Slack, Microsoft Teams, Google Chat or email channels people use to talk
+  to it, and **Trigger** interfaces that start it when a record changes in an app. One Genie can
+  have several.
+- **Model**: `genie_config.model_selection` `{"model": ...}`; empty runs Stacksync's default.
 - **Tasks**: instructions it runs by itself, once or on a schedule.
 
 A Genie lives in one region, `besg` (Europe) or `usnv` (United States). Its knowledge bases are
@@ -48,6 +51,7 @@ the workspace's default region is used.
 | `folders` | A Genie can sit in a folder | `folders_move` |
 | `files` | Attachments people send a Genie and files it makes are stored as workspace files | `files_list` |
 | `workflows` | No native link: a Genie runs single app action modules, never a whole workflow, and no workflow step calls a Genie | |
+| `syncs` | A Trigger interface's app trigger watches an app's tables and starts the Genie on record changes, through a sync of its own | `app_triggers_save` |
 
 ## Operations
 
@@ -93,8 +97,9 @@ Tools: `genies_list`, `genies_draft`, `genies_schema`, `connections_list`, `conn
    made with `connections_create`, which returns a link to the web app), `knowledge_bases_list`
    for each knowledge base, `variables_list` for each variable or secret.
 7. Call `genies_save` without `genie_id`, with `name`, optional `folder_id` and `region`, and a
-   document whose `genie_config` holds the drafted `master_prompt`, `skills` and `interfaces`
-   unchanged, with the connection ids filled in, plus `knowledge_bases`.
+   document whose `genie_config` holds the drafted `master_prompt`, `skills` and `interfaces`,
+   with the person's changes and the connection ids filled in, plus `knowledge_bases`. The new
+   Genie is `active`.
 8. Call `genies_get` and show the result. Then follow **Ask a Genie** with one or two real
    questions before telling people to use it.
 
@@ -104,31 +109,30 @@ The document format: [references/genie-document.md](references/genie-document.md
 
 Use when the person wants the Genie to behave differently.
 
-Tools: `genies_get`, `genies_draft`, `genies_save`
+Tools: `genies_get`, `genies_save`
 
 1. Call `genies_get` for the current `genie_config.master_prompt`.
-2. Call `genies_draft` with `master_prompt` and `instruction` (the change in the person's words).
-   For a follow-up change in the same chat, pass the earlier turns as `conversation`. It returns
-   `updated_prompt` with the change marked, and `master_prompt` with the change applied.
-3. Show the marked change and wait for a yes.
-4. Call `genies_save` with `genie_id` and `genie_config.master_prompt` set to that
-   `master_prompt`, unchanged.
-
-`genies_save` accepts only instructions `genies_draft` returned in the last hour, because the
-setup flow checks them; drafting again is the fix for a refusal.
+2. Change only what the person asked, and keep the other sections and their headings as they
+   are.
+3. Show the changed lines and wait for a yes.
+4. Call `genies_save` with `genie_id` and `genie_config.master_prompt` set to the full new text,
+   never only the changed part: the text sent replaces the stored instructions.
 
 ### Change skills, interfaces, knowledge bases, tools or status
 
-Use when adding an app action, a channel or a knowledge base, switching a built-in tool, or
-switching a Genie on or off.
+Use when adding an app action, a channel or a knowledge base, switching a built-in tool,
+changing the model, or switching a Genie on or off.
 
 Tools: `genies_get`, `connectors_get`, `connections_list`, `knowledge_bases_list`, `genies_save`
 
 1. Call `genies_get`. A list you send (`skills`, `interfaces`, `resources`, `knowledge_bases`)
    replaces the stored list, so start from the current list and send it complete.
 2. For a new skill, take its `id` from `module_id` in `connectors_get` and its connection from
-   `connections_list`. Set `approval_policy` to `approval_required` for every action the person
-   wants to approve first.
+   `connections_list`. A skill's **Require approval** is its `approval_policy`: set
+   `approval_required` for every action the person wants to approve first, `always_allow`
+   otherwise.
+   A knowledge base entry carries `enabled` and `disabled_document_ids` (see `knowledge-bases`).
+   The model is `model_selection` `{"model": "<name>"}`.
 3. Call `genies_save` with `genie_id` and only the keys that change. `tools` merges switch by
    switch, for example `{"web_search": false}`.
 4. `status` `inactive` stops the Genie on every interface. Its tasks stay scheduled and
@@ -136,7 +140,7 @@ Tools: `genies_get`, `connectors_get`, `connections_list`, `knowledge_bases_list
 
 ### Connect an interface
 
-Use when people should reach the Genie in Slack, Teams or email.
+Use when people should reach the Genie in Slack, Teams, Google Chat or email.
 
 Tools: `genies_draft`, `connections_list`, `genies_save`
 
@@ -146,8 +150,29 @@ Tools: `genies_draft`, `connections_list`, `genies_save`
 2. For email, call `genies_draft` with `alias` alone to check that `<alias>@stacksync.email` is
    free.
 3. Call `genies_get`, then `genies_save` with `genie_id` and the complete `interfaces` list: a
-   `slack` or `teams` entry with the connection id from `connections_list`, or an `email` entry
-   with `details` `<alias>@stacksync.email`.
+   `slack`, `teams` or `google_chat` entry with the connection id from `connections_list`, or an
+   `email` entry with `details` `<alias>@stacksync.email`.
+
+### Start a Genie on record changes
+
+Use when a Genie should act each time a record is created, updated or deleted in a connected app.
+
+Tools: `genies_get`, `genies_save`, `connections_tables`, `app_triggers_save`, `app_triggers_get`, `app_triggers_delete`
+
+1. Ask which connection, which tables, which changes and which conditions. Wait for the answers.
+2. Call `genies_get`, then `genies_save` with the complete `interfaces` list plus one entry of
+   `type` `app_trigger`, with the app's `connection_id` and `details` naming the app and tables.
+   Call `genies_get` again and keep that interface's `id`.
+3. Read the table and column names with `connections_tables`.
+4. Call `app_triggers_save` with `target` (`type` `genie`, the `genie_id` as `id`, and the
+   `interface_id`), `connection_id`, the Genie's `region` and `tables`, each with `table_name`,
+   `operations` and `filters`, in the format of a workflow's app trigger (`workflows`). One call
+   sets it up, links it to the interface and switches it on.
+5. To change it later: `app_triggers_get` with the interface's `base_id`, then
+   `app_triggers_save` with `app_trigger_id`, `region` and new `tables` or `status` (`on`,
+   `paused`). After the person confirms, `app_triggers_delete` removes it and the Trigger
+   interface; a Trigger interface left out of a `genies_save` list is removed with its
+   trigger.
 
 ### Share a Genie
 
@@ -263,7 +288,7 @@ Tools: `genies_get`, `genies_delete`
 - A skill's `approval_policy` defaults to `always_allow`.
 - Creating a Genie through the MCP is refused when the workspace turned off "Allow AI Genie
   creation" on the **MCP** page under **Settings**.
-- `genies_draft` instructions are accepted by `genies_save` for one hour.
+- A new Genie is `active`, and a new app trigger is `on`.
 - `genies_ask` waits about 40 seconds before it answers `processing`.
 - Task schedules are in UTC.
 - Writes run directly, unless the workspace turned on "Ask before every change". Then the person
@@ -274,7 +299,7 @@ Tools: `genies_get`, `genies_delete`
 | Rule | Why |
 | --- | --- |
 | Ask business questions only; look up every id with the tools | The person knows the job, not the configuration; an invented id breaks the Genie |
-| Never write or edit instructions yourself; use `genies_draft` | `genies_save` accepts only instructions the setup flow wrote |
+| Change only what the person asked in the instructions, keep the other sections, and send the full text | The text sent replaces the stored instructions; a dropped section is a lost behavior |
 | Show the drafted configuration and wait for a yes before `genies_save` | The Genie acts in live apps with the workspace's connections |
 | Set `approval_required` on every action the person named for approval | The Genie then pauses until a person decides |
 | Test with `genies_ask` before sharing a Genie or making it public | People see its first answers; fix the instructions before they do |
@@ -287,9 +312,9 @@ Tools: `genies_get`, `genies_delete`
 
 | What the person sees | Why | What to do |
 | --- | --- | --- |
-| `genies_save` refuses the instructions | They were not written by `genies_draft`, or were drafted more than an hour ago | Call `genies_draft` again and pass its text unchanged |
 | Creating a Genie is refused | "Allow AI Genie creation" is off | Ask a workspace owner to switch it on in the **MCP** page under **Settings** |
 | Skills or interfaces disappeared after a change | A list sent to `genies_save` replaces the stored list | Read with `genies_get` and send the complete list again |
+| A Genie with a Trigger interface never starts on record changes | The app trigger is paused, missing or its filters match nothing | `app_triggers_get` with the interface's `base_id`; switch it `on` or widen the filters |
 | The Genie does not answer teammates | They are not workspace members, or access is limited to selected users and groups | Invite them (`workspaces`) or give them a role with `genies_access_save` |
 | No reply in Slack | The Slack interface has no connection, or the Genie app is not in the channel | Check with `genies_get`; ask the person to `/invite @Genie` |
 | `@Genie` is missing in a Teams channel | The app was not added to that team | In Teams: **Apps** > **Built for your org** > **Genie** > **Add to a team** |

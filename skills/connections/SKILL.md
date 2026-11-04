@@ -4,7 +4,7 @@ description: Lists, creates, reads, renames, shares, reauthorizes and deletes St
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "connections"
   tools: "workspaces_list connections_list connections_get connections_create connections_update connections_delete connections_tables syncs_get syncs_save"
@@ -34,7 +34,7 @@ the web app, where the person enters it, so the secret never passes through the 
 | Resource | How they link | Tool |
 | --- | --- | --- |
 | `syncs` | A sync uses two connections, both in the same region; its rate limit per app is set on the sync | `syncs_save` |
-| `workflows` | An app step uses a connection of its app | `workflows_save` |
+| `workflows` | An app step uses a connection of its app | `workflows_steps_save` |
 | `genies` | A Genie runs app actions with the workspace's connections | `genies_save` |
 | `api-proxies` | An API proxy is bound to one connection, in the same region | `api_proxies_save` |
 | `connectors` | The catalog says which apps exist and which connection each action needs | `connectors_get` |

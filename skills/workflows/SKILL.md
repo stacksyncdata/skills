@@ -1,14 +1,14 @@
 ---
 name: workflows
-description: Builds, changes, runs and deploys Stacksync workflows through the Stacksync MCP, from the workflow document, triggers (webhook, schedule, email, Gmail, queue), steps, code steps and data references to test runs, run logs, replays, resolved runs, drafts, copies and deletes. Use when someone wants to automate a process, create or edit a workflow, add a step or a trigger, run a workflow now, read what a run did, replay or resolve runs, put a version live, copy a workflow to another region, or pause, share or delete one.
+description: Builds, changes, runs and deploys Stacksync workflows through the Stacksync MCP, from the workflow document, triggers (webhook, schedule, email, Gmail, queue, record changes in an app), steps, code steps and data references to test runs, run logs, replays, resolved runs, drafts, copies and deletes. Use when someone wants to automate a process, create or edit a workflow, add a step or a trigger, run a workflow now, read what a run did, replay or resolve runs, put a version live, copy a workflow to another region, or pause, share or delete one.
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.1.0"
+  version: "1.2.0"
   owner: "@stacksyncdata/ai-team"
   areas: "workflows"
   resource: "workflows"
-  tools: "workflows_list workflows_get workflows_schema workflows_save workflows_run workflows_runs workflows_replay workflows_resolve_runs workflows_deploy workflows_create_draft workflows_duplicate workflows_delete connectors_list connectors_get connectors_module_form connections_list connections_create variables_list"
+  tools: "workflows_list workflows_get workflows_schema workflows_save workflows_steps_save workflows_steps_delete app_triggers_save app_triggers_get app_triggers_delete workflows_run workflows_runs workflows_replay workflows_resolve_runs workflows_deploy workflows_create_draft workflows_duplicate workflows_delete connectors_list connectors_get connectors_module_form connections_list connections_create variables_list"
 ---
 
 ## What it is
@@ -22,8 +22,11 @@ is what the workflow's YAML tab shows in the web app.
   action step is reached from Input.
 - Each step has a **step id** (the web app calls it Module ID): its name in lower case, with
   spaces and dashes turned into `_`. Other steps read its output by that id.
-- Each save writes a **draft**. **Deploy** makes a version live. A deployed version cannot be
-  saved again: open a new draft from it first.
+- A workflow is built step by step: each step save adds or changes one step and its edges in
+  the **draft**. **Deploy** makes a version live. A deployed version cannot be saved again: open
+  a new draft from it first.
+- A new workflow is `running`, as in the web app, but its draft runs nothing until a version is
+  deployed.
 
 Full format, edges, branches and loops: [references/workflow-document.md](references/workflow-document.md).
 Triggers: [references/triggers.md](references/triggers.md). Code steps:
@@ -46,7 +49,7 @@ Triggers: [references/triggers.md](references/triggers.md). Code steps:
 | `variables` | Steps read `{{ WORKSPACE_VARIABLES.<reference> }}` | `variables_list` |
 | `queues` | Queue consumer trigger receives a batch; the queue insert step adds records | `connectors_module_form` |
 | `syncs` | A sync event trigger of type `webhook` calls the workflow's webhook URL once per changed record, or type `queue` feeds a queue the workflow consumes | `syncs_triggers_save` |
-| `syncs` | A workflow sync trigger step starts on record changes in an app; it is built in the web app only | None |
+| `syncs` | A workflow sync trigger step starts on record changes in an app through an app trigger, which sets up a sync of its own | `app_triggers_save` |
 | `workflows` | No native link: one workflow calls another only with an HTTP step to its webhook URL | `connectors_module_form` |
 | `genies` | No native link: a Genie runs single modules, never a whole workflow, and no step calls a Genie | None |
 | `folders` | A workflow sits in folders | `workflows_save` `folder_id` |
@@ -70,7 +73,8 @@ Tools: `workflows_get`
 
 1. Call `workflows_get` with the `workflow_id`. Pass a `version` for an older one and
    `document_format` `yaml` to show it as the YAML tab does.
-2. Keep the returned document: send it back as is to `workflows_save` after changing it.
+2. Keep the returned document and the draft's `last_modified_time`: a changed step goes to
+   `workflows_steps_save`, a whole changed document to `workflows_save`.
 
 ### Read the document format
 
@@ -91,15 +95,15 @@ Tools: `workflows_list`, `variables_list`, `workflows_schema`, `workflows_save`
    `usnv` (United States), the one closest to the apps. Wait for the answers.
 2. Check `workflows_list` and `variables_list` for what already exists.
 3. Call `workflows_save` with a `name`, the `region` and a document holding only the Input step.
-   A new workflow starts as a draft.
-4. Add the trigger and steps with the next two operations, then save the whole document: every
-   step and edge in one `workflows_save`, so the person approves one change for the steps.
+   It creates the workflow with that step in its first draft.
+4. Add the trigger and each step with **Add a trigger** and **Add a step**, one step per save,
+   then test and deploy.
 
 ### Add a step
 
 Use when the workflow needs an action in an app or a built-in module.
 
-Tools: `connectors_list`, `connectors_get`, `connections_create`, `connectors_module_form`
+Tools: `connectors_list`, `connectors_get`, `connections_create`, `connectors_module_form`, `workflows_steps_save`
 
 1. Call `connectors_list` with one short word for the app or capability, such as `enrich`,
    `search`, `scrape`, `email` or `validate`. Try several single words: the search matches part
@@ -112,16 +116,21 @@ Tools: `connectors_list`, `connectors_get`, `connections_create`, `connectors_mo
 4. Call `connectors_module_form` with the module, version and connection. Call it again after
    each choice with `values` and the `dropdown_ids` to load, until every required field has a
    value. Ask the person for any value you do not know.
-5. Put the step in the document with an edge from Input or a previous step.
+5. Call `workflows_steps_save` with the `workflow_id`, the `region`, the `step` (its document
+   entry, from `workflows_schema`) and `edges_to_add`: the edge from Input or a previous step.
+   Pass `edges_to_remove` (edge ids) to move a step, and `expected_last_modified_time` from the
+   last read or save, so a save on a draft someone changed meanwhile is refused.
+6. Read the `triggers` in the answer: a trigger with status `failed` carries the reason.
 
 Never create an API key variable for a service the catalog already covers without asking the
 person: a built-in module needs no key.
 
 ### Add a trigger
 
-Use when the workflow must start on a request, schedule, email, Gmail message or queue batch.
+Use when the workflow must start on a request, schedule, email, Gmail message, queue batch or
+record change in an app.
 
-Tools: `connectors_get`, `connectors_module_form`, `connections_list`, `workflows_get`
+Tools: `connectors_get`, `connectors_module_form`, `connections_list`, `workflows_steps_save`, `workflows_get`
 
 1. Choose the trigger with the person:
    - HTTP request: **Receive Webhook/HTTP events**.
@@ -130,8 +139,10 @@ Tools: `connectors_get`, `connectors_module_form`, `connections_list`, `workflow
      connection from `connections_list`) or at a Stacksync address (**Receive emails**). Other
      mailboxes forward to the Stacksync address.
    - Batch of records: queue consumer trigger on a queue (see `queues`).
+   - A record created, updated or deleted in an app: **Add a workflow sync trigger**.
 2. Fill the trigger's form with `connectors_module_form`, as for a step.
-3. Add an edge from the trigger into Input.
+3. Call `workflows_steps_save` with the trigger as the `step` and, in `edges_to_add`, its edge
+   into Input. A trigger is a step like any other.
 4. For Receive emails with an alias, check it is free: `workflows_get` with the trigger's
    `step_id` and the `alias`. After the save, the same call without `alias` returns the address.
 5. The webhook URL is shown only on the trigger step in the web app; no tool returns it.
@@ -143,14 +154,20 @@ version. Details per trigger: [references/triggers.md](references/triggers.md).
 
 Use when the person wants a run each time a record is created, updated or deleted in an app.
 
-Tools: none
+Tools: `connectors_get`, `workflows_steps_save`, `connections_tables`, `app_triggers_save`
 
-1. Do this in the web app, in the workflow builder: the sync trigger step builds a sync behind
-   it, and the MCP cannot set it up.
-2. Tell the person what to choose: connection, tables, columns, events, filters, and Historic
-   backfill only after they confirm (it runs every existing record through the workflow).
-3. For an existing sync, a sync event trigger (`syncs_triggers_save`, see `syncs`) can call the
-   workflow's webhook or feed a queue instead.
+1. Ask which connection, which tables, which changes (created, updated, deleted) and which
+   conditions a record must meet. Wait for the answers.
+2. Take the app's sync trigger module, such as `salesforce-workflow_sync_trigger-1`, from
+   `connectors_get` and save the step with `workflows_steps_save` and its edge into Input. Keep
+   its `step_id`. Its settings come from the app trigger in step 4, not from a form.
+3. Read the table and column names with `connections_tables`.
+4. Call `app_triggers_save` with `target` (`type` `workflow`, the `workflow_id` as `id`, and the
+   `step_id`), `connection_id`, the workflow's `region` and `tables`: each with `table_name`,
+   `operations` and `filters`. One call sets the trigger up, links it to the step and switches it
+   on; it starts runs once the version is deployed. Filters: [references/triggers.md](references/triggers.md).
+5. For an existing sync of that table, a sync event trigger (`syncs_triggers_save`, see `syncs`)
+   can call the workflow's webhook or feed a queue instead.
 
 ### Add a code step
 
@@ -182,9 +199,37 @@ Tools: `variables_list`, `workflows_runs`
 References follow Jinja rules. Text that must keep its curly brackets is wrapped once more:
 `{{ {{ text to keep }} }}`.
 
+### Change or remove a step
+
+Use when a step's settings or edges change, or a step goes away.
+
+Tools: `workflows_get`, `workflows_create_draft`, `connectors_module_form`, `workflows_steps_save`, `workflows_steps_delete`
+
+1. Call `workflows_get` for the step and the draft's `last_modified_time`. If the latest version
+   is deployed, call `workflows_create_draft` first.
+2. To change it, load its form with `connectors_module_form` and call `workflows_steps_save` with
+   the changed `step`, `edges_to_add` and `edges_to_remove`. The other steps stay as they are.
+3. To remove it, call `workflows_steps_delete` with the `step_id`. Its edges go with it, and a
+   loop or try/catch step goes with the steps inside it. An app trigger's step is removed with
+   `app_triggers_delete` instead (see **Change or delete an app trigger**).
+
+### Change or delete an app trigger
+
+Use when a workflow sync trigger should watch other tables or conditions, pause, resume or stop.
+
+Tools: `workflows_get`, `app_triggers_get`, `app_triggers_save`, `app_triggers_delete`
+
+1. Take the app trigger's id from `workflows_get`: the sync trigger step's `base_id`. Call
+   `app_triggers_get` with it for the tables, filters and status.
+2. Call `app_triggers_save` with `app_trigger_id`, `region` and the complete new `tables` list,
+   or `status` `paused` or `on`. The step and connection stay; to change the connection, delete
+   the trigger and create another.
+3. After the person confirms, `app_triggers_delete` with `app_trigger_id` and `region` removes
+   the trigger and the sync trigger step with its edges.
+
 ### Save the whole document
 
-Use when steps, triggers or edges change.
+Use when importing a whole workflow document, such as one exported from another workspace.
 
 Tools: `workflows_get`, `workflows_create_draft`, `workflows_save`
 
@@ -314,6 +359,8 @@ Tools: none
 
 - Up to 20 runs of one workflow at a time. Runs are at-least-once with no automatic retry: use
   a replay.
+- A new workflow is `running`; its draft runs nothing until a version is deployed. A new app
+  trigger is `on`.
 - Code steps: JavaScript 6 seconds, Python 300 seconds.
 - `workflows_runs` returns 30 runs by default, up to 1,000 per page.
 - Run logs are kept for the plan's retention: 1 day on Starter, 7 days on Pro, 30 days on
@@ -327,8 +374,8 @@ Tools: none
 | Search the catalog by capability with short single words, and use a built-in module first | A built-in module needs no key and no extra account |
 | Never create an API key variable for a service the catalog covers without asking | A key the person did not ask for is a secret to manage |
 | Ask whether an email arrives in the person's own Gmail mailbox or at a Stacksync address | The two need different triggers |
-| Send the whole document to `workflows_save` | A save overwrites the draft; missing steps are removed |
-| Create a workflow with only its Input step, then save all its steps and edges in one `workflows_save` | The person approves two changes for a new workflow, not one per step |
+| Build and change a workflow one step at a time with `workflows_steps_save` | A step save changes only that step and its edges; a whole document save removes every step it leaves out |
+| After a draft-changed refusal, read the workflow again with `workflows_get` before saving | Someone saved the draft in the builder meanwhile; saving over it would undo their change |
 | Test with `workflows_run` before `workflows_deploy` | A deployed workflow starts on every request, schedule, email or batch |
 | Replay on the fixed version, after the person's yes | A replay writes to the apps again |
 | Never ask for a password or key; use `connections_create` | A secret typed into a chat stays in the chat history |
@@ -338,8 +385,10 @@ Tools: none
 
 | What the person sees | Why | What to do |
 | --- | --- | --- |
-| The save is refused because the version is deployed | Only a draft can be saved | `workflows_create_draft`, then `workflows_save` again |
-| A step disappeared after a save | The document sent left it out | Copy it from an older `version` with `workflows_get`, or rebuild it with `connectors_module_form`, then save the whole document |
+| The save is refused because the version is deployed | Only a draft can be saved | `workflows_create_draft`, then save again |
+| A step save is refused because the draft changed | Someone saved the draft in the builder after it was read | `workflows_get` again, then save the step on the current draft with its `last_modified_time` |
+| A step disappeared after a save | A whole document sent to `workflows_save` left it out | Copy it from an older `version` with `workflows_get`, or rebuild it with `connectors_module_form`, and save it with `workflows_steps_save` |
+| A workflow sync trigger starts no run | The app trigger is paused or missing, the version is not deployed, or the change does not match its filters | `app_triggers_get` with the step's `base_id`; switch it `on`, deploy, or widen the filters |
 | A reference comes through empty | The step id or field name differs from the output | Read a run's step output with `workflows_runs` and copy the exact path |
 | No runs at all | The version is not deployed, the trigger has no edge into Input, or the workflow is paused | Check with `workflows_get`, fix, save and `workflows_deploy` |
 | A trigger step reports `failed` | Its settings were refused or it could not be set up | Report the message; fix the form values with `connectors_module_form` |

@@ -4,7 +4,7 @@ description: Creates, renames, shares and deletes Stacksync knowledge bases, the
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "genies knowledge-bases"
   tools: "knowledge_bases_list knowledge_bases_get knowledge_bases_save knowledge_bases_delete knowledge_bases_documents_add knowledge_bases_documents_remove files_list genies_list genies_get genies_save folders_move"
@@ -76,8 +76,9 @@ Tools: `genies_list`, `knowledge_bases_list`, `knowledge_bases_save`
 2. Call `genies_list` with `region` `all` for that Genie's region.
 3. Call `knowledge_bases_list` with `region` `all` to check that none already has this purpose.
 4. Call `knowledge_bases_save` without `knowledge_base_id`, with `name` (unique in its region),
-   the Genie's `region`, `is_shared_with_workspace` (default `true`) and an optional
-   `folder_id`. It creates an empty knowledge base.
+   the Genie's `region`, `is_shared_with_workspace` (`true` when the whole workspace may use
+   it; left out, it is private to its creator) and an optional `folder_id`. It creates an
+   empty knowledge base.
 5. Follow **Add a document**, then connect it to the Genie with **Use a knowledge base in a
    Genie**.
 
@@ -138,7 +139,10 @@ Tools: `genies_get`, `genies_save`
 1. Call `genies_get` for the Genie's current `knowledge_bases` list.
 2. Call `genies_save` with `genie_id` and the complete new `knowledge_bases` list: each entry has
    `knowledge_base_id` and `instructions` in plain words, such as "Use for questions about
-   returns and refunds". The list you send replaces the stored list. See `genies`.
+   returns and refunds". An entry also carries `enabled` (`false` keeps it on the Genie
+   without consulting it) and `disabled_document_ids`, the documents the Genie leaves out;
+   every other document, including later ones, is consulted. An entry that leaves these two
+   out keeps their stored values. The list you send replaces the stored list. See `genies`.
 
 ### Delete a knowledge base
 
@@ -154,8 +158,9 @@ Tools: `knowledge_bases_get`, `knowledge_bases_delete`
 
 ## Defaults and limits
 
-- A new knowledge base is shared with the workspace unless `is_shared_with_workspace` is
-  `false`, and is created in the workspace's default region unless `region` is set.
+- A new knowledge base is private to its creator unless `is_shared_with_workspace` is `true`,
+  and is created in the workspace's default region unless `region` is set. Share or unshare it
+  later with **Rename or share a knowledge base**.
 - Names are unique per region.
 - Document types: PDF, Word (.docx), Excel (.xlsx), CSV, JSON, Markdown and plain text.
 - Files are uploaded only in the web app.

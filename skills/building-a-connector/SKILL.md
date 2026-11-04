@@ -4,10 +4,10 @@ description: Connects Stacksync to an app that has no Stacksync connector, first
 license: Apache-2.0
 metadata:
   type: runbook
-  version: "1.1.0"
+  version: "1.1.1"
   owner: "@stacksyncdata/ai-team"
   areas: "connectors workflows"
-  tools: "connectors_list connectors_get connectors_module_form connectors_search_records connectors_get_records connectors_create_records connections_list connections_create workflows_list workflows_get workflows_save workflows_run workflows_runs variables_list"
+  tools: "connectors_list connectors_get connectors_module_form connectors_search_records connectors_get_records connectors_create_records connections_list connections_create workflows_list workflows_get workflows_save workflows_steps_save workflows_run workflows_runs variables_list"
 ---
 
 ## Use it when
@@ -48,10 +48,10 @@ back the output.
    | The app must take part in a sync | Connector for syncs, started from **Developer Mode** | See "When the MCP cannot do it" |
 
    Check: the person agreed the path.
-3. **No build: an HTTP request step or a code step.** Follow `workflows` "Save the whole document":
+3. **No build: an HTTP request step or a code step.** Follow `workflows` "Add a step":
    `workflows_list` and `workflows_get` find the workflow; `connectors_module_form` fills the HTTP
    request step with the method, URL, headers and body from the app's API documentation, or the
-   code step's script; `workflows_save` saves it. Keep the app's API key out of the chat and the
+   code step's script; `workflows_steps_save` saves it. Keep the app's API key out of the chat and the
    step text: the person stores it as a workspace secret (`variables`) or in a connection whose
    sign in link `connections_create` returns. Run it once with `workflows_run` on a test record
    and read the result with `workflows_runs`. Stop here when this covers the need.

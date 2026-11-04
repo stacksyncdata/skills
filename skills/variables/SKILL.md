@@ -4,7 +4,7 @@ description: Lists, reads, creates, changes and deletes Stacksync workspace vari
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "variables"
   tools: "variables_list variables_get variables_save variables_delete workflows_list workflows_get"
@@ -42,7 +42,7 @@ rename keeps it.
 
 | Resource | How they link | Tool |
 | --- | --- | --- |
-| `workflows` | A step reads the reference; the **Workspace Variable - Update** step changes the value during a run | `workflows_save` |
+| `workflows` | A step reads the reference; the **Workspace Variable - Update** step changes the value during a run | `workflows_steps_save` |
 | `connections` | No native link: an app with a connector signs in through a connection, not a secret | `connections_create` |
 | `folders` | A variable can sit in a folder | `folders_move` |
 

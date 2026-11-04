@@ -4,10 +4,10 @@ description: Runs a workflow on a cron schedule in UTC to pull, check, report or
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "workflows"
-  tools: "connectors_list connectors_get connectors_module_form workflows_save workflows_get workflows_deploy workflows_runs workflows_run workflows_replay"
+  tools: "connectors_list connectors_get connectors_module_form workflows_save workflows_steps_save workflows_get workflows_deploy workflows_runs workflows_run workflows_replay"
   resources: "workflows connectors variables"
 ---
 

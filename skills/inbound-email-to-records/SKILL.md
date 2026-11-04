@@ -4,10 +4,10 @@ description: Turns incoming emails, such as orders, invoices or requests, into r
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "workflows connections files"
-  tools: "connections_list connections_create connectors_list connectors_get connectors_module_form workflows_save workflows_get workflows_deploy workflows_runs workflows_replay files_get"
+  tools: "connections_list connections_create connectors_list connectors_get connectors_module_form workflows_save workflows_steps_save workflows_get workflows_deploy workflows_runs workflows_replay files_get"
   resources: "workflows connections connectors files"
 ---
 
