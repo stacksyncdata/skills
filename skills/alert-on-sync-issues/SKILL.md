@@ -4,10 +4,10 @@ description: Sends a team a message or email when a sync has failed records, thr
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.1.0"
+  version: "1.1.1"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs workflows"
-  tools: "syncs_list syncs_get syncs_webhooks_delete syncs_issues connectors_list connectors_module_form workflows_save workflows_deploy workflows_runs"
+  tools: "syncs_list syncs_get syncs_webhooks_delete syncs_issues connectors_list connectors_module_form workflows_save workflows_steps_save workflows_deploy workflows_runs"
   resources: "syncs workflows variables"
 ---
 

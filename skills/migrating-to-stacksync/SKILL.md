@@ -4,10 +4,10 @@ description: "Moves integrations and automations from another integration or aut
 license: Apache-2.0
 metadata:
   type: runbook
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "migration"
-  tools: "workspaces_list connections_list connections_create connectors_list syncs_list syncs_get syncs_save syncs_switch syncs_issues workflows_list workflows_get workflows_save workflows_deploy workflows_run workflows_runs queues_list queues_save variables_list variables_save skills_get"
+  tools: "workspaces_list connections_list connections_create connectors_list syncs_list syncs_get syncs_save syncs_switch syncs_issues workflows_list workflows_get workflows_save workflows_steps_save workflows_deploy workflows_run workflows_runs queues_list queues_save variables_list variables_save skills_get"
 ---
 
 ## Use it when
@@ -98,5 +98,3 @@ Stacksync already holds, so nothing is built twice.
 - **Records appear twice after cutover**: both platforms wrote the same records, or a two-way sync
   started on apps holding the same records. Switch one side off, then de-duplicate in the app;
   Stacksync does not merge records.
-- **Per field direction and associations of a sync** are set in the web app, in the sync's
-  **Schema** and **Associations** tabs.

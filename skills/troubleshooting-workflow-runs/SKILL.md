@@ -4,10 +4,10 @@ description: "Finds why Stacksync workflow runs failed and fixes them in order: 
 license: Apache-2.0
 metadata:
   type: runbook
-  version: "1.2.0"
+  version: "1.2.1"
   owner: "@stacksyncdata/ai-team"
   areas: "workflows"
-  tools: "workflows_list workflows_get workflows_runs workflows_run workflows_replay workflows_resolve_runs workflows_create_draft workflows_save workflows_deploy connections_list connections_get connections_tables connectors_get connectors_module_form connectors_get_records connectors_search_records connectors_run_query"
+  tools: "workflows_list workflows_get workflows_runs workflows_run workflows_replay workflows_resolve_runs workflows_create_draft workflows_save workflows_steps_save workflows_deploy connections_list connections_get connections_tables connectors_get connectors_module_form connectors_get_records connectors_search_records connectors_run_query"
 ---
 
 ## Use it when
@@ -79,9 +79,9 @@ order; [the product rules](references/product-rules.md) cover what the error tex
    - Lost access: `connections` "Reauthorize a connection". `connections_list` shows
      `needs_reauthorization`; `connections_get` gives the link to that connection in the web app,
      where the person selects **Reauthorize**.
-   - A workflow change: `workflows` "Save the whole document" and "Deploy a version":
-     `workflows_create_draft` when the latest version is deployed, then `workflows_save`, then
-     `workflows_deploy`.
+   - A workflow change: `workflows` "Change or remove a step" and "Deploy a version":
+     `workflows_create_draft` when the latest version is deployed, then `workflows_steps_save`
+     for each changed step, then `workflows_deploy`.
    - Run again on the new version: `workflows` "Replay runs": `workflows_replay` with `run_ids`,
      or a `query` and time range, the chosen `mode` and the new `version`. Without a `version`,
      each run replays on its own old version and fails the same way. For one run, `workflows_run`

@@ -4,7 +4,7 @@ description: "Finds why a Stacksync sync misbehaves and fixes it in order: locat
 license: Apache-2.0
 metadata:
   type: runbook
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs"
   tools: "syncs_list syncs_get syncs_issues syncs_resolve_issues syncs_switch syncs_save connections_list connections_get connections_tables"
@@ -91,8 +91,5 @@ outside a fix, use `syncs`.
 
 The MCP has no tool for these settings. Say so, and send the person to the one place in the web app:
 
-- Schema update settings, such as **Keep in mapping**: the sync's **Propagate Schema Updates** tab.
-- Per field direction: the sync's **Schema** tab.
-- Associations: the sync's **Associations** tab.
 - Column changes the sync saw, renames included: the sync's **Schema History** tab.
 - Email alerts for sync issues: **Workspace Settings > Notifications**.

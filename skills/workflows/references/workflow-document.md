@@ -12,8 +12,9 @@ writing a document; this page summarises its rules.
 | `return_workflow_module_instance_ids` | The steps whose output the workflow returns |
 | `workflow_execution_timeout` | Seconds a run may take, for example `300` |
 
-`workflows_get` returns the document of a version as JSON or YAML (`document_format`). Send it
-back as is, with your change, to `workflows_save`.
+`workflows_get` returns the document of a version as JSON or YAML (`document_format`). One step
+of `modules`, with its edges, is what `workflows_steps_save` takes; the whole document, sent back
+with your change, is what `workflows_save` takes.
 
 ## Steps
 
@@ -63,8 +64,12 @@ The Input step is always:
 - Saving sets up the triggers of each new or changed step (schedules, queue consumers, email and
   Gmail triggers), as the builder does. Deploying makes the version live and sets the triggers up for
   it.
-- A sync trigger step, which starts a workflow when a record changes in an app, is built in the
-  web app.
+- A workflow is built one step at a time: `workflows_save` creates it with the Input step,
+  `workflows_steps_save` adds or changes one step with its edges, and `workflows_steps_delete`
+  removes one. `workflows_save` with the whole document is for importing one.
+- A sync trigger step, which starts a workflow when a record changes in an app, is saved like any
+  step; its tables and filters are set with `app_triggers_save` (see
+  [triggers.md](triggers.md)).
 
 ## Minimal example
 

@@ -4,10 +4,10 @@ description: Lists, reads, creates, changes, pauses, flushes, clears and deletes
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "queues"
-  tools: "queues_list queues_get queues_save queues_flush queues_clear queues_delete workflows_save connectors_list syncs_triggers_save"
+  tools: "queues_list queues_get queues_save queues_flush queues_clear queues_delete workflows_save workflows_steps_save connectors_list syncs_triggers_save"
   resource: "queues"
 ---
 
@@ -43,7 +43,7 @@ or when a flush is forced.
 | Resource | How they link | Tool |
 | --- | --- | --- |
 | `syncs` | A sync event trigger of type `queue` adds one record per changed record; no retry | `syncs_triggers_save` |
-| `workflows` | Producer: a queue insert step. Consumer: the queue consumer trigger; one run per flush | `workflows_save` |
+| `workflows` | Producer: a queue insert step. Consumer: the queue consumer trigger; one run per flush | `workflows_steps_save` |
 | `connectors` | The queue steps and the queue consumer trigger are in the catalog | `connectors_list` |
 | `folders` | A queue can sit in a folder | `folders_move` |
 
@@ -74,7 +74,7 @@ Tools: `queues_get`
 
 Use when records must collect between a producer and a consumer.
 
-Tools: `queues_list`, `queues_save`, `connectors_list`, `workflows_save`
+Tools: `queues_list`, `queues_save`, `connectors_list`, `workflows_steps_save`
 
 1. Call `queues_list` first; reuse a match.
 2. Ask which region: the region of the workflows on both sides.

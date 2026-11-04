@@ -4,7 +4,7 @@ description: Sets up a genie with its own Stacksync email address that answers i
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "genies knowledge-bases files"
   tools: "knowledge_bases_list knowledge_bases_save knowledge_bases_documents_add files_list connections_list genies_draft genies_save genies_get genies_ask genies_activity genies_approve"
@@ -77,4 +77,4 @@ sender -> <alias>@stacksync.email -> genie
 | --- | --- |
 | Set `approval_required` on actions that create, change or delete data | A wrong answer is fixable; a wrong write reaches a live app |
 | Keep documents current and remove outdated ones | The genie answers from what the knowledge base holds |
-| Pass the drafted instructions unchanged; change them with "Change a Genie's instructions" | The wizard keeps channels and skills consistent with the instructions |
+| Change the instructions with `genies` "Change a Genie's instructions", keeping every other section | The text sent replaces the stored instructions; a dropped section is a lost behavior |

@@ -56,7 +56,11 @@ If the sign in page keeps loading, an ad blocker or a pop up blocker is stopping
 Formula fields are read-only and computed, so they sync one way, out of Salesforce, and a change of
 the inputs does not always count as a change of the formula. Stacksync finds formula fields during
 setup. A full table scan of the tables that hold them, at a chosen frequency such as every 24
-hours, keeps their values current. The MCP does not set it: do this in the web app.
+hours, keeps their values current. `syncs_get` shows
+`app_1_full_table_scan_frequency_in_seconds` or `app_2_full_table_scan_frequency_in_seconds` on
+each such table; set it with `syncs_save` on the table pair: `3600`, `14400`, `21600`, `43200` or
+`86400` seconds, or `null` for never. Each scan reads every record of the table, so choose the
+longest interval the person accepts.
 
 ## Custom field visibility
 

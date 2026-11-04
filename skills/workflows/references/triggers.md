@@ -1,8 +1,8 @@
 # Triggers
 
-A trigger starts a workflow. Each trigger step has an edge into the Input step. Find trigger
-modules with `connectors_get`, which lists an app's triggers next to its actions, and fill them
-with `connectors_module_form`.
+A trigger starts a workflow. A trigger is a step, saved with `workflows_steps_save` like any
+other, with an edge into the Input step. Find trigger modules with `connectors_get`, which lists
+an app's triggers next to its actions, and fill them with `connectors_module_form`.
 
 | Trigger, as the web app names it | Starts the workflow when | Through the MCP |
 | --- | --- | --- |
@@ -11,7 +11,7 @@ with `connectors_module_form`.
 | Receive emails (`system-email_trigger-1`) | An email reaches the step's Stacksync address on `@stacksync.email` | Yes |
 | Gmail trigger (`gmail-gmail_trigger-1`) | A new email arrives in the connected Gmail mailbox | Yes, with a Gmail connection from `connections_list` |
 | Queue trigger | A queue flushes a batch of records | Yes (see `queues`) |
-| Sync trigger of an app, such as `salesforce-workflow_sync_trigger-1` | A record is created, updated or deleted in a table of a connected app | No. The person builds it in the web app (see "Sync trigger") |
+| Sync trigger of an app, such as `salesforce-workflow_sync_trigger-1` | A record is created, updated or deleted in a table of a connected app | Yes, the step and then its app trigger with `app_triggers_save` (see "Sync trigger") |
 
 For an email start, ask the person whether the emails arrive in their own mailbox (Gmail trigger,
 on their Gmail connection) or can be forwarded to a Stacksync address (Receive emails). The
@@ -62,14 +62,42 @@ catalog has no trigger for other mailboxes, so those emails are forwarded to a S
 
 A sync trigger starts the workflow when a record is created, updated or deleted in a table of a
 connected app. Each app that offers it has its own module, such as
-`salesforce-workflow_sync_trigger-1`. The web app builds a sync behind it, so it cannot be set up
-through the MCP: the person builds it in the workflow builder. Tell them what to choose there:
+`salesforce-workflow_sync_trigger-1`. Its settings live in an **app trigger**, which sets up a
+sync of its own behind the step:
 
-- The connection, the tables, the columns to track, and the events: Created, Updated, Deleted,
-  in any combination.
-- Filter conditions (AND and OR, nested as needed), so only the changes that matter start a run.
-- **Historic backfill** runs the existing records through the trigger once. On objects with many
-  records this creates many runs: apply filters first, and switch it on only after the person
-  confirms.
+1. Save the step with `workflows_steps_save` and its edge into Input, and keep its `step_id`.
+2. Call `app_triggers_save` with `target` `{"type": "workflow", "id": "<workflow_id>",
+   "step_id": "<step_id>"}`, the `connection_id`, the workflow's `region` and `tables`. One call
+   sets it up, links it to the step and switches it on; it starts runs once the version is
+   deployed.
+3. Each entry of `tables` has `table_name` (from `connections_tables`), `operations` (any of
+   `created`, `updated`, `deleted`) and `filters`, so only the changes that matter start a run.
+
+`filters` is a group (`and` or `or`) of conditions on the table's column names, nested as needed;
+an empty `and` group matches every change. It has the shape of a sync event trigger's filters
+(see `syncs`), with the operators `eq`, `neq`, `lt` (larger than), `leq`, `st` (smaller than),
+`seq`, `in`, `nin`, `nu`, `nnu`, `cont`, `ncont`, `mreg` (matches a regular expression), `nmreg`
+(does not match it) and `has_ch` (the field changed).
+
+```json
+{
+  "table_name": "Opportunity",
+  "operations": ["created", "updated"],
+  "filters": {
+    "type": "group",
+    "operator": "and",
+    "conditions": [{ "type": "condition", "column": "StageName", "operator": "eq", "value": "Closed Won" }]
+  }
+}
+```
+
+- `app_triggers_get` with the step's `base_id` (from `workflows_get`) shows the tables, filters
+  and status. `app_triggers_save` with `app_trigger_id` and `region` replaces `tables` or sets
+  `status` `paused` or `on`. The step and the connection stay: to change the connection, delete
+  the app trigger and create another.
+- `app_triggers_delete` removes the app trigger and the sync trigger step with its edges.
+- The app trigger never loads the app's existing records. **Historic backfill**, which runs every
+  existing record through the workflow once, is switched on in the web app's trigger step only,
+  after the person confirms: on objects with many records it creates many runs.
 
 The workflow receives `record`, the full record, and `changes`, the changed fields on an update.

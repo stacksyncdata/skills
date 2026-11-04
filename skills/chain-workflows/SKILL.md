@@ -4,10 +4,10 @@ description: Hands work from one workflow to another, through an HTTP step that 
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "workflows queues"
-  tools: "connectors_list connectors_module_form workflows_list workflows_get workflows_save workflows_deploy workflows_runs queues_save queues_get"
+  tools: "connectors_list connectors_module_form workflows_list workflows_get workflows_save workflows_steps_save workflows_deploy workflows_runs queues_save queues_get"
   resources: "workflows queues variables"
 ---
 

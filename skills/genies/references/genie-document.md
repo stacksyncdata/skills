@@ -4,7 +4,7 @@
 parts in customer words. On a new Genie, the document is the configuration `genies_draft`
 returned, with the ids looked up and filled in.
 
-The document has two keys: `genie_config`, which holds `master_prompt`, `description`, `model`,
+The document has two keys: `genie_config`, which holds `master_prompt`, `description`, `model_selection`,
 `skills`, `interfaces`, `app_descriptions`, `resources`, `teams`, `contacts`, `tools` and
 `api_key`, and `knowledge_bases`, which sits beside `genie_config`.
 
@@ -12,16 +12,16 @@ The document has two keys: `genie_config`, which holds `master_prompt`, `descrip
 
 | Part | What it holds | Where the value comes from |
 | --- | --- | --- |
-| `master_prompt` | The Genie's instructions | `genies_draft` only, passed unchanged |
+| `master_prompt` | The Genie's instructions | `genies_draft` for a new Genie; on a change, the text from `genies_get` with only the asked change, every other section kept, sent whole |
 | `description` | A short summary | Leave it empty: Stacksync writes it |
-| `model` | The AI model the Genie runs on | Leave it empty for Stacksync's default |
+| `model_selection` | The AI model the Genie runs on: `{"model": "<name>"}` | Leave `model` empty for Stacksync's default; a name Stacksync does not offer also runs the default |
 | `skills` | One entry per app action: `id` (the module id), `name`, `type` `Module`, `enabled`, `connection` and `approval_policy` | `genies_draft` drafts them; a new one takes `module_id` from `connectors_get`. Set `connection` to a connection id from `connections_list`. A skill that is not enabled is not offered to the Genie |
-| `interfaces` | One entry per channel: `slack`, `teams` or `email` | Slack takes the id of a Slack connection with Genies enabled (or an older Slack Genie connection), Teams the id of a Microsoft Teams connection; for both, `details` holds the channel affinity. Email takes `details` set to `<alias>@stacksync.email` |
+| `interfaces` | One entry per channel: `slack`, `teams`, `google_chat`, `email` or `app_trigger` | Slack takes the id of a Slack connection with Genies enabled (or an older Slack Genie connection), Teams the id of a Microsoft Teams connection, Google Chat the id of a Google Chat connection; for these, `details` holds the channel affinity. Email takes `details` set to `<alias>@stacksync.email`. An `app_trigger` (Trigger) entry takes the `connection_id` of the app it watches and `details` naming the app and tables; its `base_id` is read only, and `app_triggers_save` sets up what it watches |
 | `app_descriptions` | Per app of the skills: when and how the Genie uses that app | Optional, in plain words; copy the current ones from `genies_get` when changing them |
 | `tools` | Built-in tools, each on or off: `web_search`, `execute_browser`, `api_call`, `code_execution`, `stacksync_ocr`, `modify_scheduled_task` | All on by default, as in the web app. On a change, send only the switches that change, such as `{"web_search": false}` |
 | `teams`, `contacts` | Teams and people the Genie knows about, each with `id` and `name` (contacts also `email`) | Copy them from `genies_get`; leave them out when nothing changes |
 | `resources` | Connections, variables and secrets the Genie may use | A `connection` takes a connection id; a `variable` or `secret` takes a variable id from `variables_list` |
-| `knowledge_bases` | Each knowledge base and when to use it | `knowledge_base_id` from `knowledge_bases_list`, and `instructions` in plain words, such as "Use for questions about return policy" |
+| `knowledge_bases` | Each knowledge base and when to use it | `knowledge_base_id` from `knowledge_bases_list`, and `instructions` in plain words, such as "Use for questions about return policy". `enabled` (default `true`) and `disabled_document_ids` (documents left out) keep their stored values when an entry leaves them out |
 | `api_key` | The person's own API key for the model this Genie runs on, when they want one used | Never ask for it in the chat, because a secret in a chat leaves the person's control. It is never returned; `has_api_key` says whether one is set |
 
 Stacksync fills each connection's `connection_resource_id` from the connection id.
@@ -32,6 +32,10 @@ Stacksync fills each connection's `connection_resource_id` from the connection i
 | --- | --- |
 | `always_allow` | The Genie runs the action when it decides to |
 | `approval_required` | The Genie pauses before the action until a person approves or rejects it (see `genies`, **Decide on an approval**) |
+
+A skill's **Require approval** switch in the web app is this `approval_policy`, set with
+`genies_save`. `genies_approve` answers one paused action with `approve_once` or `reject`; it
+does not change the policy.
 
 ## Fields outside the configuration
 
@@ -48,6 +52,6 @@ Who else may use or change the Genie is set with `genies_access_save`, outside t
 - `genies_save` with `genie_id` keeps every key you leave out.
 - A list you send (`skills`, `interfaces`, `resources`, `teams`, `contacts`, `knowledge_bases`)
   overwrites the stored list; `tools` merges switch by switch. Read the Genie with `genies_get` and send the complete new list.
-- The document `genies_get` returns is the same format `genies_save` takes, so copy from it, but
-  leave out `genie_config.master_prompt` unless it comes from `genies_draft`: `genies_save`
-  refuses instructions `genies_draft` did not write in the last hour.
+- The document `genies_get` returns is the same format `genies_save` takes, so copy from it.
+  `genie_config.master_prompt`, when sent, replaces the stored instructions with the text sent.
+- A Trigger interface left out of the `interfaces` list is removed, and its app trigger with it.

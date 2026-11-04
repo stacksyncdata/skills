@@ -4,10 +4,10 @@ description: Collects the records a sync changes in a Stacksync queue and hands 
 license: Apache-2.0
 metadata:
   type: blueprint
-  version: "1.0.0"
+  version: "1.0.1"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs queues workflows"
-  tools: "syncs_list syncs_get syncs_triggers_save queues_list queues_save queues_get queues_flush connectors_list connectors_module_form workflows_save workflows_deploy workflows_runs workflows_replay"
+  tools: "syncs_list syncs_get syncs_triggers_save queues_list queues_save queues_get queues_flush connectors_list connectors_module_form workflows_save workflows_steps_save workflows_deploy workflows_runs workflows_replay"
   resources: "syncs queues workflows"
 ---
 

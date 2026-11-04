@@ -46,9 +46,10 @@ The boost finds changes within seconds by watching rollup properties in HubSpot.
 Free and Starter HubSpot accounts, needs a HubSpot Admin or Super Admin to set up, and is meant for
 association tables with more than 10,000 rows.
 
-1. In the web app, open the sync, the **Schema** tab, the HubSpot app, then **Show associations
-   CDC configuration**. It lists each association table, its status and the exact properties to
-   create.
+1. Call `syncs_get` with `include_diagnostics: true`: `association_cdc_tables` lists each
+   association table, its status (`enabled`, `ready`, `partial` or `missing`), the object to create
+   the properties on and the exact properties still missing. In the web app the same list is in
+   the sync's **Schema** tab, the HubSpot app, **Show associations CDC configuration**.
 2. In HubSpot, under **Settings > Data Management > Properties**, on the object the panel names
    (the first object of the table name), create a **Calculation property > Rollup**, type **Sum**,
    **Record ID** of the other object, for **All association labels**, labeled
@@ -57,7 +58,8 @@ association tables with more than 10,000 rows.
 3. Optional: one more rollup per association label you use, such as `..._label_primary`, limited to
    that label.
 4. Pause the sync with `syncs_switch` and start it again. The boost turns on for every table whose
-   `_label_none` rollup exists; the panel then shows **CDC boosted**.
+   `_label_none` rollup exists; the panel then shows **CDC boosted**, and `syncs_get` shows `true`
+   in the table's `app_1_is_association_cdc_enabled` or `app_2_is_association_cdc_enabled`.
 
 If a rollup is deleted or changed later, Stacksync goes back to reading the whole table for it and
 sends an email; no data is lost.

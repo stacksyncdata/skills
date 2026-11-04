@@ -4,11 +4,11 @@ description: Creates, edits, copies, starts, pauses and deletes Stacksync syncs 
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.1.0"
+  version: "1.2.0"
   owner: "@stacksyncdata/ai-team"
   areas: "syncs"
   resource: "syncs"
-  tools: "syncs_list syncs_get syncs_save syncs_switch syncs_delete syncs_issues syncs_resolve_issues syncs_triggers_save syncs_triggers_delete syncs_webhooks_delete connections_list connections_create connections_tables queues_list folders_list"
+  tools: "syncs_list syncs_get syncs_save syncs_switch syncs_delete syncs_issues syncs_resolve_issues syncs_triggers_save syncs_triggers_delete syncs_webhooks_delete app_triggers_save connections_list connections_create connections_tables queues_list folders_list"
 ---
 
 ## What it is
@@ -37,12 +37,12 @@ in an app. When a sync has failed records or stopped, follow the runbook `troubl
 | --- | --- | --- |
 | `connections` | Each sync uses two connections in the same region | `connections_list`, `connections_tables`, `connections_create` |
 | `queues` | A sync event trigger of type `queue` adds one queue message per matching record change | `syncs_triggers_save`, `queues_list` |
-| `workflows` | A sync event trigger of type `webhook` calls a workflow's webhook URL, one call per record. The workflow sync trigger (a record change starts a workflow) is set in the web app only | `syncs_triggers_save` |
+| `workflows` | A sync event trigger of type `webhook` calls a workflow's webhook URL, one call per record. An app trigger on a workflow's sync trigger step starts the workflow on record changes, with a sync of its own (see `workflows`) | `syncs_triggers_save`, `app_triggers_save` |
 | `folders` | A new sync can be saved in a folder; move it later with the folders tools | `syncs_save` (`folder_id`), `folders_list` |
 | `connectors` | No native link: the connector catalog runs single app actions; a sync uses its own engine | none |
 | `variables` | No native link: a trigger's cURL or query runs as written, without workspace variables | none |
 | `api-proxies` | No native link: an API proxy and a sync can share a connection, nothing more | none |
-| `genies` | No native link: a sync trigger calls a URL, a database or a queue, never a Genie | none |
+| `genies` | No native link: a sync event trigger calls a URL, a database or a queue, never a Genie. An app trigger on a Genie's Trigger interface starts the Genie on record changes (see `genies`) | `app_triggers_save` |
 | `knowledge-bases` | No native link | none |
 
 ## Operations
@@ -59,9 +59,14 @@ Tools: `syncs_list`, `syncs_get`
 1. Call `syncs_list` with `name_contains` or `status` (`running`, `paused`, `paused_temporarily`,
    `processing`). `paused_temporarily` means app errors stopped it.
 2. Call `syncs_get` with the `sync_id`. It returns the sync as a `syncs_save` document, counts per
-   table, triggers and webhooks with their ids. Add `include_columns: true` for mapped fields,
-   `table_name_contains` to narrow a large sync, `include_diagnostics: true` for queued, in-flight
-   and stuck work.
+   table, triggers and webhooks with their ids, and the sync's `sync_resource_id` and `folder_id`
+   (`null` at the root of the workspace). A table with formula fields (Salesforce) also shows
+   `app_1_full_table_scan_frequency_in_seconds` or `app_2_full_table_scan_frequency_in_seconds`; a
+   HubSpot association table shows `app_1_is_association_cdc_enabled` or
+   `app_2_is_association_cdc_enabled`, which is read only. Add `include_columns: true` for mapped
+   fields, `table_name_contains` to narrow a large sync, `include_diagnostics: true` for queued,
+   in-flight and stuck work and, on a sync with HubSpot association tables, the rollup properties
+   each one still needs (`association_cdc_tables`, read from HubSpot, which takes a few seconds).
 
 ### Plan direction per table pair
 
@@ -93,15 +98,22 @@ Tools: `connections_list`, `connections_create`, `connections_tables`, `syncs_sa
 
 1. Call `connections_list` for both apps. When one is missing, call `connections_create` and give
    the person the sign-in link it returns. Never ask for a password or key in the chat.
-2. Call `connections_tables` on each connection for the real table and field names.
+2. Call `connections_tables` on each connection for the real table and field names, field types,
+   each field's `external_column_type` (the app's own type) and each table's `can_create_columns`.
 3. Call `syncs_save` without `sync_id`, with `name` (3 to 63 characters, unique in the region) and
    a document holding `app_1.connection_id`, `app_2.connection_id` and `table_pairs`. Leave
    `columns` out to pair fields by name and type. Set `create_table_on` to create that table with
-   every field of the other one. Optional: `folder_id`, `region`, `sync_resource_id`.
-4. The sync is saved paused. Saving already creates any `create_table_on` table and sets up change
-   capture in the apps. Set app settings with a second `syncs_save` (see "Set frequency, rate
-   limits and app settings"): a create takes only connections and table pairs.
-5. Call `syncs_get` with `include_columns: true` and show the saved pairs and fields.
+   every field of the other one, or send `columns` to create it with those fields only (see "New
+   tables and fields" below). Optional: `folder_id`, `region`, `sync_resource_id`.
+4. The same call can carry the settings: `max_records_sync_delay_in_seconds`, and on `app_1` or
+   `app_2` `delete_protection`, `rate_limit`, `bulk_api_access`, `cdc_method` and `app_options`, and
+   a full table scan frequency on a table with formula fields. The sync is created first and the
+   settings are saved right after it. When one of them is refused, the answer names the changes
+   already applied, the created sync first: the sync exists, so fix that setting with `syncs_save`
+   and the `sync_id`, never create it again.
+5. The sync is saved paused. Saving already creates any `create_table_on` table and sets up change
+   capture in the apps. Call `syncs_get` with `include_columns: true` and show the saved pairs and
+   fields.
 
 Document fields and examples: [references/sync-document.md](references/sync-document.md).
 
@@ -132,11 +144,38 @@ Tools: `syncs_get`, `connections_tables`, `syncs_save`
 3. Show the change and wait for a yes; a saved change cannot be undone. Read it back with
    `syncs_get`.
 
-A new custom field must exist in the app and be visible to the connected account. With **Add New
-Columns** on in the sync's schema settings, it is added on its own at the next schema check;
-otherwise add it to the pair's `columns`. Values are filled in for records already synced. To
-rename, retype or remove a field in an app: pause the sync, change the app, update the sync,
-start it again ([references/schema-changes.md](references/schema-changes.md)).
+A new custom field must exist in the app and be visible to the connected account, unless
+Stacksync creates it (see "New tables and fields"). With **Add New Columns** on in the sync's
+schema settings, it is added on its own at the next schema check; otherwise add it to the pair's
+`columns`. Values are filled in for records already synced. To rename, retype or remove a field in
+an app: pause the sync, change the app, update the sync, start it again
+([references/schema-changes.md](references/schema-changes.md)).
+
+### New tables and fields
+
+Use when a table or a field the person wants to sync does not exist yet in one of the two apps.
+
+Tools: `connections_tables`, `syncs_save`, `syncs_get`
+
+1. A new table: set `create_table_on` (`app_1` or `app_2`) on the table pair; the table is created
+   with the name given. Without `columns`, every field of the other table is copied into it. With
+   `columns`, it gets those fields only.
+2. A new field in an existing table: only when `connections_tables` shows `can_create_columns:
+   true` for that table. In the field pair, set `create_column_on` to the side to create it on and
+   name the existing field on the other side. A pair holds one new field at most, and
+   `create_column_on` is not used in a pair with `create_table_on`. The table then reads all its
+   records again, which costs more API calls to the app.
+3. Names: name some, all or none of the new fields. A name left out is taken from the paired
+   field, as the web app names it, with `_1`, `_2` added when the name is taken.
+4. Types: `new_column_type` sets a new field's type, one of the `external_column_type` values
+   `connections_tables` shows for that app, such as `postgres_text`. Left out: the app's default
+   type for the paired field's type, an array becoming `json`.
+5. The preview shows each field pair as Stacksync will store it, the new fields with their names
+   and types, and lists every name Stacksync gives that differs from the one asked. Show it and
+   wait for a yes, then read the result back with `syncs_get`.
+
+Table and field names follow the rule in "Defaults and limits"; a name that breaks it is refused
+before anything is saved.
 
 ### Set frequency, rate limits and app settings
 
@@ -152,8 +191,19 @@ Tools: `syncs_get`, `syncs_save`
      86400). Prefer per second or per minute; an hourly or daily limit holds changes until it
      resets. Changes wait at the limit, they do not fail.
    - `bulk_api_access` (Salesforce), `cdc_method` (`triggers` or `logical_replication`, Postgres).
+   - Full table scan frequency, on a table with formula fields only (Salesforce; `syncs_get` shows
+     the field on such tables): `app_1_full_table_scan_frequency_in_seconds` or
+     `app_2_full_table_scan_frequency_in_seconds` on the table pair, `3600` every hour, `14400`
+     every 4 hours, `21600` every 6 hours, `43200` every 12 hours, `86400` every 24 hours, or
+     `null` for never. It is a table pair field, so send the full `table_pairs` list with it. On a
+     new table pair it is saved right after the pair, once Stacksync has read the table's fields.
+   - Schema check frequency: `app_1.app_options.detect_schema_changes_frequency_in_seconds` or the
+     same on `app_2`, `1800` every 30 minutes, `3600` every hour, `21600` every 6 hours, `43200`
+     every 12 hours, `86400` every 24 hours. A value the sync already holds is kept when sent back
+     unchanged.
    - `sync_name` renames the sync.
-2. Read it back with `syncs_get`.
+2. Read it back with `syncs_get`. The settings are saved one by one: when one is refused, the
+   answer names the changes already applied, so send only the refused one again.
 
 ### Set Delete Protection
 
@@ -252,24 +302,32 @@ Tools: `syncs_get`, `syncs_webhooks_delete`
 Use when a field must sync one way inside a two-way pair, a child record needs its parent link, or
 schema changes must be handled automatically.
 
-Tools: `syncs_get`
+Tools: `syncs_get`, `syncs_save`
 
-1. Give the person the link to the sync in the web app; the MCP does not set these.
-2. Per-field direction: the sync's **Schema** tab. Associations: the **Associations** tab, see
-   [references/associations.md](references/associations.md). Schema update settings: the
-   **Propagate Schema Updates** tab; past changes: **Schema History**, see
-   [references/schema-changes.md](references/schema-changes.md).
-3. Read the result back with `syncs_get` once the person confirms.
+1. Call `syncs_get` with `include_columns: true` and keep the document.
+2. Per-field direction: set `flow_direction` on the field in the pair's `columns`. A field
+   without one follows its table pair, and an edit keeps every field direction it does not
+   change.
+3. Associations: set `associations` in the child table's `app_1_table_options` or
+   `app_2_table_options`, on an existing sync only, with ids from step 1; see
+   [references/associations.md](references/associations.md).
+4. Schema update settings: `app_options` on `app_1` or `app_2`, and each table's options; see
+   [references/schema-changes.md](references/schema-changes.md). Past changes are in the sync's
+   **Schema History** tab in the web app.
+5. Show the change and wait for a yes, call `syncs_save` with `sync_id` and the full
+   `table_pairs` list, then read it back with `syncs_get`.
 
 ### Start a workflow when a synced record changes
 
 Use when a workflow must run on each record change in an app.
 
-Tools: `syncs_triggers_save`
+Tools: `syncs_triggers_save`, `app_triggers_save`
 
-1. Through the MCP: add a sync event trigger of type `webhook` that calls the workflow's webhook
-   URL, one call per record, or of type `queue` that a queue consumer workflow reads.
-2. The workflow sync trigger is set in the web app only, as the first step of the workflow.
+1. On a sync that already holds the table: add a sync event trigger of type `webhook` that calls
+   the workflow's webhook URL, one call per record, or of type `queue` that a queue consumer
+   workflow reads.
+2. Without such a sync: give the workflow a sync trigger step and an app trigger, as in
+   `workflows`, **Add a workflow sync trigger**. The app trigger makes its own sync.
 
 ## Defaults and limits
 
@@ -278,6 +336,9 @@ Tools: `syncs_triggers_save`
 | Sync name | 3 to 63 characters, unique in the region |
 | New sync | Saved paused, in the region of its connections |
 | Data Sync Frequency, rate limit period | See "Set frequency, rate limits and app settings" |
+| Full table scan frequency | `3600`, `14400`, `21600`, `43200` or `86400` seconds, or `null` for never; tables with formula fields only |
+| Schema check frequency | `1800`, `3600`, `21600`, `43200` or `86400` seconds |
+| Name of a table or field Stacksync creates | Not empty; no whitespace, accented characters, double quotes, backticks, semicolons or control characters; at most 63 characters in Postgres, MySQL, MongoDB and MotherDuck |
 | `syncs_issues` page | 20 by default, 100 at most |
 | `syncs_resolve_issues` | 100 `issue_ids` at most, or `all_issues` |
 | Trigger defaults | `changes_from: any`, `column_names_from: app_1`, `execute_after: read`, active |
@@ -297,6 +358,8 @@ Tools: `syncs_triggers_save`
 | Send the full trigger document on every trigger change | The saved trigger becomes exactly the document sent |
 | When a trigger's cURL needs a key, the person adds it in the web app trigger editor | `syncs_get` returns the cURL as saved, headers included |
 | Never ask for a password or key; use the link from `connections_create` | Secrets in a chat leave the person's control |
+| After a refused setting on a new sync, edit the sync the answer names; never create it again | The sync was created before the setting was refused, so a second create makes a duplicate sync |
+| Take table names, field names and types from `connections_tables`; never guess them | A refusal lists the valid options, but a guessed name can match the wrong table or field |
 
 ## Common problems
 
@@ -310,4 +373,8 @@ For failed records, stopped syncs or late data, follow the runbook `troubleshoot
 | A table or field is missing in `connections_tables` | The connected account cannot see it | Fix access in the app (app notes in references), then read again |
 | The sync status is `paused_temporarily` | App errors stopped it | Follow `troubleshooting-a-sync` |
 | A trigger misfires or fails | See the trigger problems table | [references/trigger-document.md](references/trigger-document.md#common-problems) |
+| A save is refused with "valid values are" or a list of tables, fields or types | A table, field, type or setting value the app does not have | Pick one of the listed values with the person, then save again |
+| A new table or field name is refused | It holds whitespace, accented characters, double quotes, backticks, semicolons or control characters, or is over 63 characters in a database app | Ask the person for a name that follows the rule in "Defaults and limits"; a quote or semicolon would break the SQL that creates the table |
+| `create_column_on` is refused | The table's `can_create_columns` is false, or the pair also has `create_table_on` | Create the field in the app, then add it to `columns`; or let `create_table_on` copy it |
+| A save answers "Changes already applied" | The sync or its pairs were saved, then one setting was refused | Send only the refused setting again with the `sync_id` the answer names |
 | The webhook URL is refused | Not public `https`, not reachable when saved, holds `%`, `#` or a space, or the sync already has that type for that URL | Use a public `https` URL that answers, then save again |

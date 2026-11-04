@@ -28,10 +28,9 @@ fields "Read-only" in the field mapping.
 
 ## Per-field direction
 
-Per-field direction, beyond the read-only fields above, is set in the sync's field mapping in the
-web app today. The MCP tools set the direction of each table pair. When the plan needs a field to
-sync one way inside a two-way table, give the person the link to the sync and the list of fields
-to change.
+When the plan needs a field to sync one way inside a two-way table, set `flow_direction` on that
+field in the pair's `columns` with `syncs_save` (see `syncs`, **Set per-field direction,
+associations and schema settings**). Fields left without one follow the table pair.
 
 ## Before turning a table pair to two-way
 
