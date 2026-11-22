@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-02T22:34:26.283Z",
+  "generated_at": "2026-11-22T05:13:51.009Z",
   "skills": [
     {
       "name": "alert-on-sync-issues",
@@ -873,6 +873,44 @@
         "connectors",
         "variables"
       ],
+      "apps": [],
+      "blueprints": [],
+      "verified_on": null,
+      "solution": null
+    },
+    {
+      "name": "sharing-templates-on-the-marketplace",
+      "type": "runbook",
+      "status": "active",
+      "superseded_by": null,
+      "description": "Creates the workspace's partner profile on the Stacksync Marketplace (marketplace.stacksync.com) and shares the workspace's syncs, workflows and Genies there as templates other workspaces deploy, with a page, instructions an AI agent follows, and publishing. Use when someone wants to share or publish a template on the Stacksync Marketplace, create or edit their partner profile or its logo, or hide, update or delete a marketplace template.",
+      "path": "skills/sharing-templates-on-the-marketplace/SKILL.md",
+      "version": "1.0.0",
+      "owner": "@stacksyncdata/ai-team",
+      "areas": [
+        "marketplace"
+      ],
+      "tools": [
+        "marketplace_profile_get",
+        "marketplace_profile_save",
+        "marketplace_profile_image",
+        "marketplace_profile_publish",
+        "marketplace_profile_delete",
+        "marketplace_templates_list",
+        "marketplace_templates_get",
+        "marketplace_templates_save",
+        "marketplace_templates_publish",
+        "marketplace_templates_delete",
+        "syncs_list",
+        "syncs_get",
+        "workflows_list",
+        "workflows_get",
+        "genies_list",
+        "genies_get",
+        "queues_list",
+        "queues_get"
+      ],
+      "resources": [],
       "apps": [],
       "blueprints": [],
       "verified_on": null,
