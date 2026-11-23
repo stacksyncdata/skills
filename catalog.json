@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-22T05:13:51.009Z",
+  "generated_at": "2026-11-23T02:55:56.094Z",
   "skills": [
     {
       "name": "alert-on-sync-issues",
@@ -893,7 +893,7 @@
       "tools": [
         "marketplace_profile_get",
         "marketplace_profile_save",
-        "marketplace_profile_image",
+        "marketplace_profile_set_image",
         "marketplace_profile_publish",
         "marketplace_profile_delete",
         "marketplace_templates_list",

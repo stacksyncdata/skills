@@ -7,7 +7,7 @@ metadata:
   version: "1.0.0"
   owner: "@stacksyncdata/ai-team"
   areas: "marketplace"
-  tools: "marketplace_profile_get marketplace_profile_save marketplace_profile_image marketplace_profile_publish marketplace_profile_delete marketplace_templates_list marketplace_templates_get marketplace_templates_save marketplace_templates_publish marketplace_templates_delete syncs_list syncs_get workflows_list workflows_get genies_list genies_get queues_list queues_get"
+  tools: "marketplace_profile_get marketplace_profile_save marketplace_profile_set_image marketplace_profile_publish marketplace_profile_delete marketplace_templates_list marketplace_templates_get marketplace_templates_save marketplace_templates_publish marketplace_templates_delete syncs_list syncs_get workflows_list workflows_get genies_list genies_get queues_list queues_get"
 ---
 
 ## Use it when
@@ -38,7 +38,7 @@ or delete a marketplace template. To build the resources themselves, use `syncs`
    person gave: `website_url`, `category` (one of Implementation, Managed services, Referral,
    Resellers, Solution providers, Technology solutions), `connectors`, `industries`, `about`
    paragraphs. Pass `slug` only when the person asks for a specific address. Then
-   `marketplace_profile_image` with `image_kind` `logo` (mark and wordmark) and `icon` (square mark).
+   `marketplace_profile_set_image` with `image_kind` `logo` (mark and wordmark) and `icon` (square mark).
    Check: `marketplace_profile_get` shows the name, description and logo.
 3. **Pick what to share.** List the workspace's resources (`syncs_list`, `workflows_list`,
    `genies_list`, `queues_list`) and agree with the person which ones make one template. Read
