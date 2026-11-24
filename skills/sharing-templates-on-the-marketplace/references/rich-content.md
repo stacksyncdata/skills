@@ -95,7 +95,7 @@ Directives (`%%{ }`), `click` lines and scripts are refused. Keep it under 6,000
 ## Images
 
 - Write `![What the image shows](https://host/image.png)`. The marketplace copies a public `https://`
-  PNG, JPEG, WebP or SVG of at most 2 MB into its own storage when it saves the body. Links that
+  PNG, JPEG, WebP or SVG of at most 8 MB into its own storage when it saves the body. Links that
   start with `http://` or point to a private address are refused.
 - An image with no public URL: call `marketplace_body_upload_image` with `image_url`, or with `content_base64` and
   `content_type` for a small image you hold. Pass `template_slug` for a template body, leave it empty for the

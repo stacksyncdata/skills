@@ -25,7 +25,7 @@ or delete a marketplace template. To build the resources themselves, use `syncs`
   viewer is refused, so say so instead of retrying.
 - Nothing is public until published: a new profile is unlisted and a new template is a draft.
 - Ask the person for: the company name, one sentence describing what they do, their website, and
-  a public `https://` link to their logo (PNG, JPEG, WebP or SVG, at most 2 MB). The MCP copies
+  a public `https://` link to their logo (PNG, JPEG, WebP or SVG, at most 8 MB). The MCP copies
   images from a link; it cannot take a file from the chat.
 
 ## Steps
