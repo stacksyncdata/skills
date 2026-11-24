@@ -49,10 +49,12 @@ or delete a marketplace template. To build the resources themselves, use `syncs`
    fields with their valid values, and the instructions an AI agent follows to rebuild the setup
    in another workspace. Show the person the description, the overview and the instructions, and
    remove anything they name as private.
+   For a page with an architecture diagram, a chart, a table or an image, write a `body` as
+   `references/rich-content.md` describes; it is checked before the person confirms.
    Check: the person approved the text, and it holds no credential, customer name or record value.
 5. **Save the draft.** `marketplace_templates_save` without `template_slug`, with `document`
    holding `title`, `description`, `types`, `connectors`, and `instructions`, plus `industries`,
-   `overview` and `deployed_resources` when written. A later change passes `template_slug` and only
+   `overview`, `body` and `deployed_resources` when written. A later change passes `template_slug` and only
    the fields that change. A 422 answer names the field and its valid values: fix that field and
    save again.
    Check: `marketplace_templates_get` with `include_instructions` true returns the template with
