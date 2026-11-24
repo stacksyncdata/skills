@@ -98,7 +98,9 @@ text: The workflow writes to NetSuite. Connect a sandbox account first.
 ````
 
 - `callout`: `type` is `note` (default), `tip`, `warning` or `danger`. `title` is optional, `text` is required.
-- `columns`: 2 to 4 entries of `title` and `text`, each with an optional `href` and `link_label`.
+- `columns`: 2 to 4 entries of `title` and `text`, each with an optional `href` and `link_label`. `gap` is `none`,
+  `small` (default), `medium` or `large`, the space between columns. `style` is `cards` (default, grey boxes) or
+  `plain` (text without boxes). Exact sizes are not accepted.
 - `cta`: 1 to 3 `buttons` with `label` and `href`. `style` is `primary` (default) or `secondary`. Never
   point a button at a page that asks for credentials.
 - `video`: `url` of a YouTube, Vimeo or Loom video and a required `title` that says what the video shows.
