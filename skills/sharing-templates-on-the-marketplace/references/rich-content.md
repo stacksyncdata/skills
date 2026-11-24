@@ -99,9 +99,15 @@ Directives (`%%{ }`), `click` lines and scripts are refused. Keep it under 6,000
 - Write `![What the image shows](https://host/image.png)`. The marketplace copies a public `https://`
   PNG, JPEG, WebP or SVG of at most 8 MB into its own storage when it saves the body. Links that
   start with `http://` or point to a private address are refused.
-- An image with no public URL: call `marketplace_body_upload_image` with `image_url`, or with `content_base64` and
-  `content_type` for a small image you hold. Pass `template_slug` for a template body, leave it empty for the
-  profile body. The answer holds a `markdown` line: paste it into the body as it is, then save the body.
+- An image with a public `https://` URL needs no tool: write it in the body.
+- An image with no public URL, and small (about 3 MB or less): call `marketplace_body_upload_image` with
+  `content_base64` and `content_type`.
+- A file on the person's computer, or a larger one (up to 8 MB): call `marketplace_body_upload_link`. It returns a
+  link valid for 15 minutes and 10 images. If you have a shell, run the returned `curl -T ./image.png '<url>'` line:
+  the file goes straight to the marketplace and never passes through you. If you have no shell, give the person
+  the link: they open it, drop the file, and send you the line it shows.
+- Both upload routes answer a `markdown` line: paste it into the body as it is, then save the body.
+  Pass `template_slug` for a template body, leave it empty for the profile body.
 - The logo, icon and quote photo are not body images: set them with `marketplace_profile_set_image`.
 - The alt text is the caption people see and the description an agent reads: say what the image shows.
 - Never show credentials, customer names or record values in an image: the page is public.
