@@ -97,6 +97,10 @@ Directives (`%%{ }`), `click` lines and scripts are refused. Keep it under 6,000
 - Write `![What the image shows](https://host/image.png)`. The marketplace copies a public `https://`
   PNG, JPEG, WebP or SVG of at most 2 MB into its own storage when it saves the body. Links that
   start with `http://` or point to a private address are refused.
+- An image with no public URL: call `marketplace_body_upload_image` with `image_url`, or with `content_base64` and
+  `content_type` for a small image you hold. Pass `template_slug` for a template body, leave it empty for the
+  profile body. The answer holds a `markdown` line: paste it into the body as it is, then save the body.
+- The logo, icon and quote photo are not body images: set them with `marketplace_profile_set_image`.
 - The alt text is the caption people see and the description an agent reads: say what the image shows.
 - Never show credentials, customer names or record values in an image: the page is public.
 
