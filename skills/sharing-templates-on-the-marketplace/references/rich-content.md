@@ -13,6 +13,8 @@ agents that read the page as Markdown, so write each block so the content is cle
 - The marketplace checks the body before the person is asked to confirm. A refusal lists every
   problem with its block and line: fix them all, then save again.
 - An empty `body` removes it.
+- To try a draft without saving it, call `marketplace_body_check`. For the current block schemas and examples,
+  call `marketplace_options_get` (the `body.blocks` part): it is always the version the marketplace enforces.
 
 ## Choose the block
 
@@ -95,8 +97,12 @@ Directives (`%%{ }`), `click` lines and scripts are refused. Keep it under 6,000
 ## Images
 
 - Write `![What the image shows](https://host/image.png)`. The marketplace copies a public `https://`
-  PNG, JPEG, WebP or SVG of at most 2 MB into its own storage when it saves the body. Links that
+  PNG, JPEG, WebP or SVG of at most 8 MB into its own storage when it saves the body. Links that
   start with `http://` or point to a private address are refused.
+- An image with no public URL: call `marketplace_body_upload_image` with `image_url`, or with `content_base64` and
+  `content_type` for a small image you hold. Pass `template_slug` for a template body, leave it empty for the
+  profile body. The answer holds a `markdown` line: paste it into the body as it is, then save the body.
+- The logo, icon and quote photo are not body images: set them with `marketplace_profile_set_image`.
 - The alt text is the caption people see and the description an agent reads: say what the image shows.
 - Never show credentials, customer names or record values in an image: the page is public.
 
