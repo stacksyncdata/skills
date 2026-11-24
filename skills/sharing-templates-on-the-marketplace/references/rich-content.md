@@ -13,6 +13,8 @@ agents that read the page as Markdown, so write each block so the content is cle
 - The marketplace checks the body before the person is asked to confirm. A refusal lists every
   problem with its block and line: fix them all, then save again.
 - An empty `body` removes it.
+- To try a draft without saving it, call `marketplace_body_check`. For the current block schemas and examples,
+  call `marketplace_options_get` (the `body.blocks` part): it is always the version the marketplace enforces.
 
 ## Choose the block
 
