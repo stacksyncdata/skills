@@ -1,7 +1,7 @@
 # Rich content for marketplace pages
 
 What the `body` field of `marketplace_profile_save` and `marketplace_templates_save` takes: Markdown
-with tables, images, and three kinds of block. A template's body shows as a "Details" section after
+with tables, images, and seven kinds of block. A template's body shows as a "Details" section after
 its overview. A profile's body shows as a "Profile" section. The text of every block also reaches
 agents that read the page as Markdown, so write each block so the content is clear without the picture.
 
@@ -24,6 +24,10 @@ agents that read the page as Markdown, so write each block so the content is cle
 | Numbers over time or across categories | `chart` | Drawn from data you give; no image to maintain |
 | A flow with branches, a sequence of calls, a data model | `mermaid` | Layout is automatic, so it fits shapes a row of boxes cannot |
 | A list of resources, a comparison | Markdown table | Plain and readable by agents |
+| A prerequisite, a warning before a write, a tip | `callout` | Stands out from the text; agents read it as a quote |
+| Two to four steps, benefits or options side by side | `columns` | Stacks on a phone; each can link somewhere |
+| The next step the reader should take | `cta` | One to three buttons, kept to https links, paths on the site and `mailto:` |
+| A walkthrough that exists as a video | `video` | YouTube, Vimeo or Loom only; agents get the link and the title |
 | A screenshot or photo | Image | Only when the picture is the content |
 
 ## diagram
@@ -79,6 +83,26 @@ data:
 - `grouped-bar` and `stacked-bar` need a `series` on every point. `line` and `area` take `series` to draw several lines.
 - `pie` and `donut` take `label` and `value` only, and no negative values.
 - Use numbers the person can check. Say where they come from in `caption`.
+
+## callout, columns, cta and video
+
+These four are plain text: no Markdown or HTML inside. Read `body.blocks` from `marketplace_options_get` for
+each schema and an example.
+
+````
+```callout
+type: warning
+title: Run it on a sandbox first
+text: The workflow writes to NetSuite. Connect a sandbox account first.
+```
+````
+
+- `callout`: `type` is `note` (default), `tip`, `warning` or `danger`. `title` is optional, `text` is required.
+- `columns`: 2 to 4 entries of `title` and `text`, each with an optional `href` and `link_label`.
+- `cta`: 1 to 3 `buttons` with `label` and `href`. `style` is `primary` (default) or `secondary`. Never
+  point a button at a page that asks for credentials.
+- `video`: `url` of a YouTube, Vimeo or Loom video and a required `title` that says what the video shows.
+  Any other host is refused.
 
 ## mermaid
 
