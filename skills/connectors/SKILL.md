@@ -4,7 +4,7 @@ description: Finds apps and built-in modules in the Stacksync catalog through th
 license: Apache-2.0
 metadata:
   type: resource
-  version: "1.3.0"
+  version: "1.4.0"
   owner: "@stacksyncdata/ai-team"
   areas: "connectors"
   resource: "connectors"
@@ -123,6 +123,14 @@ Tools: `connectors_list`, `connectors_get`, and the tool of the action's operati
 
    - The `search`, `get`, `query` and `read_files` tools only read: they run at once and return
      the data.
+   - To count records, use the app's own count: a total field in a search answer (for example
+     HubSpot `total`, Salesforce `total_size`) or a count query (`SELECT COUNT(*)`, SOQL
+     `COUNT()`). If the app gives neither, page through until there is no next page and add up the
+     pages. Never report the number of records in one answer as the total; a field named count can
+     also be just the page size.
+   - Ask only for what the task needs: pass `properties` (or the action's fields option) with the
+     fields you need and a small `limit`. An answer too large for one reply is cut to whole records
+     and says how many were shown; ask for fewer properties or a smaller page to see the rest.
    - The other tools change data or reach people outside the workspace. They run directly, unless
      the workspace turned on "Ask before every change" or the app's guardrails ask the person:
      then the person accepts it first.
